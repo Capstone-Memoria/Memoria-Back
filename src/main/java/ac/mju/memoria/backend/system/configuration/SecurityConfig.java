@@ -8,28 +8,26 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    private final JwtAutoConfigurerFactory jwtAutoConfigurerFactory;
+    private final UserService userService;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(auth -> auth.disable())
-                .formLogin(auth -> auth.disable())
-                .httpBasic(auth -> auth.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/private-diary").hasRole("OWNER")
-                        .requestMatchers("/share-diary").hasRole("GROUP")
-                        .requestMatchers("/daily-diary").hasRole("USER").anyRequest().authenticated());
+    SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        jwtAutoConfigurerFactory.create(userService)
+                .pathConfigure((it) -> {
+                    it.includeAll();
+                    it.excludePath("/api/auth/register");
+                    it.excludePath("/api/auth/login");
+                    it.excludePath("/api/auth/email-exist");
+                })
+                .configure(httpSecurity);
 
-        http
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
-        return http.build();
+        return httpSecurity.build();
     }
 
     @Bean

@@ -1,2 +1,21 @@
+spring:
+  profiles:
+    active: local
+  main:
+    allow-bean-definition-overriding: true
+  data:
+    web:
+      pageable:
+        one-indexed-parameters: true
+
+# 로그 레벨 설정
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.type: trace # 실제 들어가는 파라미터값 찍어주는 설정
+
+server:
+  port: 8080
+
 jwt:
-  secret: "bX94mCpBzTkZpwnM0Pp+W1b6XyRIMcXo3vGQ4LmN5kw="
+  secret: testadsadsffsdahjkafsdhjkldsfahkj12123132fdsa12123

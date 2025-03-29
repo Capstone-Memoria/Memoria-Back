@@ -12,6 +12,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @Getter @Setter
 @SuperBuilder
+@Table(name = "USER_ACCOUNT")
 public class User extends TimeStampedEntity {
 
     @Id @Setter(AccessLevel.NONE)
