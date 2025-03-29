@@ -14,7 +14,6 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @Table(name = "USER_ACCOUNT")
 public class User extends TimeStampedEntity {
-
     @Id @Setter(AccessLevel.NONE)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;

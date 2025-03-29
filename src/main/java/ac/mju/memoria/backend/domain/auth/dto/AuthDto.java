@@ -30,18 +30,16 @@ public class AuthDto {
     public static class SignInResponse {
         private String accessToken;
         private LocalDateTime accessTokenExpiresAt;
-        private String refreshToken;
-        private LocalDateTime refreshTokenExpiresAt;
-        private UserDto.Response user;
+        private UserDto.UserResponse user;
 
-        public static SignInResponse of(String accessToken, String refreshToken,
-                                        UserDto.Response user, LocalDateTime accessTokenExpiresAt,
-                                        LocalDateTime refreshTokenExpiresAt) {
+        public static SignInResponse of(
+                String accessToken,
+                UserDto.UserResponse user,
+                LocalDateTime accessTokenExpiresAt
+        ) {
             return SignInResponse.builder()
                     .accessToken(accessToken)
                     .accessTokenExpiresAt(accessTokenExpiresAt)
-                    .refreshToken(refreshToken)
-                    .refreshTokenExpiresAt(refreshTokenExpiresAt)
                     .user(user)
                     .build();
         }
@@ -66,24 +64,6 @@ public class AuthDto {
         }
     }
 
-    // 회원가입 응답 DTO
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Builder
-    public static class SignUpResponse {
-        private String email;
-        private String nickName;
-        private LocalDateTime createdAt;
-
-        public static SignUpResponse from(User user) {
-            return SignUpResponse.builder()
-                    .email(user.getEmail())
-                    .nickName(user.getNickName())
-                    .createdAt(user.getCreatedAt())
-                    .build();
-        }
-    }
 
     // 이메일 인증 확인 요청 DTO
     @Data

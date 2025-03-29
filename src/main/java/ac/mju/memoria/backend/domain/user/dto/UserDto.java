@@ -15,14 +15,14 @@ public class UserDto {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class Response {
+    public static class UserResponse {
         private String nickName;
         private String email;
         private LocalDateTime createdAt;
 
         // Entity -> DTO 변환 메서드
-        public static Response from(User user) {
-            return Response.builder()
+        public static UserResponse from(User user) {
+            return UserResponse.builder()
                     .nickName(user.getNickName())
                     .email(user.getEmail())
                     .createdAt(user.getCreatedAt()) // LocalDateTime -> String으로 변환
