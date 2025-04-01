@@ -24,7 +24,7 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         jwtAutoConfigurerFactory.create(userService)
                 .pathConfigure((it) -> {
-                    it.includeAll();
+                    it.includePath("/api/**");
                     it.excludePath("/api/auth/register");
                     it.excludePath("/api/auth/login");
                     it.excludePath("/api/auth/email-exist");
