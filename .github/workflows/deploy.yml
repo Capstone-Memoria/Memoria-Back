@@ -44,7 +44,7 @@ jobs:
           rm -rf ./src/main/resources/static/* # 기존 파일 삭제 (선택적)
           mkdir -p ./src/main/resources/static # static 폴더 없을 경우 생성
           # React 빌드 결과 폴더가 'build'가 아니면 수정 (예: dist)
-          cp -r ./frontend/build/* ./src/main/resources/static/ # <<<--- React 빌드 결과 폴더명 및 백엔드 static 경로 확인
+          cp -r ./frontend/dist/* ./src/main/resources/static/ # <<<--- React 빌드 결과 폴더명 및 백엔드 static 경로 확인
 
       # 6. Java 환경 설정
       - name: Setup Java
