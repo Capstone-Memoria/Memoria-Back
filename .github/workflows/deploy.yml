@@ -106,7 +106,14 @@ jobs:
             docker load -i ${{ secrets.DEPLOY_PATH }}/memoria.tar
             docker stop memoria || true
             docker rm memoria || true
-            docker run -d --name memoria --network mariadb_net -p 2387:8080 memoria:latest # <<<--- 포트, 네트워크 등 환경에 맞게 확인
+            docker run -d --name memoria \
+              --network mariadb_net \
+              -p 2873:8080 \
+              -e DB_HOST=${{ secrets.DB_HOST }} \
+              -e DB_NAME=${{ secrets.DB_NAME }} \
+              -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
+              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              memoria:latest # 이미지 이름은 맨 뒤에 위치
             echo "Docker container deployed on remote server"
           EOF
 
