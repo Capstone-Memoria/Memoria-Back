@@ -27,7 +27,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4 # v3 -> v4 권장
         with:
-          node-version: "18"
+          node-version: "20"
 
       # 4. 프론트엔드 의존성 설치 및 빌드
       - name: Build Frontend
