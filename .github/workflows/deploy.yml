@@ -53,6 +53,11 @@ jobs:
           java-version: "17"
           distribution: "temurin"
 
+      # 7. gradlew 파일에 실행 권한 부여
+      - name: Make gradlew executable
+        working-directory: ./backend # <<<--- gradlew 파일이 있는 경로 확인 및 지정
+        run: chmod +x ./gradlew
+
       # 7. 백엔드 빌드 (Gradle bootJar)
       #    백엔드 코드가 루트에 바로 있는 경우 working-directory 제거 또는 수정
       - name: Build Backend with Gradle
