@@ -107,7 +107,7 @@ jobs:
             docker stop memoria || true
             docker rm memoria || true
             docker run -d --name memoria \
-              --network postgres_net \
+              --network postgres_postgres_net \
               -p 2873:8080 \
               -e DB_HOST=${{ secrets.DB_HOST }} \
               -e DB_NAME=${{ secrets.DB_NAME }} \
