@@ -1,7 +1,7 @@
 FROM azul/zulu-openjdk-alpine:17-latest
 EXPOSE 8080
 
-ENV PROFILE=dev
+ENV PROFILE=remote
 ARG JAR_FILE=build/libs/*.jar
 
 COPY ${JAR_FILE} app.jar
