@@ -11,97 +11,117 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. 백엔드 코드 체크아웃 (현재 레포지토리)
+      # 1. 백엔드 코드 체크아웃
       - name: Checkout Backend Repository
-        uses: actions/checkout@v4 # v3 -> v4 권장
+        uses: actions/checkout@v4
 
-      # 2. 프론트엔드 코드 체크아웃 (원격 레포지토리)
+      # 2. 프론트엔드 코드 체크아웃
       - name: Checkout Frontend Repository
         uses: actions/checkout@v4
         with:
-          repository: Capstone-Memoria/Memoria-Front # <<<--- 프론트엔드 레포지토리 경로 입력! (예: myOrg/myFrontend)
-          path: frontend  # 'frontend' 라는 서브디렉토리에 체크아웃
-          ref: main # <<<--- 가져올 프론트엔드 브랜치 지정 (필요시 수정)
+          repository: Capstone-Memoria/Memoria-Front
+          path: frontend
+          ref: main
 
       # 3. Node.js 환경 설정
       - name: Setup Node.js
-        uses: actions/setup-node@v4 # v3 -> v4 권장
+        uses: actions/setup-node@v4
         with:
           node-version: "20"
 
+      # --- Node.js 캐시 설정 ---
+      - name: Cache Node.js modules
+        uses: actions/cache@v4 # v3 -> v4 권장
+        id: npm-cache # 캐시 히트 여부를 확인하기 위한 id
+        with:
+          path: ./frontend/node_modules # 캐시할 경로 (node_modules)
+          # 키는 OS, Node 버전, package-lock.json 해시를 조합하여 생성
+          key: ${{ runner.os }}-node-${{ hashFiles('./frontend/package-lock.json') }}
+          # 이전 캐시 복원을 위한 키 (lock 파일 변경 시 이전 캐시 활용)
+          restore-keys: |
+            ${{ runner.os }}-node-
+      # --- Node.js 캐시 설정 끝 ---
+
       # 4. 프론트엔드 의존성 설치 및 빌드
       - name: Build Frontend
-        working-directory: ./frontend # 체크아웃된 'frontend' 디렉토리에서 실행
+        working-directory: ./frontend
+        # 캐시가 없는 경우에만 npm install 실행 (선택적 최적화)
+        # if: steps.npm-cache.outputs.cache-hit != 'true' # 항상 설치하는 것이 안전할 수 있음
         run: |
           npm install
           npm run build
 
       # 5. 빌드된 프론트엔드 파일을 Spring Boot static 폴더로 복사
-      #    백엔드 코드가 루트에 바로 있는 경우 ./backend 경로 제거
       - name: Copy frontend build to Spring Boot static resources
         run: |
-          echo "Copying frontend build from $(pwd)/frontend/build to $(pwd)/src/main/resources/static" # <<<--- 백엔드 경로가 루트가 아니면 수정 (예: ./backend/src/...)
-          rm -rf ./src/main/resources/static/* # 기존 파일 삭제 (선택적)
-          mkdir -p ./src/main/resources/static # static 폴더 없을 경우 생성
-          # React 빌드 결과 폴더가 'build'가 아니면 수정 (예: dist)
-          cp -r ./frontend/dist/* ./src/main/resources/static/ # <<<--- React 빌드 결과 폴더명 및 백엔드 static 경로 확인
+          echo "Copying frontend build from $(pwd)/frontend/dist to $(pwd)/src/main/resources/static" # React 빌드 결과 폴더 dist로 수정됨
+          rm -rf ./src/main/resources/static/*
+          mkdir -p ./src/main/resources/static
+          cp -r ./frontend/dist/* ./src/main/resources/static/
 
       # 6. Java 환경 설정
       - name: Setup Java
-        uses: actions/setup-java@v4 # v3 -> v4 권장
+        uses: actions/setup-java@v4
         with:
           java-version: "17"
           distribution: "temurin"
+
+      # --- Gradle 캐시 설정 ---
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: | # 여러 경로 캐싱 가능
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          # 키는 OS, Java 버전, 관련 Gradle 파일들의 해시를 조합
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      # --- Gradle 캐시 설정 끝 ---
 
       # 7. gradlew 파일에 실행 권한 부여
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      # 7. 백엔드 빌드 (Gradle bootJar)
-      #    백엔드 코드가 루트에 바로 있는 경우 working-directory 제거 또는 수정
+      # 8. 백엔드 빌드 (Gradle bootJar)
       - name: Build Backend with Gradle
-        # working-directory: ./backend # <<<--- 백엔드 프로젝트가 서브디렉토리에 있다면 주석 해제 또는 경로 수정
-        run: |
-          ./gradlew bootJar
+        run: ./gradlew bootJar
 
-      # 8. Docker 이미지 빌드
-      #    Dockerfile 위치가 루트가 아니면 working-directory 필요
+      # 9. Docker 이미지 빌드
+      # Dockerfile 자체의 레이어 캐싱 활용. Dockerfile 구조 최적화가 중요.
+      # (예: 자주 변경되지 않는 의존성 설치 부분을 앞쪽에 배치)
       - name: Build Docker Image
-        # working-directory: ./backend # <<<--- Dockerfile 위치가 서브디렉토리면 주석 해제 또는 경로 수정
         run: |
-          docker build -t memoria:latest . # <<<--- Dockerfile 위치 기준
+          docker build -t memoria:latest .
 
-      # 9. Docker 이미지를 tar 파일로 저장
+      # 10. Docker 이미지를 tar 파일로 저장
       - name: Save Docker Image
         run: |
           docker save -o memoria.tar memoria:latest
 
-      # 10. SSH 키 생성 및 설정
+      # 11. SSH 키 생성 및 설정
       - name: Create SSH Key
         run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private-key.pem # 홈 디렉토리 대신 현재 디렉토리에 생성
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > private-key.pem
           chmod 600 private-key.pem
           echo "SSH key created and permissions set"
 
-      # 11. 서버를 known_hosts에 추가
+      # 12. 서버를 known_hosts에 추가
       - name: Add Known Host
         run: |
           mkdir -p ~/.ssh
-          # 서버 포트가 기본 22가 아니면 -p 옵션으로 명시해야 합니다.
           ssh-keyscan -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
           echo "Added ${{ secrets.SERVER_HOST }} to known_hosts"
 
-      # 12. SCP로 Docker 이미지 전송
+      # 13. SCP로 Docker 이미지 전송
       - name: Transfer Docker Image to Remote Server
         run: |
-          # SSH 키 파일 경로 수정 (현재 디렉토리)
-          scp -i ./private-key.pem -P ${{ secrets.SERVER_PORT }} memoria.tar ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.DEPLOY_PATH }}/memoria.tar # <<<--- circling.tar -> memoria.tar 수정됨
+          scp -i ./private-key.pem -P ${{ secrets.SERVER_PORT }} memoria.tar ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.DEPLOY_PATH }}/memoria.tar
           echo "Docker image transferred to remote server"
 
-      # 13. SSH로 원격 서버 접속 후 Docker 실행
+      # 14. SSH로 원격 서버 접속 후 Docker 실행
       - name: Deploy to Remote Server
         run: |
-          # SSH 키 파일 경로 수정 (현재 디렉토리)
           ssh -i ./private-key.pem -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
             docker load -i ${{ secrets.DEPLOY_PATH }}/memoria.tar
             docker stop memoria || true
@@ -113,12 +133,12 @@ jobs:
               -e DB_NAME=${{ secrets.DB_NAME }} \
               -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
               -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-              memoria:latest # 이미지 이름은 맨 뒤에 위치
+              memoria:latest
             echo "Docker container deployed on remote server"
           EOF
 
-      # 14. 정리
+      # 15. 정리
       - name: Cleanup
         run: |
-          rm -f ./private-key.pem # 현재 디렉토리의 키 파일 삭제
+          rm -f ./private-key.pem
           echo "Cleaned up SSH key"
