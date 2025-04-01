@@ -19,7 +19,7 @@ jobs:
       - name: Checkout Frontend Repository
         uses: actions/checkout@v4
         with:
-          repository: your-github-username/your-frontend-repo-name # <<<--- 프론트엔드 레포지토리 경로 입력! (예: myOrg/myFrontend)
+          repository: Capstone-Memoria/Memoria-Front # <<<--- 프론트엔드 레포지토리 경로 입력! (예: myOrg/myFrontend)
           path: frontend  # 'frontend' 라는 서브디렉토리에 체크아웃
           ref: main # <<<--- 가져올 프론트엔드 브랜치 지정 (필요시 수정)
 
