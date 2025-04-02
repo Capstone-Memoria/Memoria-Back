@@ -5,6 +5,8 @@ on:
     branches:
       - main
   workflow_dispatch: # 수동 실행 가능
+  repository_dispatch:
+    types: [frontend-update]
 
 jobs:
   build-and-deploy:
