@@ -15,6 +15,10 @@ public enum ErrorCode {
     //Auth
     AUTH_PASSWORD_NOT_MATCH(401, "비밀번호가 올바르지 않습니다."),
 
+    //User
+    USER_ALREADY_JOINED(400, "이미 가입된 그룹입니다."),
+    USER_NOT_FOUND(404, "존재하지 않는 사용자입니다."),
+
     //Other
     INTERNAL_SERVER_ERROR(500, "오류가 발생했습니다."), ;
 
