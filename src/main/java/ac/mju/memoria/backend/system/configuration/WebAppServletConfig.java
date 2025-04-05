@@ -43,19 +43,14 @@ public class WebAppServletConfig implements WebMvcConfigurer {
     @Override
     public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
         String dateFormat = "yyyy-MM-dd";
-        String dateTimeFormat = "yyyy-MM-dd HH:mm";
 
         LocalDateSerializer localDateSerializer = new LocalDateSerializer(DateTimeFormatter.ofPattern(dateFormat));
-        LocalDateTimeSerializer localDateTimeSerializer = new LocalDateTimeSerializer(DateTimeFormatter.ofPattern(dateTimeFormat));
         LocalDateDeserializer localDateDeserializer = new LocalDateDeserializer(DateTimeFormatter.ofPattern(dateFormat));
-        LocalDateTimeDeserializer localDateTimeDeserializer = new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern(dateTimeFormat));
 
         ObjectMapper objectMapper = Jackson2ObjectMapperBuilder
                 .json()
                 .serializerByType(LocalDate.class, localDateSerializer)
-                .serializerByType(LocalDateTime.class, localDateTimeSerializer)
                 .deserializerByType(LocalDate.class, localDateDeserializer)
-                .deserializerByType(LocalDateTime.class, localDateTimeDeserializer)
                 .build();
 
         converters.add(0, new MappingJackson2HttpMessageConverter(objectMapper));
