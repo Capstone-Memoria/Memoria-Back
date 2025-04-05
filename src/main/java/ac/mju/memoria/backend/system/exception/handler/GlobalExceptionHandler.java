@@ -3,6 +3,7 @@ package ac.mju.memoria.backend.system.exception.handler;
 import ac.mju.memoria.backend.system.exception.dto.ErrorDto;
 import ac.mju.memoria.backend.system.exception.model.ErrorCode;
 import ac.mju.memoria.backend.system.exception.model.RestException;
+import ac.mju.memoria.backend.system.security.exception.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,4 +51,41 @@ public class GlobalExceptionHandler {
                 .body(ErrorDto.ErrorResponse.from(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 
+    @ExceptionHandler({JwtTokenMissingException.class})
+    public ResponseEntity<ErrorDto.ErrorResponse> handleJwtTokenMissingException() {
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ErrorDto.ErrorResponse.from(ErrorCode.AUTH_TOKEN_NOT_FOUND));
+    }
+
+    @ExceptionHandler({JwtTokenExpiredException.class})
+    public ResponseEntity<ErrorDto.ErrorResponse> handleJwtTokenExpiredException() {
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ErrorDto.ErrorResponse.from(ErrorCode.AUTH_TOKEN_EXPIRED));
+    }
+
+    @ExceptionHandler({JwtInvalidTokenException.class})
+    public ResponseEntity<ErrorDto.ErrorResponse> handleJwtInvalidTokenException() {
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ErrorDto.ErrorResponse.from(ErrorCode.AUTH_TOKEN_INVALID));
+    }
+    @ExceptionHandler({JwtParseException.class})
+    public ResponseEntity<ErrorDto.ErrorResponse> handleJJwtParseException() {
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ErrorDto.ErrorResponse.from(ErrorCode.AUTH_TOKEN_MALFORMED));
+    }
+    @ExceptionHandler({JwtAuthenticationException.class})
+    public ResponseEntity<ErrorDto.ErrorResponse> handleJwtAuthenticationException() {
+
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(ErrorDto.ErrorResponse.from(ErrorCode.AUTH_AUTHENTICATION_FAILED));
+    }
 }

@@ -7,15 +7,20 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter @Setter
 @SuperBuilder
-@Table(name = "USER_ACCOUNT")
+@Table(name = "users")
 public class User extends TimeStampedEntity {
+
     @Id @Setter(AccessLevel.NONE)
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "user_id")
     private Integer id;
 
     @NotBlank(message = "닉네임을 입력해야 합니다.")
@@ -27,7 +32,4 @@ public class User extends TimeStampedEntity {
 
     @NotBlank(message = "비밀번호를 입력해야 합니다.")
     private String password;
-
-    @Enumerated(EnumType.STRING)
-    private Role role;
 }

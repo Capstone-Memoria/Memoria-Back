@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class UserDto {
-
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -19,35 +19,33 @@ public class UserDto {
         private String nickName;
         private String email;
         private LocalDateTime createdAt;
+        private LocalDateTime lastModifiedAt;
 
-        // Entity -> DTO 변환 메서드
         public static UserResponse from(User user) {
             return UserResponse.builder()
                     .nickName(user.getNickName())
                     .email(user.getEmail())
-                    .createdAt(user.getCreatedAt()) // LocalDateTime -> String으로 변환
+                    .createdAt(user.getCreatedAt())
+                    .lastModifiedAt(user.getLastModifiedAt())
                     .build();
         }
+    }
 
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class UserUpdateRequest {
+        private String nickName;
+        private String password;
 
-        // 사용자 정보 수정 요청용 DTO
-        @Data
-        @NoArgsConstructor
-        @AllArgsConstructor
-        @Builder
-        public static class Request {
-            private String nickName;
-            private String email;
-            private String password;
-
-            public User toEntity(PasswordEncoder encoder) {
-                return User.builder()
-                        .nickName(nickName)
-                        .email(email)
-                        .password(encoder.encode(password)) // 비밀번호 인코딩
-                        .build();
+        public void applyTo(User user, PasswordEncoder passwordEncoder) {
+            if (Objects.nonNull(password)) {
+                user.setPassword(passwordEncoder.encode(password));
             }
-
+            if (Objects.nonNull(nickName)) {
+                user.setNickName(nickName);
+            }
         }
     }
 }
