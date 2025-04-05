@@ -34,22 +34,12 @@ public class UserService implements UserLoadService {
         User user = userRepository.findById(userId).
                 orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND));
 
-        String newPassword = request.getPassword();
-
-        if (StringUtils.hasText(newPassword)) {
-            user.setPassword(passwordEncoder.encode(newPassword));
-        }
-
-        String newNickName = request.getNickName();
-
-        if (StringUtils.hasText(newNickName)) {
-            user.setNickName(newNickName);
-        }
+        request.applyTo(user, passwordEncoder);
 
         return UserDto.UserResponse.from(user);
     }
 
-    public UserDto.UserResponse viewProfile(Integer userId) {
+    public UserDto.UserResponse getProfile(Integer userId) {
 
         User user = userRepository.findById(userId).
                 orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND));

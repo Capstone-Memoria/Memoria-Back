@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 @Getter @Setter
 @RequestMapping("/api/user/{userId}")
 public class UserController {
-
     private final UserService userService;
 
     @PatchMapping
@@ -21,9 +20,7 @@ public class UserController {
             @PathVariable Integer userId,
             @RequestBody UserDto.UserUpdateRequest request
     ) {
-
         UserDto.UserResponse updatedUser = userService.updateProfile(userId, request);
-
         return ResponseEntity.ok(updatedUser);
     }
 
@@ -31,9 +28,7 @@ public class UserController {
     public ResponseEntity<UserDto.UserResponse> viewProfile(
             @PathVariable Integer userId
     ) {
-
-        UserDto.UserResponse user = userService.viewProfile(userId);
-
+        UserDto.UserResponse user = userService.getProfile(userId);
         return ResponseEntity.ok(user);
     }
 }
