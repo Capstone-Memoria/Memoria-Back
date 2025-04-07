@@ -16,17 +16,9 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class UserService implements UserLoadService {
+public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
-
-    public Optional<UserDetails> loadUserByKey(String key) {
-        var foundUser = userRepository.findByEmail(key);
-
-        return foundUser
-                .map(UserDetails::from);
-    }
 
     public UserDto.UserResponse updateProfile(
             Integer userId, UserDto.UserUpdateRequest request) {

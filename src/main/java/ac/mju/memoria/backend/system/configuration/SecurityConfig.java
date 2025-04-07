@@ -1,5 +1,6 @@
 package ac.mju.memoria.backend.system.configuration;
 
+import ac.mju.memoria.backend.domain.user.service.UserLoadServiceImpl;
 import ac.mju.memoria.backend.domain.user.service.UserService;
 import ac.mju.memoria.backend.system.security.configurer.JwtAutoConfigurerFactory;
 import lombok.RequiredArgsConstructor;
@@ -18,11 +19,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtAutoConfigurerFactory jwtAutoConfigurerFactory;
-    private final UserService userService;
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        jwtAutoConfigurerFactory.create(userService)
+    SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, UserLoadServiceImpl userLoadServiceImpl) throws Exception {
+        jwtAutoConfigurerFactory.create(userLoadServiceImpl)
                 .pathConfigure((it) -> {
                     it.includePath("/api/**");
                     it.excludePath("/api/auth/register");
