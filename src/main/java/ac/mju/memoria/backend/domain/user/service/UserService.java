@@ -1,10 +1,16 @@
 package ac.mju.memoria.backend.domain.user.service;
 
+import ac.mju.memoria.backend.domain.user.dto.UserDto;
+import ac.mju.memoria.backend.domain.user.entity.User;
 import ac.mju.memoria.backend.domain.user.repository.UserRepository;
+import ac.mju.memoria.backend.system.exception.model.ErrorCode;
+import ac.mju.memoria.backend.system.exception.model.RestException;
 import ac.mju.memoria.backend.system.security.model.UserDetails;
 import ac.mju.memoria.backend.system.security.service.UserLoadService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.Optional;
 
@@ -12,6 +18,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService implements UserLoadService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
 
     public Optional<UserDetails> loadUserByKey(String key) {
@@ -19,6 +26,25 @@ public class UserService implements UserLoadService {
 
         return foundUser
                 .map(UserDetails::from);
+    }
+
+    public UserDto.UserResponse updateProfile(
+            Integer userId, UserDto.UserUpdateRequest request) {
+
+        User user = userRepository.findById(userId).
+                orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND));
+
+        request.applyTo(user, passwordEncoder);
+
+        return UserDto.UserResponse.from(user);
+    }
+
+    public UserDto.UserResponse getProfile(Integer userId) {
+
+        User user = userRepository.findById(userId).
+                orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND));
+
+        return UserDto.UserResponse.from(user);
     }
 
 }
