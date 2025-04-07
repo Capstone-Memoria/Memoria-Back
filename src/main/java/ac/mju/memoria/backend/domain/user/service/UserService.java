@@ -25,8 +25,8 @@ public class UserService {
     public UserDto.UserResponse updateProfile(
             Integer userId, UserDto.UserUpdateRequest request
     ) {
-        User user = userRepository.findById(userId).
-                orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND));
+        User user = userRepository.findById(userId)
+                        .orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND));
 
         request.applyTo(user, passwordEncoder);
 
@@ -35,8 +35,8 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserDto.UserResponse getProfile(Integer userId) {
-        User user = userRepository.findById(userId).
-                orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND));
+        User user = userRepository.findById(userId)
+                        .orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND));
 
         return UserDto.UserResponse.from(user);
     }
