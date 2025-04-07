@@ -10,6 +10,7 @@ import ac.mju.memoria.backend.system.security.service.UserLoadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.Optional;
@@ -20,9 +21,10 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional
     public UserDto.UserResponse updateProfile(
-            Integer userId, UserDto.UserUpdateRequest request) {
-
+            Integer userId, UserDto.UserUpdateRequest request
+    ) {
         User user = userRepository.findById(userId).
                 orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND));
 
@@ -31,8 +33,8 @@ public class UserService {
         return UserDto.UserResponse.from(user);
     }
 
+    @Transactional(readOnly = true)
     public UserDto.UserResponse getProfile(Integer userId) {
-
         User user = userRepository.findById(userId).
                 orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND));
 

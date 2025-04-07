@@ -21,6 +21,7 @@ public class UserController {
             @RequestBody UserDto.UserUpdateRequest request
     ) {
         UserDto.UserResponse updatedUser = userService.updateProfile(userId, request);
+
         return ResponseEntity.ok(updatedUser);
     }
 
@@ -29,6 +30,7 @@ public class UserController {
             @PathVariable Integer userId
     ) {
         UserDto.UserResponse user = userService.getProfile(userId);
+
         return ResponseEntity.ok(user);
     }
 }
