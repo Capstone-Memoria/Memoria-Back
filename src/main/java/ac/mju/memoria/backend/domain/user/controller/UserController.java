@@ -11,25 +11,25 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @Getter @Setter
-@RequestMapping("/api/user/{userId}")
+@RequestMapping("/api/user/{userEmail}")
 public class UserController {
     private final UserService userService;
 
     @PatchMapping
     public ResponseEntity<UserDto.UserResponse> updateProfile(
-            @PathVariable Integer userId,
+            @PathVariable String userEmail,
             @RequestBody UserDto.UserUpdateRequest request
     ) {
-        UserDto.UserResponse updatedUser = userService.updateProfile(userId, request);
+        UserDto.UserResponse updatedUser = userService.updateProfile(userEmail, request);
 
         return ResponseEntity.ok(updatedUser);
     }
 
     @GetMapping
     public ResponseEntity<UserDto.UserResponse> viewProfile(
-            @PathVariable Integer userId
+            @PathVariable String userEmail
     ) {
-        UserDto.UserResponse user = userService.getProfile(userId);
+        UserDto.UserResponse user = userService.getProfile(userEmail);
 
         return ResponseEntity.ok(user);
     }
