@@ -2,6 +2,8 @@ package ac.mju.memoria.backend.domain.auth.dto;
 
 import ac.mju.memoria.backend.domain.user.dto.UserDto;
 import ac.mju.memoria.backend.domain.user.entity.User;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,8 +20,13 @@ public class AuthDto {
     @NoArgsConstructor
     @Builder
     public static class SignInRequest {
+        @NotBlank(message = "이메일을 입력해주세요.")
+        @Email(message = "올바른 이메일 형식이 아닙니다.")
         private String email;
+
+        @NotBlank(message = "비밀번호를 입력해주세요.")
         private String password;
+
     }
 
     // 로그인 응답 DTO
@@ -51,8 +58,14 @@ public class AuthDto {
     @NoArgsConstructor
     @Builder
     public static class SignUpRequest {
+        @NotBlank(message = "이메일을 입력해주세요.")
+        @Email(message = "올바른 이메일 형식이 아닙니다.")
         private String email;
+
+        @NotBlank(message = "닉네임을 입력해주세요.")
         private String nickName;
+
+        @NotBlank(message = "비밀번호를 입력해주세요.")
         private String password;
 
         public User toEntity(PasswordEncoder encoder) {
