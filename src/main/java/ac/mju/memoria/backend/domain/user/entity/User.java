@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.springframework.web.servlet.DispatcherServlet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
 @SuperBuilder
 @Table(name = "users")
 public class User extends TimeStampedEntity {
+
     @Id
     @NotBlank(message = "이메일을 입력해야 합니다.")
     @Email(message = "유효한 이메일 형식이어야 합니다.")
