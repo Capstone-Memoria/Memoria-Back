@@ -28,6 +28,10 @@ public class UserService {
         User user = userRepository.findByEmail(userEmail)
                         .orElseThrow(() -> new RestException(ErrorCode.USER_NOT_FOUND));
 
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new RestException(ErrorCode.AUTH_PASSWORD_NOT_CORRECT);
+        }
+
         request.applyTo(user, passwordEncoder);
 
         return UserDto.UserResponse.from(user);
