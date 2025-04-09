@@ -1,4 +1,4 @@
-# .github/workflows/your-workflow-name.yml
+
 
 name: Build Backend with Remote Frontend and Deploy (Remote Docker Build - Corrected)
 
@@ -15,11 +15,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. 백엔드 코드 체크아웃
+      # 1. 백엔드 코드 체크아웃 (변경 없음)
       - name: Checkout Backend Repository
         uses: actions/checkout@v4
 
-      # 2. 프론트엔드 코드 체크아웃
+      # 2. 프론트엔드 코드 체크아웃 (변경 없음)
       - name: Checkout Frontend Repository
         uses: actions/checkout@v4
         with:
@@ -27,13 +27,13 @@ jobs:
           path: frontend
           ref: main # 필요시 브랜치 변경
 
-      # 3. Node.js 환경 설정
+      # 3. Node.js 환경 설정 (변경 없음)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "20"
 
-      # --- Node.js 캐시 설정 ---
+      # --- Node.js 캐시 설정 (변경 없음) ---
       - name: Cache Node.js modules
         uses: actions/cache@v4
         id: npm-cache
@@ -43,14 +43,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      # 4. 프론트엔드 의존성 설치 및 빌드
+      # 4. 프론트엔드 의존성 설치 및 빌드 (변경 없음)
       - name: Build Frontend
         working-directory: ./frontend
         run: |
           npm install
           npm run build
 
-      # 5. 빌드된 프론트엔드 파일을 Spring Boot static 폴더로 복사
+      # 5. 빌드된 프론트엔드 파일을 Spring Boot static 폴더로 복사 (변경 없음)
       - name: Copy frontend build to Spring Boot static resources
         run: |
           echo "Copying frontend build from $(pwd)/frontend/dist to $(pwd)/src/main/resources/static"
@@ -58,14 +58,14 @@ jobs:
           mkdir -p ./src/main/resources/static
           cp -r ./frontend/dist/* ./src/main/resources/static/
 
-      # 6. Java 환경 설정
+      # 6. Java 환경 설정 (변경 없음)
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           java-version: "17"
           distribution: "temurin"
 
-      # --- Gradle 캐시 설정 ---
+      # --- Gradle 캐시 설정 (변경 없음) ---
       - name: Cache Gradle packages
         uses: actions/cache@v4
         with:
@@ -76,14 +76,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      # 7. gradlew 파일에 실행 권한 부여
+      # 7. gradlew 파일에 실행 권한 부여 (변경 없음)
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      # 8. 백엔드 빌드 (Gradle bootJar)
       # 이 단계 후 ./build/libs/ 에 .jar 파일이 생성됩니다.
       - name: Build Backend with Gradle
         run: ./gradlew bootJar
+
 
       # 9. SSH 키 생성 및 설정
       - name: Create SSH Key
@@ -92,12 +92,14 @@ jobs:
           chmod 600 private-key.pem
           echo "SSH key created and permissions set"
 
+
       # 10. 서버를 known_hosts에 추가
       - name: Add Known Host
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
           echo "Added ${{ secrets.SERVER_HOST }} to known_hosts"
+
 
       # 11. SCP로 Dockerfile 및 JAR 파일 전송
       # Dockerfile과 build/libs/*.jar 파일을 원격 서버 배포 경로로 직접 전송합니다.
