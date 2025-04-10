@@ -1,4 +1,4 @@
-name: Build Backend with Remote Frontend and Deploy
+name: Build Backend with Remote Frontend and Deploy (Build on Server)
 
 on:
   push:
@@ -35,8 +35,8 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v2
         with:
-          version: "8.x"         # pick the version you need
-          run_install: false     # we'll run pnpm install explicitly
+          version: "8.x"
+          run_install: false
 
       # 5. Cache pnpm Store
       - name: Cache pnpm Store
@@ -85,47 +85,68 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      # 11. Build Backend with Gradle
+      # 11. Build Backend with Gradle (Create JAR)
       - name: Build Backend with Gradle
         run: ./gradlew bootJar
 
-      # 12. Build Docker Image
-      - name: Build Docker Image
-        run: |
-          docker build -t memoria:latest .
+      # --- Docker 이미지 로컬 빌드 및 저장 단계 제거 ---
+      # 이전 12. Build Docker Image 단계 제거
+      # 이전 13. Save Docker Image 단계 제거
 
-      # 13. Save Docker Image
-      - name: Save Docker Image
-        run: |
-          docker save -o memoria.tar memoria:latest
-
-      # 14. Create SSH Key
+      # 12. Create SSH Key (기존 14번)
       - name: Create SSH Key
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > private-key.pem
           chmod 600 private-key.pem
           echo "SSH key created and permissions set"
 
-      # 15. Add Known Host
+      # 13. Add Known Host (기존 15번)
       - name: Add Known Host
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
           echo "Added ${{ secrets.SERVER_HOST }} to known_hosts"
 
-      # 16. Transfer Docker Image to Remote Server via SCP
-      - name: Transfer Docker Image to Remote Server
+      # 14. Transfer Build Artifacts to Remote Server (기존 16번 수정)
+      - name: Transfer Build Artifacts to Remote Server
         run: |
-          scp -i ./private-key.pem -P ${{ secrets.SERVER_PORT }} memoria.tar ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${{ secrets.DEPLOY_PATH }}/memoria.tar
-          echo "Docker image transferred to remote server"
+          # 생성된 JAR 파일 경로 찾기 (build/libs/*.jar)
+          JAR_FILE=$(ls build/libs/*.jar | head -n 1)
+          if [ -z "$JAR_FILE" ]; then
+            echo "Error: JAR file not found in build/libs/"
+            exit 1
+          fi
+          echo "Found JAR file: $JAR_FILE"
 
-      # 17. Deploy to Remote Server
-      - name: Deploy to Remote Server
+          # 원격 서버의 배포 경로 설정
+          REMOTE_DEPLOY_PATH=${{ secrets.DEPLOY_PATH }}
+
+          # 원격 서버에 배포 디렉토리 생성 (없으면)
+          ssh -i ./private-key.pem -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "mkdir -p ${REMOTE_DEPLOY_PATH}"
+
+          # JAR 파일과 Dockerfile을 원격 서버로 전송 (JAR 파일 이름을 app.jar로 통일)
+          scp -i ./private-key.pem -P ${{ secrets.SERVER_PORT }} "$JAR_FILE" ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${REMOTE_DEPLOY_PATH}/app.jar
+          scp -i ./private-key.pem -P ${{ secrets.SERVER_PORT }} Dockerfile ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${REMOTE_DEPLOY_PATH}/Dockerfile
+          echo "JAR file (as app.jar) and Dockerfile transferred to remote server at ${REMOTE_DEPLOY_PATH}"
+
+      # 15. Build and Deploy on Remote Server (기존 17번 수정)
+      - name: Build and Deploy on Remote Server
         run: |
           ssh -i ./private-key.pem -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
-            docker load -i ${{ secrets.DEPLOY_PATH }}/memoria.tar
+            # 배포 디렉토리로 이동
+            cd ${{ secrets.DEPLOY_PATH }}
+
+            # Dockerfile과 JAR 파일을 사용하여 원격 서버에서 Docker 이미지 빌드
+            echo "Building Docker image on remote server..."
+            docker build -t memoria:latest -f Dockerfile .  # 현재 디렉토리(Dockerfile, app.jar 위치)를 context로 사용
+
+            # 기존 컨테이너 중지 및 삭제 (오류 무시)
+            echo "Stopping and removing existing container..."
             docker stop memoria || true
             docker rm memoria || true
+
+            # 새로 빌드된 이미지로 Docker 컨테이너 실행
+            echo "Running new Docker container..."
             docker run -d --name memoria \
               --network postgres_postgres_net \
               -p 2873:8080 \
@@ -134,11 +155,13 @@ jobs:
               -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
               -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
               memoria:latest
+
             echo "Docker container deployed on remote server"
           EOF
 
-      # 18. Cleanup
+      # 16. Cleanup (기존 18번)
       - name: Cleanup
+        if: always() # 항상 실행되도록 보장
         run: |
           rm -f ./private-key.pem
           echo "Cleaned up SSH key"
