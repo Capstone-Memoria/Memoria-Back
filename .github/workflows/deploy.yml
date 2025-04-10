@@ -89,25 +89,21 @@ jobs:
       - name: Build Backend with Gradle
         run: ./gradlew bootJar
 
-      # --- Docker 이미지 로컬 빌드 및 저장 단계 제거 ---
-      # 이전 12. Build Docker Image 단계 제거
-      # 이전 13. Save Docker Image 단계 제거
-
-      # 12. Create SSH Key (기존 14번)
+      # 12. Create SSH Key
       - name: Create SSH Key
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > private-key.pem
           chmod 600 private-key.pem
           echo "SSH key created and permissions set"
 
-      # 13. Add Known Host (기존 15번)
+      # 13. Add Known Host
       - name: Add Known Host
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
           echo "Added ${{ secrets.SERVER_HOST }} to known_hosts"
 
-      # 14. Transfer Build Artifacts to Remote Server (기존 16번 수정)
+      # 14. Transfer Build Artifacts to Remote Server
       - name: Transfer Build Artifacts to Remote Server
         run: |
           # 생성된 JAR 파일 경로 찾기 (build/libs/*.jar)
@@ -124,12 +120,16 @@ jobs:
           # 원격 서버에 배포 디렉토리 생성 (없으면)
           ssh -i ./private-key.pem -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "mkdir -p ${REMOTE_DEPLOY_PATH}"
 
+          # 기존 파일 삭제 (app.jar와 Dockerfile이 존재하는 경우)
+          ssh -i ./private-key.pem -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} "rm -f ${REMOTE_DEPLOY_PATH}/app.jar ${REMOTE_DEPLOY_PATH}/Dockerfile"
+          echo "Existing app.jar and Dockerfile (if any) removed from ${REMOTE_DEPLOY_PATH}"
+
           # JAR 파일과 Dockerfile을 원격 서버로 전송 (JAR 파일 이름을 app.jar로 통일)
           scp -i ./private-key.pem -P ${{ secrets.SERVER_PORT }} "$JAR_FILE" ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${REMOTE_DEPLOY_PATH}/app.jar
           scp -i ./private-key.pem -P ${{ secrets.SERVER_PORT }} Dockerfile ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:${REMOTE_DEPLOY_PATH}/Dockerfile
           echo "JAR file (as app.jar) and Dockerfile transferred to remote server at ${REMOTE_DEPLOY_PATH}"
 
-      # 15. Build and Deploy on Remote Server (기존 17번 수정)
+      # 15. Build and Deploy on Remote Server
       - name: Build and Deploy on Remote Server
         run: |
           ssh -i ./private-key.pem -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
@@ -138,7 +138,7 @@ jobs:
 
             # Dockerfile과 JAR 파일을 사용하여 원격 서버에서 Docker 이미지 빌드
             echo "Building Docker image on remote server..."
-            docker build -t memoria:latest -f Dockerfile .  # 현재 디렉토리(Dockerfile, app.jar 위치)를 context로 사용
+            docker build -t memoria:latest -f Dockerfile .
 
             # 기존 컨테이너 중지 및 삭제 (오류 무시)
             echo "Stopping and removing existing container..."
@@ -159,7 +159,7 @@ jobs:
             echo "Docker container deployed on remote server"
           EOF
 
-      # 16. Cleanup (기존 18번)
+      # 16. Cleanup
       - name: Cleanup
         if: always() # 항상 실행되도록 보장
         run: |
