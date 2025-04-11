@@ -19,3 +19,6 @@ server:
 
 jwt:
   secret: testadsadsffsdahjkafsdhjkldsfahkj12123132fdsa12123
+
+file:
+  save-path: ./uploaded
