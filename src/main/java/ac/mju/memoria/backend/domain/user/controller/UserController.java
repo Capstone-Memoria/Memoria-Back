@@ -26,7 +26,7 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<UserDto.UserResponse> viewProfile(
+    public ResponseEntity<UserDto.UserResponse> getProfile(
             @PathVariable String userEmail
     ) {
         UserDto.UserResponse user = userService.getProfile(userEmail);

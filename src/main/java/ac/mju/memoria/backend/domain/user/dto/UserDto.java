@@ -22,6 +22,9 @@ public class UserDto {
         private LocalDateTime lastModifiedAt;
 
         public static UserResponse from(User user) {
+            if (user == null) {
+                return null;
+            }
             return UserResponse.builder()
                     .nickName(user.getNickName())
                     .email(user.getEmail())

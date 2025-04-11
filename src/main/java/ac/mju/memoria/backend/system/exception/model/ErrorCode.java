@@ -33,6 +33,8 @@ public enum ErrorCode {
     FILE_ALREADY_EXISTS(400, "파일이 이미 존재합니다."),
     FILE_NOT_FOUND(404, "파일을 찾을 수 없습니다."),
 
+    DIARYBOOK_NOT_FOUND(404, "일기장을 찾을 수 없습니다."),
+
     //Other
     INTERNAL_SERVER_ERROR(500, "오류가 발생했습니다.");
 
