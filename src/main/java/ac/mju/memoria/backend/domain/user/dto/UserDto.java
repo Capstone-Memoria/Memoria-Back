@@ -22,7 +22,7 @@ public class UserDto {
         private LocalDateTime lastModifiedAt;
 
         public static UserResponse from(User user) {
-            if (user == null) {
+            if (Objects.isNull(user)) {
                 return null;
             }
             return UserResponse.builder()

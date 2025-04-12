@@ -24,17 +24,15 @@ public class DiaryBookController {
             @Valid @RequestBody DiaryBookDto.DiaryBookCreateRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
 
-        String userEmail = userDetails.getKey();
-        DiaryBookDto.DiaryBookResponse diaryBook = diaryBookService.createDiaryBook(request, userEmail);
+        DiaryBookDto.DiaryBookResponse diaryBook = diaryBookService.createDiaryBook(request, userDetails);
         return ResponseEntity.ok(diaryBook);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<DiaryBookDto.DiaryBookResponse> getDiaryBook(
-            @PathVariable Integer id, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<DiaryBookDto.DiaryBookResponse> findDiaryBook(
+            @PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
 
-        String userEmail = userDetails.getKey();
-        DiaryBookDto.DiaryBookResponse diaryBook = diaryBookService.getDiaryBook(id, userEmail);
+        DiaryBookDto.DiaryBookResponse diaryBook = diaryBookService.findDiaryBook(id, userDetails);
         return ResponseEntity.ok(diaryBook);
     }
 
@@ -43,28 +41,25 @@ public class DiaryBookController {
             @AuthenticationPrincipal UserDetails userDetails,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        String userEmail = userDetails.getKey();
-        Page<DiaryBookDto.DiaryBookResponse> diaryBooks = diaryBookService.getMyDiaryBooks(userEmail, pageable);
+        Page<DiaryBookDto.DiaryBookResponse> diaryBooks = diaryBookService.getMyDiaryBooks(userDetails, pageable);
 
         return ResponseEntity.ok(diaryBooks);
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<DiaryBookDto.DiaryBookResponse> updateDiaryBook(
-            @PathVariable Integer id, @RequestBody DiaryBookDto.DiaryBookUpdateRequest request,
+            @PathVariable Long id, @RequestBody DiaryBookDto.DiaryBookUpdateRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
 
-        String userEmail = userDetails.getKey();
-        DiaryBookDto.DiaryBookResponse updatedDiaryBook = diaryBookService.updateDiaryBook(request, id, userEmail);
+        DiaryBookDto.DiaryBookResponse updatedDiaryBook = diaryBookService.updateDiaryBook(request, id, userDetails);
         return ResponseEntity.ok(updatedDiaryBook);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteDiaryBook(
-            @PathVariable Integer id, @AuthenticationPrincipal UserDetails userDetails) {
+            @PathVariable Long id, @AuthenticationPrincipal UserDetails userDetails) {
 
-        String userEmail = userDetails.getKey();
-        diaryBookService.deleteDiaryBook(id, userEmail);
+        diaryBookService.deleteDiaryBook(id, userDetails);
         return ResponseEntity.noContent().build();
     }
 }

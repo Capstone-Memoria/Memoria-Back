@@ -13,23 +13,14 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
 
-@AllArgsConstructor
-@NoArgsConstructor
 @Entity
 @Getter
 @Setter
 @SuperBuilder
+@NoArgsConstructor
 public class CoverImageFile extends AttachedFile{
 //    @OneToOne(fetch = FetchType.LAZY, mappedBy = "coverImageFile")
 //    private DiaryBook diaryBook;
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "coverImageFile", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Sticker> stickers = new ArrayList<>();
-
-    public void addSticker(Sticker sticker) {
-        this.stickers.add(sticker);
-        sticker.setCoverImageFile(this);
-    }
 
     public static CoverImageFile from(MultipartFile file) {
         return CoverImageFile.builder()

@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: remote
+    active: local
   main:
     allow-bean-definition-overriding: true
   data:

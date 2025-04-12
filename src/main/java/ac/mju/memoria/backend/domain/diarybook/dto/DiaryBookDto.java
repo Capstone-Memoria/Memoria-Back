@@ -52,12 +52,13 @@ public class DiaryBookDto {
     @Builder
     @AllArgsConstructor
     public static class DiaryBookResponse {
-        private Integer id;
+        private Long id;
         private String title;
         private LocalDateTime createAt;
         private LocalDateTime lastModified;
         private UserDto.UserResponse createdBy;
         private UserDto.UserResponse lastModifiedBy;
+        private UserDto.UserResponse owner;
 
         public static DiaryBookResponse from(DiaryBook diaryBook) {
             return DiaryBookResponse.builder()
@@ -67,6 +68,7 @@ public class DiaryBookDto {
                     .lastModified(diaryBook.getLastModifiedAt())
                     .createdBy(UserDto.UserResponse.from(diaryBook.getCreatedBy()))
                     .lastModifiedBy(UserDto.UserResponse.from(diaryBook.getLastModifiedBy()))
+                    .owner(UserDto.UserResponse.from(diaryBook.getOwner()))
                     .build();
         }
     }
