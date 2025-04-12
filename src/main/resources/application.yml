@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: remote
+    active: local
   main:
     allow-bean-definition-overriding: true
   data:
@@ -19,3 +19,6 @@ server:
 
 jwt:
   secret: testadsadsffsdahjkafsdhjkldsfahkj12123132fdsa12123
+
+file:
+  save-path: ./uploaded

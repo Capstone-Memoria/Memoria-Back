@@ -1,9 +1,8 @@
 package ac.mju.memoria.backend.domain.user.entity;
 
 import ac.mju.memoria.backend.common.auditor.TimeStampedEntity;
+import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -21,4 +20,16 @@ public class User extends TimeStampedEntity {
     private String email;
     private String nickName;
     private String password;
+
+    @OneToMany(mappedBy = "owner", orphanRemoval = true)
+    private List<DiaryBook> ownedDiaryBooks = new ArrayList<>();
+
+    public void addOwnedDiaryBook(DiaryBook diaryBook) {
+        this.ownedDiaryBooks.add(diaryBook);
+        diaryBook.setOwner(this);
+    }
+
+    public void removeDiaryBook(DiaryBook diaryBook) {
+        this.ownedDiaryBooks.remove(diaryBook);
+    }
 }
