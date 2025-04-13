@@ -1,6 +1,8 @@
 package ac.mju.memoria.backend.domain.user.dto;
 
 import ac.mju.memoria.backend.domain.user.entity.User;
+import ac.mju.memoria.backend.system.exception.model.ErrorCode;
+import ac.mju.memoria.backend.system.exception.model.RestException;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -37,11 +39,15 @@ public class UserDto {
     @Builder
     public static class UserUpdateRequest {
         private String nickName;
-        private String password;
+        private String currentPassword;
+        private String newPassword;
 
         public void applyTo(User user, PasswordEncoder passwordEncoder) {
-            if (Objects.nonNull(password)) {
-                user.setPassword(passwordEncoder.encode(password));
+            if (Objects.nonNull(newPassword)) {
+                if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+                    throw new RestException(ErrorCode.AUTH_PASSWORD_NOT_CORRECT);
+                }
+                user.setPassword(passwordEncoder.encode(newPassword));
             }
             if (Objects.nonNull(nickName)) {
                 user.setNickName(nickName);
