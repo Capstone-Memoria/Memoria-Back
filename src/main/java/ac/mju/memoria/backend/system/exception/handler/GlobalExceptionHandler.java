@@ -37,6 +37,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorDto.ErrorResponse> handleRestException(RestException exception) {
         log.error("{Rest Exception}: " + exception.getErrorCode().getMessage());
 
+        if(exception.getErrorCode().getStatusCode() == 500) {
+            exception.printStackTrace();
+        }
+
         return ResponseEntity
                 .status(exception.getErrorCode().getStatusCode())
                 .body(ErrorDto.ErrorResponse.from(exception.getErrorCode()));

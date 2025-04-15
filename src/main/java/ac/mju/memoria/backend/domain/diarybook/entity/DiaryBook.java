@@ -29,14 +29,10 @@ public class DiaryBook extends UserStampedEntity {
     @JoinColumn(name = "owner_id")
     private User owner;
 
-    /*
-    매핑이랑 Dto도 설정해야함
-     */
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinColumn(name = "coverImageFile_id")
+    private CoverImageFile coverImageFile;
 
-//    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-//    @JoinColumn(name = "coverImageFile_id")
-//    private CoverImageFile coverImageFile;
-//
-//    @OneToMany(mappedBy = "diaryBook")
-//    private List<Sticker> stickers = new ArrayList<>();
+    //@OneToMany(mappedBy = "diaryBook")
+    //private List<Sticker> stickers = new ArrayList<>();
 }
