@@ -48,7 +48,7 @@ public class UserDto {
         public void applyTo(User user, PasswordEncoder passwordEncoder) {
             if (Objects.nonNull(newPassword)) {
                 if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
-                    throw new RestException(ErrorCode.AUTH_PASSWORD_NOT_CORRECT);
+                    throw new RestException(ErrorCode.USER_PASSWORD_NOT_MATCH);
                 }
                 user.setPassword(passwordEncoder.encode(newPassword));
             }
