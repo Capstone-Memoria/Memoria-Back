@@ -10,5 +10,5 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-public interface DiaryBookRepository extends JpaRepository<DiaryBook, Integer> {
+public interface DiaryBookRepository extends JpaRepository<DiaryBook, Long> {
 }

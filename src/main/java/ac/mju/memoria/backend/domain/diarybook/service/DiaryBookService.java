@@ -26,16 +26,15 @@ public class DiaryBookService {
 
     @Transactional
     public DiaryBookDto.DiaryBookResponse createDiaryBook(DiaryBookDto.DiaryBookCreateRequest request, UserDetails userDetails) {
-
         String userEmail = userDetails.getKey();
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RestException(ErrorCode.AUTH_USER_NOT_FOUND));
 
-        DiaryBook diaryBook = request.toEntity();
+        DiaryBook diaryBook = request.toEntity(user);
         user.addOwnedDiaryBook(diaryBook);
-        diaryBookRepository.save(diaryBook);
+        DiaryBook saved = diaryBookRepository.save(diaryBook);
 
-        return DiaryBookDto.DiaryBookResponse.from(diaryBook);
+        return DiaryBookDto.DiaryBookResponse.from(saved);
     }
 
     public DiaryBookDto.DiaryBookResponse findDiaryBook(Long diaryBookId, UserDetails userDetails) {
