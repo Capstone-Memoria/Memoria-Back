@@ -20,6 +20,9 @@ public enum ErrorCode {
     USER_NOT_FOUND(404, "존재하지 않는 사용자입니다."),
     USER_PASSWORD_NOT_MATCH(400, "올바른 비밀번호가 아닙니다."),
 
+    //Invite
+    INVITE_ALREADY_MEMBER(400, "이미 등록된 멤버입니다."),
+
     //jwt
     AUTH_TOKEN_NOT_FOUND(401, "인증 토큰을 찾을 수 없습니다."),
     AUTH_TOKEN_EXPIRED(401, "토큰이 만료되었습니다."),
@@ -36,7 +39,7 @@ public enum ErrorCode {
     DIARYBOOK_NOT_FOUND(404, "일기장을 찾을 수 없습니다."),
 
     //Other
-    INTERNAL_SERVER_ERROR(500, "오류가 발생했습니다.");
+    INTERNAL_SERVER_ERROR(500, "오류가 발생했습니다."),;
 
     private final int statusCode;
     private final String message;

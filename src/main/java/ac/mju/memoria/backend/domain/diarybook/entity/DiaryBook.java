@@ -1,8 +1,8 @@
 package ac.mju.memoria.backend.domain.diarybook.entity;
 
 import ac.mju.memoria.backend.common.auditor.UserStampedEntity;
-import ac.mju.memoria.backend.domain.file.entity.CoverImageFile;
-import ac.mju.memoria.backend.domain.file.entity.Sticker;
+import ac.mju.memoria.backend.domain.diarybook.entity.enums.MemberPermission;
+import ac.mju.memoria.backend.domain.invitation.entity.Invitation;
 import ac.mju.memoria.backend.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -29,14 +29,30 @@ public class DiaryBook extends UserStampedEntity {
     @JoinColumn(name = "owner_id")
     private User owner;
 
-    /*
-    매핑이랑 Dto도 설정해야함
-     */
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "diaryBook")
+    @Builder.Default
+    private List<DiaryBookMember> members = new ArrayList<>();
 
-//    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-//    @JoinColumn(name = "coverImageFile_id")
-//    private CoverImageFile coverImageFile;
-//
-//    @OneToMany(mappedBy = "diaryBook")
-//    private List<Sticker> stickers = new ArrayList<>();
+    public boolean isAdmin(User user) {
+        if(owner.getEmail().equals(user.getEmail())) {
+            return true;
+        }
+
+        return isMemberAdmin(user);
+    }
+
+    public boolean isMember(User user) {
+        return members.stream().anyMatch(member -> member.getUser().getEmail().equals(user.getEmail()));
+    }
+
+    private boolean isMemberAdmin(User user) {
+        return members.stream()
+                .anyMatch(
+                        member ->
+                                member.getUser().getEmail().equals(user.getEmail()) && member.getPermission().equals(MemberPermission.ADMIN)
+                );
+    }
+
+    @OneToMany(mappedBy = "diaryBook", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Invitation> invitations = new ArrayList<>();
 }

@@ -3,6 +3,7 @@ package ac.mju.memoria.backend.domain.diarybook.dto;
 
 import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
 import ac.mju.memoria.backend.domain.user.dto.UserDto;
+import ac.mju.memoria.backend.domain.user.entity.User;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,9 +23,10 @@ public class DiaryBookDto {
         @NotBlank(message = "제목을 입력해 주세요")
         private String title;
 
-        public DiaryBook toEntity() {
+        public DiaryBook toEntity(User user) {
             return DiaryBook.builder()
                     .title(title)
+                    .owner(user)
                     .build();
         }
     }
@@ -54,21 +56,25 @@ public class DiaryBookDto {
     public static class DiaryBookResponse {
         private Long id;
         private String title;
+        private Boolean isPinned;
         private LocalDateTime createAt;
         private LocalDateTime lastModified;
         private UserDto.UserResponse createdBy;
         private UserDto.UserResponse lastModifiedBy;
         private UserDto.UserResponse owner;
+        private Integer memberCount;
 
         public static DiaryBookResponse from(DiaryBook diaryBook) {
             return DiaryBookResponse.builder()
                     .id(diaryBook.getId())
                     .title(diaryBook.getTitle())
+                    .isPinned(diaryBook.isPinned())
                     .createAt(diaryBook.getCreatedAt())
                     .lastModified(diaryBook.getLastModifiedAt())
                     .createdBy(UserDto.UserResponse.from(diaryBook.getCreatedBy()))
                     .lastModifiedBy(UserDto.UserResponse.from(diaryBook.getLastModifiedBy()))
                     .owner(UserDto.UserResponse.from(diaryBook.getOwner()))
+                    .memberCount(diaryBook.getMembers() == null ? 1 : diaryBook.getMembers().size() + 1)
                     .build();
         }
     }
