@@ -28,6 +28,11 @@ public class CoverImageFile extends AttachedFile{
     public static CoverImageFile from(MultipartFile file) {
         throwIfNotAImageFile(file);
 
+        String filename = file.getOriginalFilename();
+        if (filename == null || filename.isBlank()) {
+            throw new RestException(ErrorCode.FILE_NOT_FOUND);
+        }
+
         return CoverImageFile.builder()
                 .id(UUID.randomUUID().toString())
                 .fileName(file.getOriginalFilename())

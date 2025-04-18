@@ -33,6 +33,6 @@ public class DiaryBook extends UserStampedEntity {
     @JoinColumn(name = "coverImageFile_id")
     private CoverImageFile coverImageFile;
 
-    //@OneToMany(mappedBy = "diaryBook")
-    //private List<Sticker> stickers = new ArrayList<>();
+    @OneToMany(mappedBy = "diaryBook", orphanRemoval = true)
+    private List<Sticker> stickers = new ArrayList<>();
 }

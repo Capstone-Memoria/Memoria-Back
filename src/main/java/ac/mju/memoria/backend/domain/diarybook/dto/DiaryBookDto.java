@@ -4,6 +4,7 @@ package ac.mju.memoria.backend.domain.diarybook.dto;
 import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
 import ac.mju.memoria.backend.domain.file.dto.FileDto;
 import ac.mju.memoria.backend.domain.file.dto.StickerDto;
+import ac.mju.memoria.backend.domain.file.entity.Sticker;
 import ac.mju.memoria.backend.domain.user.dto.UserDto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -14,8 +15,10 @@ import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class DiaryBookDto {
 
@@ -68,14 +71,17 @@ public class DiaryBookDto {
         private UserDto.UserResponse lastModifiedBy;
         private UserDto.UserResponse owner;
         private FileDto.FileResponse coverImage;
-        //private List<StickerDto.StickerResponse> stickers;
+        private List<StickerDto.StickerResponse> stickers;
 
         public static DiaryBookResponse from(DiaryBook diaryBook) {
-            /*
-            List<StickerDto.StickerResponse> stickerResponses = diaryBook.getStickers().stream()
+            List<Sticker> stickers = diaryBook.getStickers();
+            if (stickers == null) {
+                stickers = Collections.emptyList();
+            }
+            List<StickerDto.StickerResponse> stickerResponses = stickers.stream()
                     .map(StickerDto.StickerResponse::from)
-                    .toList();
-*/
+                    .collect(Collectors.toList());
+
             return DiaryBookResponse.builder()
                     .id(diaryBook.getId())
                     .title(diaryBook.getTitle())
@@ -85,7 +91,7 @@ public class DiaryBookDto {
                     .lastModifiedBy(UserDto.UserResponse.from(diaryBook.getLastModifiedBy()))
                     .owner(UserDto.UserResponse.from(diaryBook.getOwner()))
                     .coverImage(FileDto.FileResponse.from(diaryBook.getCoverImageFile()))
-                    //.stickers(stickerResponses)
+                    .stickers(stickerResponses)
                     .build();
         }
     }
