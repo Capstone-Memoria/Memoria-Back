@@ -16,7 +16,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+
+import static ac.mju.memoria.backend.domain.file.entity.QSticker.sticker;
 
 @Service
 @RequiredArgsConstructor
@@ -24,28 +28,6 @@ public class StickerService {
     private final DiaryBookQueryRepository diaryBookQueryRepository;
     private final StickerRepository stickerRepository;
     private final FileSystemHandler fileSystemHandler;
-
-    @Transactional
-    public StickerDto.StickerResponse createSticker(StickerDto.StickerCreateRequest request, UserDetails userDetails) {
-        MultipartFile file = request.getFile();
-
-        Sticker sticker = Sticker.builder()
-                .id(UUID.randomUUID().toString())
-                .stickerType(StickerType.NONE)
-                .fileType(FileType.IMAGE)
-                .fileName(file.getOriginalFilename())
-                .size(file.getSize())
-                .posX(0)
-                .posY(0)
-                .width(0)
-                .height(0)
-                .build();
-
-        stickerRepository.save(sticker);
-        fileSystemHandler.saveFile(file, sticker);
-
-        return StickerDto.StickerResponse.from(sticker);
-    }
 
     @Transactional
     public StickerDto.StickerResponse addSticker(Long diaryBookId, String stickerId, StickerDto.StickerAddRequest request, UserDetails userDetails) {
@@ -67,25 +49,28 @@ public class StickerService {
     }
 
     @Transactional
-    public StickerDto.StickerResponse updateSticker(Long diaryBookId, String stickerId, StickerDto.StickerAddRequest request, UserDetails userDetails) {
+    public List<StickerDto.StickerResponse> updateStickers(Long diaryBookId, StickerDto.StickerUpdateRequest request, UserDetails userDetails) {
         DiaryBook diaryBook = diaryBookQueryRepository.findByIdAndUserEmail(diaryBookId, userDetails.getKey())
                 .orElseThrow(() -> new RestException(ErrorCode.DIARYBOOK_NOT_FOUND));
 
-        Sticker sticker = stickerRepository.findById(stickerId)
-                .orElseThrow(() -> new RestException(ErrorCode.STICKER_NOT_FOUND));
+        stickerRepository.deleteAllByDiaryBookId(diaryBook.getId());
 
-        if (!sticker.getDiaryBook().getId().equals(diaryBook.getId())) {
-            throw new RestException(ErrorCode.DIARYBOOK_NOT_FOUND);
+        List<StickerDto.StickerResponse> responses = new ArrayList<>();
+        for (StickerDto.StickerAddRequest addRequest : request.getStickers()) {
+            Sticker global = stickerRepository.findById(addRequest.getStickerId())
+                    .orElseThrow(() -> new RestException(ErrorCode.STICKER_NOT_FOUND));
+
+            global.setDiaryBook(diaryBook);
+            global.setPosX(addRequest.getPosX());
+            global.setPosY(addRequest.getPosY());
+            global.setWidth(addRequest.getWidth());
+            global.setHeight(addRequest.getHeight());
+
+            stickerRepository.save(global);
+            responses.add(StickerDto.StickerResponse.from(global));
         }
 
-        sticker.setPosX(request.getPosX());
-        sticker.setPosY(request.getPosY());
-        sticker.setWidth(request.getWidth());
-        sticker.setHeight(request.getHeight());
-
-        stickerRepository.save(sticker);
-
-        return StickerDto.StickerResponse.from(sticker);
+        return responses;
     }
 
     @Transactional

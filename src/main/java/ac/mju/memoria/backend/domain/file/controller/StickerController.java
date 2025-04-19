@@ -12,24 +12,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api")
+@RequestMapping("/api/diary-book/{diaryBookId}/stickers")
 public class StickerController {
     private final StickerService stickerService;
 
-    @PostMapping("/stickers")
-    public ResponseEntity<StickerDto.StickerResponse> createSticker(
-            @Valid @ModelAttribute StickerDto.StickerCreateRequest request,
-            @AuthenticationPrincipal UserDetails userDetails) {
-
-        StickerDto.StickerResponse sticker = stickerService.createSticker(request, userDetails);
-        return ResponseEntity.ok(sticker);
-    }
-
-    @PostMapping("/diary-book/{diaryBookId}/stickers/{id}")
+    @PostMapping("/{id}")
     public ResponseEntity<StickerDto.StickerResponse> addSticker(
             @PathVariable Long diaryBookId,
             @PathVariable String id,
@@ -40,18 +33,17 @@ public class StickerController {
         return ResponseEntity.ok(sticker);
     }
 
-    @PatchMapping("/diary-book/{diaryBookId}/stickers/{id}")
-    public ResponseEntity<StickerDto.StickerResponse> updateSticker(
+    @PatchMapping
+    public ResponseEntity<List<StickerDto.StickerResponse>> updateStickers(
             @PathVariable Long diaryBookId,
-            @PathVariable String id,
-            @Valid @RequestBody StickerDto.StickerAddRequest request,
+            @Valid @RequestBody StickerDto.StickerUpdateRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
 
-        StickerDto.StickerResponse updatedSticker = stickerService.updateSticker(diaryBookId, id, request, userDetails);
-        return ResponseEntity.ok(updatedSticker);
+        List<StickerDto.StickerResponse> updated = stickerService.updateStickers(diaryBookId, request, userDetails);
+        return ResponseEntity.ok(updated);
     }
 
-    @DeleteMapping("/diary-book/{diaryBookId}/stickers/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSticker(
             @PathVariable Long diaryBookId,
             @PathVariable String id,

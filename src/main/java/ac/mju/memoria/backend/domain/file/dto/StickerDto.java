@@ -1,5 +1,6 @@
 package ac.mju.memoria.backend.domain.file.dto;
 
+import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
 import ac.mju.memoria.backend.domain.file.entity.Sticker;
 import ac.mju.memoria.backend.domain.file.entity.enums.FileType;
 import ac.mju.memoria.backend.domain.file.entity.enums.StickerType;
@@ -14,44 +15,11 @@ import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class StickerDto {
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class StickerCreateRequest {
-        @Builder.Default
-        private StickerType stickerType = StickerType.NONE;
-        private int posX;
-        private int posY;
-        private int width;
-        private int height;
-        @NotNull(message = "이미지 파일은 필수입니다")
-        private MultipartFile file;
-
-        public Sticker toEntity() {
-            String filename = file.getOriginalFilename();
-            if (filename == null || filename.isBlank()) {
-                throw new RestException(ErrorCode.FILE_NOT_FOUND);
-            }
-
-            return Sticker.builder()
-                    .id(UUID.randomUUID().toString())
-                    .stickerType(stickerType)
-                    .fileName(filename)
-                    .size(file.getSize())
-                    .fileType(FileType.IMAGE)
-                    .posX(posX)
-                    .posY(posY)
-                    .width(width)
-                    .height(height)
-                    .build();
-        }
-    }
-
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -69,12 +37,19 @@ public class StickerDto {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
+    public static class StickerUpdateRequest {
+        @Builder.Default
+        private List<StickerAddRequest> stickers = new ArrayList<>();
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
     public static class StickerResponse {
         private String id;
         private StickerType stickerType;
-        private String fileName;
-        private Long size;
-        private String fileType;
+        private DiaryBook diaryBook;
         private int posX;
         private int posY;
         private int width;
@@ -84,9 +59,7 @@ public class StickerDto {
             return StickerResponse.builder()
                     .id(sticker.getId())
                     .stickerType(sticker.getStickerType())
-                    .fileName(sticker.getFileName())
-                    .size(sticker.getSize())
-                    .fileType(sticker.getFileType().toString())
+                    .diaryBook(sticker.getDiaryBook())
                     .posX(sticker.getPosX())
                     .posY(sticker.getPosY())
                     .width(sticker.getWidth())

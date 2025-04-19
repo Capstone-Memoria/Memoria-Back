@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 public class DiaryBookDto {
 
@@ -78,9 +78,6 @@ public class DiaryBookDto {
             if (stickers == null) {
                 stickers = Collections.emptyList();
             }
-            List<StickerDto.StickerResponse> stickerResponses = stickers.stream()
-                    .map(StickerDto.StickerResponse::from)
-                    .collect(Collectors.toList());
 
             return DiaryBookResponse.builder()
                     .id(diaryBook.getId())
@@ -91,7 +88,13 @@ public class DiaryBookDto {
                     .lastModifiedBy(UserDto.UserResponse.from(diaryBook.getLastModifiedBy()))
                     .owner(UserDto.UserResponse.from(diaryBook.getOwner()))
                     .coverImage(FileDto.FileResponse.from(diaryBook.getCoverImageFile()))
-                    .stickers(stickerResponses)
+                    .stickers(
+                            Optional.ofNullable(diaryBook.getStickers())
+                                    .orElse(Collections.emptyList())
+                                    .stream()
+                                    .map(StickerDto.StickerResponse::from)
+                                    .toList()
+                    )
                     .build();
         }
     }
