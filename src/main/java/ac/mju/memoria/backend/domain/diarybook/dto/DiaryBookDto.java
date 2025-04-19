@@ -57,7 +57,7 @@ public class DiaryBookDto {
         private Long id;
         private String title;
         private Boolean isPinned;
-        private LocalDateTime createAt;
+        private LocalDateTime createdAt;
         private LocalDateTime lastModifiedAt;
         private UserDto.UserResponse createdBy;
         private UserDto.UserResponse lastModifiedBy;
@@ -69,7 +69,7 @@ public class DiaryBookDto {
                     .id(diaryBook.getId())
                     .title(diaryBook.getTitle())
                     .isPinned(diaryBook.isPinned())
-                    .createAt(diaryBook.getCreatedAt())
+                    .createdAt(diaryBook.getCreatedAt())
                     .lastModifiedAt(diaryBook.getLastModifiedAt())
                     .createdBy(UserDto.UserResponse.from(diaryBook.getCreatedBy()))
                     .lastModifiedBy(UserDto.UserResponse.from(diaryBook.getLastModifiedBy()))
