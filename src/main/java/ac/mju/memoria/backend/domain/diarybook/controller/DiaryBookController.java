@@ -2,9 +2,6 @@ package ac.mju.memoria.backend.domain.diarybook.controller;
 
 import ac.mju.memoria.backend.domain.diarybook.dto.DiaryBookDto;
 import ac.mju.memoria.backend.domain.diarybook.service.DiaryBookService;
-import ac.mju.memoria.backend.domain.file.dto.FileDto;
-import ac.mju.memoria.backend.domain.file.dto.StickerDto;
-import ac.mju.memoria.backend.domain.file.entity.CoverImageFile;
 import ac.mju.memoria.backend.system.security.model.UserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,13 +9,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor

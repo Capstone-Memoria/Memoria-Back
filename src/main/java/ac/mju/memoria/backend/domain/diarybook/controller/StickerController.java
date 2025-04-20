@@ -1,20 +1,15 @@
-package ac.mju.memoria.backend.domain.file.controller;
+package ac.mju.memoria.backend.domain.diarybook.controller;
 
-import ac.mju.memoria.backend.domain.file.dto.FileDto;
-import ac.mju.memoria.backend.domain.file.dto.StickerDto;
-import ac.mju.memoria.backend.domain.file.entity.Sticker;
-import ac.mju.memoria.backend.domain.file.service.StickerService;
+import ac.mju.memoria.backend.domain.diarybook.dto.StickerDto;
+import ac.mju.memoria.backend.domain.diarybook.service.StickerService;
 import ac.mju.memoria.backend.system.security.model.UserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @RestController
 @RequiredArgsConstructor

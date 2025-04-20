@@ -1,6 +1,5 @@
-package ac.mju.memoria.backend.domain.file.entity;
+package ac.mju.memoria.backend.domain.diarybook.entity;
 
-import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
 import ac.mju.memoria.backend.domain.file.entity.enums.StickerType;
 import jakarta.persistence.*;
 import lombok.Getter;

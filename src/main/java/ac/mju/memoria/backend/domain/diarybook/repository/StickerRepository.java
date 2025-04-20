@@ -1,7 +1,7 @@
-package ac.mju.memoria.backend.domain.file.repository;
+package ac.mju.memoria.backend.domain.diarybook.repository;
 
 
-import ac.mju.memoria.backend.domain.file.entity.Sticker;
+import ac.mju.memoria.backend.domain.diarybook.entity.Sticker;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface StickerRepository extends JpaRepository<Sticker, String> {

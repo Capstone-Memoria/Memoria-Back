@@ -1,33 +1,25 @@
-package ac.mju.memoria.backend.domain.file.service;
+package ac.mju.memoria.backend.domain.diarybook.service;
 
 import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
 import ac.mju.memoria.backend.domain.diarybook.repository.DiaryBookQueryRepository;
-import ac.mju.memoria.backend.domain.file.dto.StickerDto;
-import ac.mju.memoria.backend.domain.file.entity.Sticker;
-import ac.mju.memoria.backend.domain.file.entity.enums.FileType;
-import ac.mju.memoria.backend.domain.file.entity.enums.StickerType;
-import ac.mju.memoria.backend.domain.file.handler.FileSystemHandler;
-import ac.mju.memoria.backend.domain.file.repository.StickerRepository;
+import ac.mju.memoria.backend.domain.diarybook.dto.StickerDto;
+import ac.mju.memoria.backend.domain.diarybook.entity.Sticker;
+import ac.mju.memoria.backend.domain.diarybook.repository.StickerRepository;
 import ac.mju.memoria.backend.system.exception.model.ErrorCode;
 import ac.mju.memoria.backend.system.exception.model.RestException;
 import ac.mju.memoria.backend.system.security.model.UserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
-
-import static ac.mju.memoria.backend.domain.file.entity.QSticker.sticker;
 
 @Service
 @RequiredArgsConstructor
 public class StickerService {
     private final DiaryBookQueryRepository diaryBookQueryRepository;
     private final StickerRepository stickerRepository;
-    private final FileSystemHandler fileSystemHandler;
 
     @Transactional
     public StickerDto.StickerResponse addSticker(Long diaryBookId, String stickerId, StickerDto.StickerAddRequest request, UserDetails userDetails) {

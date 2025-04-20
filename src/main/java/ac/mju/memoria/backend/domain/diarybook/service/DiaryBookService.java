@@ -4,10 +4,7 @@ import ac.mju.memoria.backend.domain.diarybook.dto.DiaryBookDto;
 import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
 import ac.mju.memoria.backend.domain.diarybook.repository.DiaryBookQueryRepository;
 import ac.mju.memoria.backend.domain.diarybook.repository.DiaryBookRepository;
-import ac.mju.memoria.backend.domain.file.dto.FileDto;
-import ac.mju.memoria.backend.domain.file.dto.StickerDto;
 import ac.mju.memoria.backend.domain.file.entity.CoverImageFile;
-import ac.mju.memoria.backend.domain.file.entity.Sticker;
 import ac.mju.memoria.backend.domain.file.handler.FileSystemHandler;
 import ac.mju.memoria.backend.domain.file.repository.AttachedFileRepository;
 import ac.mju.memoria.backend.domain.user.entity.User;
@@ -22,11 +19,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service

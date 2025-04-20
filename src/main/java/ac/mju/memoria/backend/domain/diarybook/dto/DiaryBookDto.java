@@ -3,8 +3,7 @@ package ac.mju.memoria.backend.domain.diarybook.dto;
 
 import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
 import ac.mju.memoria.backend.domain.file.dto.FileDto;
-import ac.mju.memoria.backend.domain.file.dto.StickerDto;
-import ac.mju.memoria.backend.domain.file.entity.Sticker;
+import ac.mju.memoria.backend.domain.diarybook.entity.Sticker;
 import ac.mju.memoria.backend.domain.user.dto.UserDto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

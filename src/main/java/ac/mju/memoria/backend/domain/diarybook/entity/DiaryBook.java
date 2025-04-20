@@ -2,7 +2,6 @@ package ac.mju.memoria.backend.domain.diarybook.entity;
 
 import ac.mju.memoria.backend.common.auditor.UserStampedEntity;
 import ac.mju.memoria.backend.domain.file.entity.CoverImageFile;
-import ac.mju.memoria.backend.domain.file.entity.Sticker;
 import ac.mju.memoria.backend.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
