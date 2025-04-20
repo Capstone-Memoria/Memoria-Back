@@ -1,6 +1,7 @@
 package ac.mju.memoria.backend.domain.diarybook.entity;
 
 import ac.mju.memoria.backend.common.auditor.UserStampedEntity;
+import ac.mju.memoria.backend.domain.diary.entity.Diary;
 import ac.mju.memoria.backend.domain.diarybook.entity.enums.MemberPermission;
 import ac.mju.memoria.backend.domain.invitation.entity.Invitation;
 import ac.mju.memoria.backend.domain.user.entity.User;
@@ -12,12 +13,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Getter @Setter
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
 public class DiaryBook extends UserStampedEntity {
-    @Id @Setter(AccessLevel.NONE)
+    @Id
+    @Setter(AccessLevel.NONE)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
@@ -33,8 +36,12 @@ public class DiaryBook extends UserStampedEntity {
     @Builder.Default
     private List<DiaryBookMember> members = new ArrayList<>();
 
+    @OneToMany(mappedBy = "diaryBook", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Diary> diaries = new ArrayList<>();
+
     public boolean isAdmin(User user) {
-        if(owner.getEmail().equals(user.getEmail())) {
+        if (owner.getEmail().equals(user.getEmail())) {
             return true;
         }
 
@@ -51,6 +58,11 @@ public class DiaryBook extends UserStampedEntity {
                         member ->
                                 member.getUser().getEmail().equals(user.getEmail()) && member.getPermission().equals(MemberPermission.ADMIN)
                 );
+    }
+
+    public void addDiary(Diary diary) {
+        this.diaries.add(diary);
+        diary.setDiaryBook(this);
     }
 
     @OneToMany(mappedBy = "diaryBook", cascade = CascadeType.ALL, orphanRemoval = true)

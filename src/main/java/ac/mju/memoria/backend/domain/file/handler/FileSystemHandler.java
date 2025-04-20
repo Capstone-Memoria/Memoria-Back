@@ -24,11 +24,15 @@ public class FileSystemHandler {
 
     @SneakyThrows
     public void saveFile(MultipartFile multipartFile, AttachedFile attachedFile) {
+        createDirIfNotExist(savePath);
+
         File targetFile = Paths.get(savePath, attachedFile.getId()).toFile();
 
         if(targetFile.exists()) {
             throw new RestException(ErrorCode.FILE_ALREADY_EXISTS);
         }
+
+        targetFile.createNewFile();
 
         try (FileOutputStream fileOutputStream = new FileOutputStream(targetFile)) {
             fileOutputStream.write(multipartFile.getBytes());
@@ -36,6 +40,15 @@ public class FileSystemHandler {
         } catch (Exception e) {
             throw new RestException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private void createDirIfNotExist(String path) {
+        File targetDir = Paths.get(path).toFile();
+        if(targetDir.exists()) {
+            return;
+        }
+
+        targetDir.mkdir();
     }
 
     @SneakyThrows
@@ -47,5 +60,18 @@ public class FileSystemHandler {
         }
 
         return new InputStreamResource(new FileInputStream(targetFile));
+    }
+
+    @SneakyThrows
+    public void deleteFile(AttachedFile attachedFile) {
+        File targetFile = Paths.get(savePath, attachedFile.getId()).toFile();
+
+        if (!targetFile.exists()) {
+            throw new RestException(ErrorCode.FILE_NOT_FOUND);
+        }
+
+        if (!targetFile.delete()) {
+            throw new RestException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
     }
 }

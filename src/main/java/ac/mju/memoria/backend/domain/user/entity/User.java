@@ -1,6 +1,8 @@
 package ac.mju.memoria.backend.domain.user.entity;
 
 import ac.mju.memoria.backend.common.auditor.TimeStampedEntity;
+import ac.mju.memoria.backend.domain.diary.entity.Diary;
+import ac.mju.memoria.backend.domain.diary.entity.Reaction;
 import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
 import ac.mju.memoria.backend.domain.invitation.entity.Invitation;
 import jakarta.persistence.*;
@@ -31,9 +33,25 @@ public class User extends TimeStampedEntity {
     @OneToMany(mappedBy = "inviteBy", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Invitation> invitations = new ArrayList<>();
 
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Diary> ownedDiaries = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reaction> ownedReactions = new ArrayList<>();
+
     public void addOwnedDiaryBook(DiaryBook diaryBook) {
         this.ownedDiaryBooks.add(diaryBook);
         diaryBook.setOwner(this);
+    }
+
+    public void addReaction(Reaction reaction) {
+        this.ownedReactions.add(reaction);
+        reaction.setUser(this);
+    }
+
+    public void addDiary(Diary diary) {
+        this.ownedDiaries.add(diary);
+        diary.setAuthor(this);
     }
 
 }
