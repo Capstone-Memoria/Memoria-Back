@@ -17,13 +17,23 @@ public class StickerDto {
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
-    public static class StickerAddRequest {
-        @NotBlank(message = "stickerId는 필수입니다")
-        private String stickerId;
+    public static class StickerInfo {
+        @NotBlank(message = "stickerType은 필수입니다")
+        private StickerType stickerType;
         private int posX;
         private int posY;
         private int width;
         private int height;
+
+        public Sticker toEntity() {
+            return Sticker.builder()
+                    .stickerType(stickerType)
+                    .posX(posX)
+                    .posY(posY)
+                    .width(width)
+                    .height(height)
+                    .build();
+        }
     }
 
     @Data
@@ -32,7 +42,7 @@ public class StickerDto {
     @Builder
     public static class StickerUpdateRequest {
         @Builder.Default
-        private List<StickerAddRequest> stickers = new ArrayList<>();
+        private List<StickerInfo> stickers = new ArrayList<>();
     }
 
     @Data
@@ -40,7 +50,7 @@ public class StickerDto {
     @AllArgsConstructor
     @Builder
     public static class StickerResponse {
-        private String id;
+        private Long id;
         private StickerType stickerType;
         private DiaryBook diaryBook;
         private int posX;

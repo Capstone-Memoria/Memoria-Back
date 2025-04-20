@@ -73,11 +73,6 @@ public class DiaryBookDto {
         private List<StickerDto.StickerResponse> stickers;
 
         public static DiaryBookResponse from(DiaryBook diaryBook) {
-            List<Sticker> stickers = diaryBook.getStickers();
-            if (stickers == null) {
-                stickers = Collections.emptyList();
-            }
-
             return DiaryBookResponse.builder()
                     .id(diaryBook.getId())
                     .title(diaryBook.getTitle())
