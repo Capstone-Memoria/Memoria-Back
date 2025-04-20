@@ -1,71 +1,74 @@
 package ac.mju.memoria.backend.domain.diary.controller;
 
-import java.util.List;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import ac.mju.memoria.backend.domain.diary.dto.DiaryRequestDto;
-import ac.mju.memoria.backend.domain.diary.dto.DiaryResponseDto;
+import ac.mju.memoria.backend.domain.diary.dto.DiaryDto;
 import ac.mju.memoria.backend.domain.diary.service.DiaryService;
 import ac.mju.memoria.backend.system.security.model.UserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/diaries")
+@RequestMapping("/api/diary-book/{diaryBookId}/diary")
 @RequiredArgsConstructor
 public class DiaryController {
 
-  private final DiaryService diaryService;
+    private final DiaryService diaryService;
 
-  @PostMapping
-  public ResponseEntity<DiaryResponseDto.DiaryResponse> createDiary(
-      @RequestBody @Valid DiaryRequestDto requestDto,
-      @AuthenticationPrincipal UserDetails userDetails) {
-    return ResponseEntity.status(HttpStatus.CREATED)
-        .body(diaryService.createDiary(requestDto, userDetails));
-  }
+    @PostMapping
+    public ResponseEntity<DiaryDto.DiaryResponse> createDiary(
+            @PathVariable Long diaryBookId,
+            @ModelAttribute @Valid DiaryDto.DiaryRequest requestDto,
+            @AuthenticationPrincipal UserDetails userDetails) {
 
-  @GetMapping("/{diaryId}")
-  public ResponseEntity<DiaryResponseDto.DiaryResponse> getDiary(
-      @PathVariable Long diaryId,
-      @RequestParam Long diaryBookId,
-      @AuthenticationPrincipal UserDetails userDetails) {
-    return ResponseEntity.ok(diaryService.getDiary(diaryId, diaryBookId, userDetails));
-  }
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(diaryService.createDiary(diaryBookId, requestDto, userDetails));
+    }
 
-  @GetMapping("/diarybook/{diaryBookId}")
-  public ResponseEntity<List<DiaryResponseDto.DiaryResponse>> getDiariesByDiaryBook(
-      @PathVariable Long diaryBookId,
-      @AuthenticationPrincipal UserDetails userDetails) {
-    return ResponseEntity.ok(diaryService.getDiariesByDiaryBook(diaryBookId, userDetails));
-  }
+    @GetMapping("/{diaryId}")
+    public ResponseEntity<DiaryDto.DiaryResponse> getDiary(
+            @PathVariable Long diaryBookId,
+            @PathVariable Long diaryId,
+            @AuthenticationPrincipal UserDetails userDetails) {
 
-  @PutMapping("/{diaryId}")
-  public ResponseEntity<DiaryResponseDto.DiaryResponse> updateDiary(
-      @PathVariable Long diaryId,
-      @RequestBody @Valid DiaryRequestDto requestDto,
-      @AuthenticationPrincipal UserDetails userDetails) {
-    return ResponseEntity.ok(diaryService.updateDiary(diaryId, requestDto, userDetails));
-  }
+        return ResponseEntity.ok(diaryService.getDiary(diaryBookId, diaryId, userDetails));
+    }
 
-  @DeleteMapping("/{diaryId}")
-  public ResponseEntity<Void> deleteDiary(
-      @PathVariable Long diaryId,
-      @RequestParam Long diaryBookId,
-      @AuthenticationPrincipal UserDetails userDetails) {
-    diaryService.deleteDiary(diaryId, diaryBookId, userDetails);
-    return ResponseEntity.noContent().build();
-  }
+    @GetMapping
+    public ResponseEntity<Page<DiaryDto.DiaryResponse>> getDiariesByDiaryBook(
+            @PathVariable Long diaryBookId,
+            @AuthenticationPrincipal UserDetails userDetails,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        Page<DiaryDto.DiaryResponse> diaryPage = diaryService.getDiariesByDiaryBook(diaryBookId, userDetails, pageable);
+        return ResponseEntity.ok(diaryPage);
+    }
+
+    @PutMapping("/{diaryId}")
+    public ResponseEntity<DiaryDto.DiaryResponse> updateDiary(
+            @PathVariable Long diaryBookId,
+            @PathVariable Long diaryId,
+            @ModelAttribute @Valid DiaryDto.DiaryUpdateRequest requestDto,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        return ResponseEntity.ok(diaryService.updateDiary(diaryBookId, diaryId, requestDto, userDetails));
+    }
+
+    @DeleteMapping("/{diaryId}")
+    public ResponseEntity<Void> deleteDiary(
+            @PathVariable Long diaryBookId,
+            @PathVariable Long diaryId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        diaryService.deleteDiary(diaryBookId, diaryId, userDetails);
+        return ResponseEntity.noContent().build();
+    }
 }

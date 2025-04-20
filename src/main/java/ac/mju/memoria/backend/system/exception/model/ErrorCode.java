@@ -41,8 +41,11 @@ public enum ErrorCode {
     STICKER_NOT_FOUND(404, "스티커를 찾을 수 없습니다."),
     DIARY_NOT_FOUND(404, "일기를 찾을 수 없습니다."),
 
+    REACTION_ALREADY_EXISTS(400, "이미 공감 한 일기입니다."),
+    REACTION_NOT_FOUND(404, "존재하지 않는 공감입니다."),
+
     // Other
-    INTERNAL_SERVER_ERROR(500, "오류가 발생했습니다."),;
+    INTERNAL_SERVER_ERROR(500, "오류가 발생했습니다."), ;
 
     private final int statusCode;
     private final String message;
