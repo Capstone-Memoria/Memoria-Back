@@ -1,0 +1,15 @@
+package ac.mju.memoria.backend.domain.diary.repository;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import ac.mju.memoria.backend.domain.diary.entity.Diary;
+import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
+
+public interface DiaryRepository extends JpaRepository<Diary, Long> {
+  List<Diary> findByDiaryBookOrderByCreatedAtDesc(DiaryBook diaryBook);
+
+  Optional<Diary> findByIdAndDiaryBook(Long id, DiaryBook diaryBook);
+}
