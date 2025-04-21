@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,14 +29,18 @@ public class StickerService {
 
         stickerRepository.deleteAllByDiaryBookId(diaryBook.getId());
 
-        List<StickerDto.StickerResponse> responses = new ArrayList<>();
-        for (StickerDto.StickerInfo info : request.getStickers()) {
-            Sticker sticker = info.toEntity();
-            sticker.setDiaryBook(diaryBook);
+        List<Sticker> stickers = request.getStickers().stream()
+                .map(info -> {
+                    Sticker sticker = info.toEntity();
+                    sticker.setDiaryBook(diaryBook);
+                    return sticker;
+                })
+                .collect(Collectors.toList());
 
-            Sticker saved = stickerRepository.save(sticker);
-            responses.add(StickerDto.StickerResponse.from(saved));
-        }
-        return responses;
+        List<Sticker> savedStickers = stickerRepository.saveAll(stickers);
+
+        return savedStickers.stream()
+                .map(StickerDto.StickerResponse::from)
+                .collect(Collectors.toList());
     }
 }

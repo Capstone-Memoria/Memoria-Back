@@ -18,7 +18,7 @@ public class Sticker {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private StickerType stickerType;
 
     private int posX;
