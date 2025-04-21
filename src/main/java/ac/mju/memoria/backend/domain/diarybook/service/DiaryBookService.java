@@ -37,6 +37,7 @@ public class DiaryBookService {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RestException(ErrorCode.AUTH_USER_NOT_FOUND));
 
+
         CoverImageFile coverImage = CoverImageFile.from(request.getCoverImage());
         DiaryBook diaryBook = request.toEntity();
 
@@ -47,7 +48,8 @@ public class DiaryBookService {
         diaryBookRepository.save(diaryBook);
         fileSystemHandler.saveFile(request.getCoverImage(), coverImage);
 
-        return DiaryBookDto.DiaryBookResponse.from(diaryBook);
+
+        return DiaryBookDto.DiaryBookResponse.from(saved);
     }
 
     public DiaryBookDto.DiaryBookResponse findDiaryBook(Long diaryBookId, UserDetails userDetails) {

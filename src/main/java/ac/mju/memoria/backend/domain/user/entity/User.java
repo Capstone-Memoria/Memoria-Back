@@ -2,8 +2,12 @@ package ac.mju.memoria.backend.domain.user.entity;
 
 import ac.mju.memoria.backend.common.auditor.TimeStampedEntity;
 import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
+import ac.mju.memoria.backend.domain.invitation.entity.Invitation;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.util.ArrayList;
@@ -24,12 +28,12 @@ public class User extends TimeStampedEntity {
     @OneToMany(mappedBy = "owner", orphanRemoval = true)
     private List<DiaryBook> ownedDiaryBooks = new ArrayList<>();
 
+    @OneToMany(mappedBy = "inviteBy", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Invitation> invitations = new ArrayList<>();
+
     public void addOwnedDiaryBook(DiaryBook diaryBook) {
         this.ownedDiaryBooks.add(diaryBook);
         diaryBook.setOwner(this);
     }
 
-    public void removeDiaryBook(DiaryBook diaryBook) {
-        this.ownedDiaryBooks.remove(diaryBook);
-    }
 }

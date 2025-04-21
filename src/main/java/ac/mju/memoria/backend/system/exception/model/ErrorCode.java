@@ -18,6 +18,10 @@ public enum ErrorCode {
     //User
     USER_ALREADY_JOINED(400, "이미 가입된 그룹입니다."),
     USER_NOT_FOUND(404, "존재하지 않는 사용자입니다."),
+    USER_PASSWORD_NOT_MATCH(400, "올바른 비밀번호가 아닙니다."),
+
+    //Invite
+    INVITE_ALREADY_MEMBER(400, "이미 등록된 멤버입니다."),
 
     //jwt
     AUTH_TOKEN_NOT_FOUND(401, "인증 토큰을 찾을 수 없습니다."),
@@ -26,7 +30,6 @@ public enum ErrorCode {
     AUTH_TOKEN_MALFORMED(401, "토큰 형식이 올바르지 않습니다."),
     AUTH_AUTHENTICATION_FAILED(401, "인증에 실패했습니다."),
     AUTH_USER_NOT_FOUND(404, "등록된 유저를 찾을 수 없습니다."),
-    AUTH_PASSWORD_NOT_CORRECT(401, "올바른 비밀번호가 아닙니다."),
     AUTH_FORBIDDEN(403, "접근 권한이 없습니다."),
     AUTH_CANNOT_GENERATE_TOKEN(400, "인증키를 생성 할 수 없습니다."),
 
@@ -38,7 +41,7 @@ public enum ErrorCode {
     STICKER_NOT_FOUND(404, "스티커를 찾을 수 없습니다."),
 
     //Other
-    INTERNAL_SERVER_ERROR(500, "오류가 발생했습니다."), ;
+    INTERNAL_SERVER_ERROR(500, "오류가 발생했습니다."),;
 
     private final int statusCode;
     private final String message;

@@ -5,6 +5,7 @@ import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
 import ac.mju.memoria.backend.domain.file.dto.FileDto;
 import ac.mju.memoria.backend.domain.diarybook.entity.Sticker;
 import ac.mju.memoria.backend.domain.user.dto.UserDto;
+import ac.mju.memoria.backend.domain.user.entity.User;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -31,9 +32,10 @@ public class DiaryBookDto {
         @NotNull(message = "커버이미지를 업로드해 주세요")
         private MultipartFile coverImage;
 
-        public DiaryBook toEntity() {
+        public DiaryBook toEntity(User user) {
             return DiaryBook.builder()
                     .title(title)
+                    .owner(user)
                     .build();
         }
     }
@@ -64,20 +66,23 @@ public class DiaryBookDto {
     public static class DiaryBookResponse {
         private Long id;
         private String title;
-        private LocalDateTime createAt;
-        private LocalDateTime lastModified;
+        private Boolean isPinned;
+        private LocalDateTime createdAt;
+        private LocalDateTime lastModifiedAt;
         private UserDto.UserResponse createdBy;
         private UserDto.UserResponse lastModifiedBy;
         private UserDto.UserResponse owner;
         private FileDto.FileResponse coverImage;
         private List<StickerDto.StickerResponse> stickers;
-
+        private Integer memberCount;
+      
         public static DiaryBookResponse from(DiaryBook diaryBook) {
             return DiaryBookResponse.builder()
                     .id(diaryBook.getId())
                     .title(diaryBook.getTitle())
-                    .createAt(diaryBook.getCreatedAt())
-                    .lastModified(diaryBook.getLastModifiedAt())
+                    .isPinned(diaryBook.isPinned())
+                    .createdAt(diaryBook.getCreatedAt())
+                    .lastModifiedAt(diaryBook.getLastModifiedAt())
                     .createdBy(UserDto.UserResponse.from(diaryBook.getCreatedBy()))
                     .lastModifiedBy(UserDto.UserResponse.from(diaryBook.getLastModifiedBy()))
                     .owner(UserDto.UserResponse.from(diaryBook.getOwner()))
@@ -89,6 +94,7 @@ public class DiaryBookDto {
                                     .map(StickerDto.StickerResponse::from)
                                     .toList()
                     )
+                    .memberCount(diaryBook.getMembers() == null ? 1 : diaryBook.getMembers().size() + 1)
                     .build();
         }
     }
