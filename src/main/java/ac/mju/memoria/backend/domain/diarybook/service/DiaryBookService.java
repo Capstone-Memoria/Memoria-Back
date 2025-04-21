@@ -39,13 +39,13 @@ public class DiaryBookService {
 
 
         CoverImageFile coverImage = CoverImageFile.from(request.getCoverImage());
-        DiaryBook diaryBook = request.toEntity();
+        DiaryBook diaryBook = request.toEntity(user);
 
         diaryBook.setCoverImageFile(coverImage);
         coverImage.setDiaryBook(diaryBook);
 
         user.addOwnedDiaryBook(diaryBook);
-        diaryBookRepository.save(diaryBook);
+        DiaryBook saved = diaryBookRepository.save(diaryBook);
         fileSystemHandler.saveFile(request.getCoverImage(), coverImage);
 
 
