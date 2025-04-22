@@ -37,17 +37,17 @@ public class DiaryBookService {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RestException(ErrorCode.AUTH_USER_NOT_FOUND));
 
-
-        CoverImageFile coverImage = CoverImageFile.from(request.getCoverImage());
         DiaryBook diaryBook = request.toEntity(user);
 
-        diaryBook.setCoverImageFile(coverImage);
-        coverImage.setDiaryBook(diaryBook);
+        if(Objects.nonNull(request.getCoverImage())) {
+            CoverImageFile coverImage = CoverImageFile.from(request.getCoverImage());
+            diaryBook.setCoverImageFile(coverImage);
+            coverImage.setDiaryBook(diaryBook);
+            fileSystemHandler.saveFile(request.getCoverImage(), coverImage);
+        }
 
         user.addOwnedDiaryBook(diaryBook);
         DiaryBook saved = diaryBookRepository.save(diaryBook);
-        fileSystemHandler.saveFile(request.getCoverImage(), coverImage);
-
 
         return DiaryBookDto.DiaryBookResponse.from(saved);
     }

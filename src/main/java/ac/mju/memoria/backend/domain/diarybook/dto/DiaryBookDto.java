@@ -29,7 +29,7 @@ public class DiaryBookDto {
     public static class DiaryBookCreateRequest {
         @NotBlank(message = "제목을 입력해 주세요")
         private String title;
-        @NotNull(message = "커버이미지를 업로드해 주세요")
+//        @NotNull(message = "커버이미지를 업로드해 주세요") TODO: 추후 활성화
         private MultipartFile coverImage;
 
         public DiaryBook toEntity(User user) {
