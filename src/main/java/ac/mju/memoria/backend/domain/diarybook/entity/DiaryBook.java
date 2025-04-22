@@ -3,6 +3,7 @@ package ac.mju.memoria.backend.domain.diarybook.entity;
 import ac.mju.memoria.backend.common.auditor.UserStampedEntity;
 import ac.mju.memoria.backend.domain.diary.entity.Diary;
 import ac.mju.memoria.backend.domain.file.entity.CoverImageFile;
+import ac.mju.memoria.backend.domain.diary.entity.Diary;
 import ac.mju.memoria.backend.domain.diarybook.entity.enums.MemberPermission;
 import ac.mju.memoria.backend.domain.invitation.entity.Invitation;
 import ac.mju.memoria.backend.domain.user.entity.User;
