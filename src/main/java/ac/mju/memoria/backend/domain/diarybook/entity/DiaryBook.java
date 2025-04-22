@@ -75,8 +75,4 @@ public class DiaryBook extends UserStampedEntity {
         this.diaries.add(diary);
         diary.setDiaryBook(this);
     }
-
-    @OneToMany(mappedBy = "diaryBook", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Invitation> invitations = new ArrayList<>();
-
 }

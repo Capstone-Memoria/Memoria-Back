@@ -53,7 +53,7 @@ public class Diary extends UserStampedEntity {
     }
 
     public boolean canUpdateAndDelete(User user) {
-        if (user.equals(author)) {
+        if (user.getEmail().equals(author.getEmail())) {
             return true;
         }
 

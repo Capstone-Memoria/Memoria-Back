@@ -14,7 +14,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class DiaryDto {
-    @Getter
+    @Data
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor

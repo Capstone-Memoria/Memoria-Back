@@ -52,7 +52,7 @@ public class DiaryController {
         return ResponseEntity.ok(diaryPage);
     }
 
-    @PutMapping("/{diaryId}")
+    @PatchMapping("/{diaryId}")
     public ResponseEntity<DiaryDto.DiaryResponse> updateDiary(
             @PathVariable Long diaryBookId,
             @PathVariable Long diaryId,
