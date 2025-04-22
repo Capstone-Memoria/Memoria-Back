@@ -37,18 +37,9 @@ public class User extends TimeStampedEntity {
     @Builder.Default
     private List<Diary> ownedDiaries = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
-    private List<Reaction> ownedReactions = new ArrayList<>();
-
     public void addOwnedDiaryBook(DiaryBook diaryBook) {
         this.ownedDiaryBooks.add(diaryBook);
         diaryBook.setOwner(this);
-    }
-
-    public void addReaction(Reaction reaction) {
-        this.ownedReactions.add(reaction);
-        reaction.setUser(this);
     }
 
     public void addDiary(Diary diary) {
@@ -59,7 +50,6 @@ public class User extends TimeStampedEntity {
     public void unproxy() {
         ownedDiaryBooks = new ArrayList<>(ownedDiaryBooks);
         ownedDiaries = new ArrayList<>(ownedDiaries);
-        ownedReactions = new ArrayList<>(ownedReactions);
         invitations = new ArrayList<>(invitations);
     }
 

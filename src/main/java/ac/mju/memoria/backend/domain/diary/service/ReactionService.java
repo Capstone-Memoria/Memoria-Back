@@ -43,8 +43,6 @@ public class ReactionService {
                 .user(user)
                 .build();
 
-        user.addReaction(reaction);
-
         Reaction saved = reactionRepository.save(reaction);
         return ReactionDto.Response.from(saved);
     }
