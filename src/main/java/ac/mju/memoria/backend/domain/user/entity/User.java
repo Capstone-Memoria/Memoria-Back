@@ -55,4 +55,11 @@ public class User extends TimeStampedEntity {
         diary.setAuthor(this);
     }
 
+    public void unproxy() {
+        ownedDiaryBooks = new ArrayList<>(ownedDiaryBooks);
+        ownedDiaries = new ArrayList<>(ownedDiaries);
+        ownedReactions = new ArrayList<>(ownedReactions);
+        invitations = new ArrayList<>(invitations);
+    }
+
 }

@@ -19,6 +19,7 @@ public class UserDetails extends AuthDetails{
 
     public static UserDetails from(User user) {
         User unproxied = Hibernate.unproxy(user, User.class);
+        user.unproxy();
 
         return UserDetails.builder()
                 .user(unproxied)
