@@ -4,6 +4,7 @@ import ac.mju.memoria.backend.domain.user.entity.User;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 
 @RequiredArgsConstructor
 @Getter
@@ -17,8 +18,11 @@ public class UserDetails extends AuthDetails{
     }
 
     public static UserDetails from(User user) {
+        User unproxied = Hibernate.unproxy(user, User.class);
+        user.unproxy();
+
         return UserDetails.builder()
-                .user(user)
+                .user(unproxied)
                 .build();
     }
 }
