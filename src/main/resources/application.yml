@@ -22,3 +22,6 @@ jwt:
 
 file:
   save-path: ./uploaded
+
+gemini:
+  apiKey: ${GEMINI_API_KEY}

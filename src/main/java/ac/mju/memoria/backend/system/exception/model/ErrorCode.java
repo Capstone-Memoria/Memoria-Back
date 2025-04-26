@@ -35,7 +35,10 @@ public enum ErrorCode {
 
     DIARYBOOK_NOT_FOUND(404, "일기장을 찾을 수 없습니다."),
 
-    //Other
+    //AI
+    AI_IMAGE_CREATION_FAILED(500, "AI 이미지 생성에 실패했습니다."),
+
+    // Other
     INTERNAL_SERVER_ERROR(500, "오류가 발생했습니다.");
 
     private final int statusCode;

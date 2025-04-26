@@ -3,6 +3,7 @@ package ac.mju.memoria.backend.domain.diarybook.dto;
 
 import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
 import ac.mju.memoria.backend.domain.user.dto.UserDto;
+import ac.mju.memoria.backend.domain.user.entity.User;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
