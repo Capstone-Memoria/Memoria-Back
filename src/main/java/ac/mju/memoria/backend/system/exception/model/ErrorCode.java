@@ -45,6 +45,9 @@ public enum ErrorCode {
     REACTION_ALREADY_EXISTS(400, "이미 공감 한 일기입니다."),
     REACTION_NOT_FOUND(404, "존재하지 않는 공감입니다."),
 
+    //AI
+    AI_IMAGE_CREATION_FAILED(500, "AI 이미지 생성에 실패했습니다."),
+
     // Other
     INTERNAL_SERVER_ERROR(500, "오류가 발생했습니다."), ;
 
