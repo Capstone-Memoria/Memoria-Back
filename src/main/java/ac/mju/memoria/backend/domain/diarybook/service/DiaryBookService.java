@@ -73,5 +73,4 @@ public class DiaryBookService {
 
         diaryBookRepository.delete(diaryBook);
     }
-
 }
