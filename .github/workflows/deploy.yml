@@ -156,7 +156,7 @@ jobs:
               -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
               -e GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} \
               -e TZ=Asia/Seoul \
-              -v ${{ secrets.DEPLOY_PATH }}/uploaded:/app/uploaded \
+              -v ${{ secrets.DEPLOY_PATH }}/uploaded:/uploaded \
               memoria:latest
 
             echo "Docker container deployed on remote server"
