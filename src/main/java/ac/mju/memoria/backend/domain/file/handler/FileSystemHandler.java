@@ -68,7 +68,7 @@ public class FileSystemHandler {
         File targetFile = Paths.get(savePath, attachedFile.getId()).toFile();
 
         if (!targetFile.exists()) {
-            throw new RestException(ErrorCode.FILE_NOT_FOUND);
+            return;
         }
 
         if (!targetFile.delete()) {
