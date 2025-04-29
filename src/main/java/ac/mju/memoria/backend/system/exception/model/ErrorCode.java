@@ -34,22 +34,29 @@ public enum ErrorCode {
     AUTH_FORBIDDEN(403, "접근 권한이 없습니다."),
     AUTH_CANNOT_GENERATE_TOKEN(400, "인증키를 생성 할 수 없습니다."),
 
+    // File
     FILE_ALREADY_EXISTS(400, "파일이 이미 존재합니다."),
     FILE_NOT_FOUND(404, "파일을 찾을 수 없습니다."),
     FILE_NOT_IMAGE(400, "이미지 파일이 아닙니다."),
 
+    // DiaryBook, Diary
     DIARYBOOK_NOT_FOUND(404, "일기장을 찾을 수 없습니다."),
-    STICKER_NOT_FOUND(404, "스티커를 찾을 수 없습니다."),
     DIARY_NOT_FOUND(404, "일기를 찾을 수 없습니다."),
+
+    STICKER_NOT_FOUND(404, "스티커를 찾을 수 없습니다."),
 
     REACTION_ALREADY_EXISTS(400, "이미 공감 한 일기입니다."),
     REACTION_NOT_FOUND(404, "존재하지 않는 공감입니다."),
+
+    // Comment
+    PARENT_COMMENT_NOT_FOUND(404, "부모 댓글을 찾을 수 없습니다"),
+    COMMENT_NOT_FOUND(404, "댓글을 찾을 수 없습니다"),
 
     //AI
     AI_IMAGE_CREATION_FAILED(500, "AI 이미지 생성에 실패했습니다."),
 
     // Other
-    INTERNAL_SERVER_ERROR(500, "오류가 발생했습니다."), ;
+    INTERNAL_SERVER_ERROR(500, "오류가 발생했습니다."),;
 
     private final int statusCode;
     private final String message;

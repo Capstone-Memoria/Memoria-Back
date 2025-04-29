@@ -1,6 +1,6 @@
-package ac.mju.memoria.backend.domain.diary.entity;
+package ac.mju.memoria.backend.domain.comment.entity;
 
-import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
+import ac.mju.memoria.backend.domain.diary.entity.Diary;
 import ac.mju.memoria.backend.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

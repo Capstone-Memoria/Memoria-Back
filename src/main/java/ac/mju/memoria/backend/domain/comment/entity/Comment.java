@@ -1,10 +1,13 @@
-package ac.mju.memoria.backend.domain.diary.entity;
+package ac.mju.memoria.backend.domain.comment.entity;
 
 import ac.mju.memoria.backend.common.auditor.UserStampedEntity;
+import ac.mju.memoria.backend.domain.diary.entity.Diary;
 import ac.mju.memoria.backend.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+
+import java.util.List;
 
 @Entity
 @Getter
@@ -13,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @SuperBuilder
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "CREATED_BY")
+@DiscriminatorColumn
 public abstract class Comment extends UserStampedEntity {
     @Id @Setter(AccessLevel.NONE)
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -34,4 +37,7 @@ public abstract class Comment extends UserStampedEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_email")
     private User user;
+
+    @OneToMany(mappedBy = "parent")
+    private List<Comment> children;
 }

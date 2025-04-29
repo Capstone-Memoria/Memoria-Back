@@ -1,6 +1,7 @@
 package ac.mju.memoria.backend.domain.diary.entity;
 
 import ac.mju.memoria.backend.common.auditor.UserStampedEntity;
+import ac.mju.memoria.backend.domain.comment.entity.Comment;
 import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
 import ac.mju.memoria.backend.domain.file.entity.Image;
 import ac.mju.memoria.backend.domain.user.entity.User;
@@ -54,6 +55,11 @@ public class Diary extends UserStampedEntity {
     public void addImage(Image image) {
         this.images.add(image);
         image.setDiary(this);
+    }
+
+    public void addComment(Comment comment) {
+        this.comments.add(comment);
+        comment.setDiary(this);
     }
 
     public boolean canUpdateAndDelete(User user) {
