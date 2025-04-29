@@ -2,7 +2,6 @@ package ac.mju.memoria.backend.domain.comment.service;
 
 import ac.mju.memoria.backend.domain.comment.dto.CommentDto;
 import ac.mju.memoria.backend.domain.comment.entity.Comment;
-import ac.mju.memoria.backend.domain.comment.entity.UserComment;
 import ac.mju.memoria.backend.domain.comment.repository.CommentQueryRepository;
 import ac.mju.memoria.backend.domain.comment.repository.CommentRepository;
 import ac.mju.memoria.backend.domain.diary.entity.Diary;
@@ -13,8 +12,6 @@ import ac.mju.memoria.backend.system.exception.model.ErrorCode;
 import ac.mju.memoria.backend.system.exception.model.RestException;
 import ac.mju.memoria.backend.system.security.model.UserDetails;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +38,7 @@ public class CommentService {
 
         Comment toSave = request.toEntity();
         toSave.setDiary(diary);
+        toSave.setCreatedBy(userDetails.getUser());
 
         Comment saved = commentRepository.save(toSave);
 
@@ -55,6 +53,7 @@ public class CommentService {
         Comment toSave = request.toEntity();
         toSave.setParent(parent);
         toSave.setDiary(parent.getDiary());
+        toSave.setCreatedBy(userDetails.getUser());
 
         Comment saved = commentRepository.save(toSave);
 

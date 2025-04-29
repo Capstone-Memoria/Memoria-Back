@@ -3,6 +3,7 @@ package ac.mju.memoria.backend.domain.comment.repository;
 import ac.mju.memoria.backend.domain.comment.entity.Comment;
 import ac.mju.memoria.backend.domain.comment.entity.QComment;
 import ac.mju.memoria.backend.domain.diary.entity.Diary;
+import ac.mju.memoria.backend.domain.diary.entity.QDiary;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -34,8 +35,10 @@ public class CommentQueryRepository {
 
     public List<Comment> findCommentsWithChildrenByDiary(Diary diary) {
         QComment children = new QComment("children");
+        QDiary diaryEntity = QDiary.diary;
 
         return queryFactory.selectFrom(comment)
+                .leftJoin(comment.diary, diaryEntity).fetchJoin()
                 .leftJoin(comment.children, children).fetchJoin()
                 .leftJoin(comment.createdBy).fetchJoin()
                 .leftJoin(comment.lastModifiedBy).fetchJoin()
