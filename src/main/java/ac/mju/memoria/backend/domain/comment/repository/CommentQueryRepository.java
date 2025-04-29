@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static ac.mju.memoria.backend.domain.comment.entity.QComment.comment;
+import static ac.mju.memoria.backend.domain.user.entity.QUser.user;
 
 @Repository
 @RequiredArgsConstructor
@@ -40,7 +41,7 @@ public class CommentQueryRepository {
         return queryFactory.selectFrom(comment)
                 .leftJoin(comment.diary, diaryEntity).fetchJoin()
                 .leftJoin(comment.children, children).fetchJoin()
-                .leftJoin(comment.createdBy).fetchJoin()
+                .leftJoin(comment.user, user).fetchJoin()
                 .leftJoin(comment.lastModifiedBy).fetchJoin()
                 .distinct()
                 .where(
@@ -54,7 +55,7 @@ public class CommentQueryRepository {
     public Optional<Comment> findById(Long id) {
         return Optional.ofNullable(
                 queryFactory.selectFrom(comment)
-                        .leftJoin(comment.createdBy).fetchJoin()
+                        .leftJoin(comment.user, user).fetchJoin()
                         .leftJoin(comment.lastModifiedBy).fetchJoin()
                         .distinct()
                         .where(

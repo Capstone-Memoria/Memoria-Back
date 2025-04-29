@@ -48,7 +48,7 @@ public class CommentDto {
                     .parentId(Optional.ofNullable(comment.getParent()).map(Comment::getId).orElse(null))
                     .isDeleted(comment.isDeleted())
                     .diary(DiaryDto.DiaryResponse.fromEntity(comment.getDiary()))
-                    .createdBy(UserDto.UserResponse.from(comment.getCreatedBy()))
+                    .createdBy(UserDto.UserResponse.from(comment.getUser()))
                     .build();
         }
     }
@@ -68,7 +68,7 @@ public class CommentDto {
                     .parentId(Optional.ofNullable(comment.getParent()).map(Comment::getId).orElse(null))
                     .isDeleted(comment.isDeleted())
                     .diary(DiaryDto.DiaryResponse.fromEntity(comment.getDiary()))
-                    .createdBy(UserDto.UserResponse.from(comment.getCreatedBy()))
+                    .createdBy(UserDto.UserResponse.from(comment.getUser()))
                     .children(comment.getChildren().stream().map(TreeResponse::from).toList())
                     .build();
         }

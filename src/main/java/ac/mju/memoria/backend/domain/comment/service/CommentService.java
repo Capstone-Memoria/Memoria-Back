@@ -38,7 +38,7 @@ public class CommentService {
 
         Comment toSave = request.toEntity();
         toSave.setDiary(diary);
-        toSave.setCreatedBy(userDetails.getUser());
+        toSave.setUser(userDetails.getUser());
 
         Comment saved = commentRepository.save(toSave);
 
@@ -53,7 +53,7 @@ public class CommentService {
         Comment toSave = request.toEntity();
         toSave.setParent(parent);
         toSave.setDiary(parent.getDiary());
-        toSave.setCreatedBy(userDetails.getUser());
+        toSave.setUser(userDetails.getUser());
 
         Comment saved = commentRepository.save(toSave);
 
