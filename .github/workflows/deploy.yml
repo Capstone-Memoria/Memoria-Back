@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:  # for manual triggers
+  workflow_dispatch: # for manual triggers
   repository_dispatch:
     types: [frontend-update]
 
@@ -154,6 +154,9 @@ jobs:
               -e DB_NAME=${{ secrets.DB_NAME }} \
               -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
               -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              -e GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }} \
+              -e TZ=Asia/Seoul \
+              -v ${{ secrets.DEPLOY_PATH }}/uploaded:/uploaded \
               memoria:latest
 
             echo "Docker container deployed on remote server"

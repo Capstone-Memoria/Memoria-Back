@@ -19,10 +19,8 @@ public class DiaryBookMember extends TimeStampedEntity {
     @Id @GeneratedValue(strategy = GenerationType.AUTO)
     @Setter(AccessLevel.NONE)
     private Long id;
-
     @ManyToOne(fetch = FetchType.LAZY)
     private DiaryBook diaryBook;
-
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 

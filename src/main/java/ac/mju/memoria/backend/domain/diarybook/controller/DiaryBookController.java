@@ -21,7 +21,7 @@ public class DiaryBookController {
 
     @PostMapping
     public ResponseEntity<DiaryBookDto.DiaryBookResponse> createDiaryBook(
-            @Valid @RequestBody DiaryBookDto.DiaryBookCreateRequest request,
+            @Valid @ModelAttribute DiaryBookDto.DiaryBookCreateRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
 
         DiaryBookDto.DiaryBookResponse diaryBook = diaryBookService.createDiaryBook(request, userDetails);
@@ -48,7 +48,7 @@ public class DiaryBookController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<DiaryBookDto.DiaryBookResponse> updateDiaryBook(
-            @PathVariable Long id, @RequestBody DiaryBookDto.DiaryBookUpdateRequest request,
+            @PathVariable Long id, @ModelAttribute DiaryBookDto.DiaryBookUpdateRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
 
         DiaryBookDto.DiaryBookResponse updatedDiaryBook = diaryBookService.updateDiaryBook(request, id, userDetails);

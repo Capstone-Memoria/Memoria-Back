@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 public class FileDto {
 
     @AllArgsConstructor
@@ -18,6 +20,10 @@ public class FileDto {
         private Long size;
 
         public static FileResponse from(AttachedFile file) {
+            if(Objects.isNull(file)) {
+                return null;
+            }
+
             return FileResponse.builder()
                     .id(file.getId())
                     .fileName(file.getFileName())

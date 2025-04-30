@@ -1,17 +1,44 @@
 package ac.mju.memoria.backend.system.exception.dto;
 
 import ac.mju.memoria.backend.system.exception.model.ErrorCode;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+
+import java.util.List;
 
 public class ErrorDto {
+
+    @EqualsAndHashCode(callSuper = true)
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Data
+    @SuperBuilder
+    public static class ValidationErrorResponse extends ErrorResponse {
+        private List<FieldError> errors;
+
+        @AllArgsConstructor
+        @NoArgsConstructor
+        @Data
+        @Builder
+        public static class FieldError {
+            private String field;
+            private String message;
+        }
+
+        public static ValidationErrorResponse of(ErrorCode errorCode, List<FieldError> errors) {
+            return ValidationErrorResponse.builder()
+                    .statusCode(errorCode.getStatusCode())
+                    .message(errorCode.getMessage())
+                    .codeName(errorCode.name())
+                    .errors(errors)
+                    .build();
+        }
+    }
 
     @AllArgsConstructor
     @NoArgsConstructor
     @Data
-    @Builder
+    @SuperBuilder
     public static class ErrorResponse {
         private Integer statusCode;
         private String message;

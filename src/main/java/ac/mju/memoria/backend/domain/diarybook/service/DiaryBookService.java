@@ -4,6 +4,9 @@ import ac.mju.memoria.backend.domain.diarybook.dto.DiaryBookDto;
 import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
 import ac.mju.memoria.backend.domain.diarybook.repository.DiaryBookQueryRepository;
 import ac.mju.memoria.backend.domain.diarybook.repository.DiaryBookRepository;
+import ac.mju.memoria.backend.domain.file.entity.CoverImageFile;
+import ac.mju.memoria.backend.domain.file.handler.FileSystemHandler;
+import ac.mju.memoria.backend.domain.file.repository.AttachedFileRepository;
 import ac.mju.memoria.backend.domain.user.entity.User;
 import ac.mju.memoria.backend.domain.user.repository.UserRepository;
 import ac.mju.memoria.backend.system.exception.model.ErrorCode;
@@ -17,12 +20,16 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
+
 @RequiredArgsConstructor
 @Service
 public class DiaryBookService {
     private final DiaryBookRepository diaryBookRepository;
     private final DiaryBookQueryRepository diaryBookQueryRepository;
     private final UserRepository userRepository;
+    private final AttachedFileRepository attachedFileRepository;
+    private final FileSystemHandler fileSystemHandler;
 
     @Transactional
     public DiaryBookDto.DiaryBookResponse createDiaryBook(DiaryBookDto.DiaryBookCreateRequest request, UserDetails userDetails) {
@@ -31,6 +38,14 @@ public class DiaryBookService {
                 .orElseThrow(() -> new RestException(ErrorCode.AUTH_USER_NOT_FOUND));
 
         DiaryBook diaryBook = request.toEntity(user);
+
+        if(Objects.nonNull(request.getCoverImage())) {
+            CoverImageFile coverImage = CoverImageFile.from(request.getCoverImage());
+            diaryBook.setCoverImageFile(coverImage);
+            coverImage.setDiaryBook(diaryBook);
+            fileSystemHandler.saveFile(request.getCoverImage(), coverImage);
+        }
+
         user.addOwnedDiaryBook(diaryBook);
         DiaryBook saved = diaryBookRepository.save(diaryBook);
 
@@ -60,14 +75,27 @@ public class DiaryBookService {
         DiaryBook diaryBook = diaryBookQueryRepository.findByIdAndUserEmail(diaryBookId, userDetails.getKey())
                 .orElseThrow(() -> new RestException(ErrorCode.DIARYBOOK_NOT_FOUND));
 
+        updateCoverImageIfNotNull(request, diaryBook);
         request.applyTo(diaryBook);
 
         return DiaryBookDto.DiaryBookResponse.from(diaryBook);
     }
 
+    private void updateCoverImageIfNotNull(DiaryBookDto.DiaryBookUpdateRequest request, DiaryBook diaryBook) {
+        if (Objects.nonNull(request.getCoverImage())) {
+            attachedFileRepository.delete(diaryBook.getCoverImageFile());
+
+            CoverImageFile newCoverImage = CoverImageFile.from(request.getCoverImage());
+            diaryBook.setCoverImageFile(newCoverImage);
+            newCoverImage.setDiaryBook(diaryBook);
+
+            fileSystemHandler.saveFile(request.getCoverImage(), newCoverImage);
+            fileSystemHandler.deleteFile(diaryBook.getCoverImageFile());
+        }
+    }
+
     @Transactional
     public void deleteDiaryBook(Long diaryBookId, UserDetails userDetails) {
-
         DiaryBook diaryBook = diaryBookQueryRepository.findByIdAndUserEmail(diaryBookId, userDetails.getKey())
                 .orElseThrow(() -> new RestException(ErrorCode.DIARYBOOK_NOT_FOUND));
 

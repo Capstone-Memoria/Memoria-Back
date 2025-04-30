@@ -7,6 +7,10 @@ spring:
     web:
       pageable:
         one-indexed-parameters: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 
 # 로그 레벨 설정
 logging:
@@ -22,3 +26,6 @@ jwt:
 
 file:
   save-path: ./uploaded
+
+gemini:
+  apiKey: ${GEMINI_API_KEY}
