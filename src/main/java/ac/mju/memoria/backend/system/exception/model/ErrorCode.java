@@ -41,7 +41,9 @@ public enum ErrorCode {
 
     // DiaryBook, Diary
     DIARYBOOK_NOT_FOUND(404, "일기장을 찾을 수 없습니다."),
+    MEMBER_NOT_FOUND(404, "멤버를 찾을 수 없습니다."),
     DIARY_NOT_FOUND(404, "일기를 찾을 수 없습니다."),
+
 
     STICKER_NOT_FOUND(404, "스티커를 찾을 수 없습니다."),
 
