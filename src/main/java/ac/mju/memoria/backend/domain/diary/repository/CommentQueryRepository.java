@@ -1,8 +1,8 @@
-package ac.mju.memoria.backend.domain.comment.repository;
+package ac.mju.memoria.backend.domain.diary.repository;
 
-import ac.mju.memoria.backend.domain.comment.entity.Comment;
-import ac.mju.memoria.backend.domain.comment.entity.QComment;
+import ac.mju.memoria.backend.domain.diary.entity.Comment;
 import ac.mju.memoria.backend.domain.diary.entity.Diary;
+import ac.mju.memoria.backend.domain.diary.entity.QComment;
 import ac.mju.memoria.backend.domain.diary.entity.QDiary;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-import static ac.mju.memoria.backend.domain.comment.entity.QComment.comment;
+import static ac.mju.memoria.backend.domain.diary.entity.QComment.comment;
 import static ac.mju.memoria.backend.domain.user.entity.QUser.user;
 
 @Repository

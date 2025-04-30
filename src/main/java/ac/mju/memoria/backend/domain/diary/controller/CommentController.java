@@ -1,7 +1,7 @@
-package ac.mju.memoria.backend.domain.comment.controller;
+package ac.mju.memoria.backend.domain.diary.controller;
 
-import ac.mju.memoria.backend.domain.comment.dto.CommentDto;
-import ac.mju.memoria.backend.domain.comment.service.CommentService;
+import ac.mju.memoria.backend.domain.diary.dto.CommentDto;
+import ac.mju.memoria.backend.domain.diary.service.CommentService;
 import ac.mju.memoria.backend.system.security.model.UserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

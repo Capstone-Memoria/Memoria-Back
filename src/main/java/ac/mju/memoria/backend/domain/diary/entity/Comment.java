@@ -1,7 +1,6 @@
-package ac.mju.memoria.backend.domain.comment.entity;
+package ac.mju.memoria.backend.domain.diary.entity;
 
 import ac.mju.memoria.backend.common.auditor.UserStampedEntity;
-import ac.mju.memoria.backend.domain.diary.entity.Diary;
 import ac.mju.memoria.backend.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;

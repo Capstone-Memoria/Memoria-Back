@@ -1,13 +1,13 @@
-package ac.mju.memoria.backend.domain.comment.dto;
+package ac.mju.memoria.backend.domain.diary.dto;
 
-import ac.mju.memoria.backend.domain.comment.entity.Comment;
-import ac.mju.memoria.backend.domain.comment.entity.UserComment;
-import ac.mju.memoria.backend.domain.diary.dto.DiaryDto;
+import ac.mju.memoria.backend.domain.diary.entity.Comment;
+import ac.mju.memoria.backend.domain.diary.entity.UserComment;
 import ac.mju.memoria.backend.domain.user.dto.UserDto;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -39,6 +39,9 @@ public class CommentDto {
         private boolean isDeleted;
         private DiaryDto.DiaryResponse diary;
         private UserDto.UserResponse createdBy;
+        private LocalDateTime createdAt;
+        private LocalDateTime lastModifiedAt;
+        private UserDto.UserResponse lastModifiedBy;
         private Long parentId;
 
         public static CommentResponse from(Comment comment) {
@@ -49,6 +52,9 @@ public class CommentDto {
                     .isDeleted(comment.isDeleted())
                     .diary(DiaryDto.DiaryResponse.fromEntity(comment.getDiary()))
                     .createdBy(UserDto.UserResponse.from(comment.getUser()))
+                    .createdAt(comment.getCreatedAt())
+                    .lastModifiedAt(comment.getLastModifiedAt())
+                    .lastModifiedBy(UserDto.UserResponse.from(comment.getLastModifiedBy()))
                     .build();
         }
     }
@@ -70,6 +76,9 @@ public class CommentDto {
                     .diary(DiaryDto.DiaryResponse.fromEntity(comment.getDiary()))
                     .createdBy(UserDto.UserResponse.from(comment.getUser()))
                     .children(comment.getChildren().stream().map(TreeResponse::from).toList())
+                    .createdAt(comment.getCreatedAt())
+                    .lastModifiedAt(comment.getLastModifiedAt())
+                    .lastModifiedBy(UserDto.UserResponse.from(comment.getLastModifiedBy()))
                     .build();
         }
     }

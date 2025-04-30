@@ -1,9 +1,9 @@
-package ac.mju.memoria.backend.domain.comment.service;
+package ac.mju.memoria.backend.domain.diary.service;
 
-import ac.mju.memoria.backend.domain.comment.dto.CommentDto;
-import ac.mju.memoria.backend.domain.comment.entity.Comment;
-import ac.mju.memoria.backend.domain.comment.repository.CommentQueryRepository;
-import ac.mju.memoria.backend.domain.comment.repository.CommentRepository;
+import ac.mju.memoria.backend.domain.diary.dto.CommentDto;
+import ac.mju.memoria.backend.domain.diary.entity.Comment;
+import ac.mju.memoria.backend.domain.diary.repository.CommentQueryRepository;
+import ac.mju.memoria.backend.domain.diary.repository.CommentRepository;
 import ac.mju.memoria.backend.domain.diary.entity.Diary;
 import ac.mju.memoria.backend.domain.diary.repository.DiaryRepository;
 import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
