@@ -1,14 +1,13 @@
 package ac.mju.memoria.backend.domain.user.entity;
 
 import ac.mju.memoria.backend.common.auditor.TimeStampedEntity;
+import ac.mju.memoria.backend.domain.comment.entity.Comment;
 import ac.mju.memoria.backend.domain.diary.entity.Diary;
-import ac.mju.memoria.backend.domain.diary.entity.Reaction;
 import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
 import ac.mju.memoria.backend.domain.invitation.entity.Invitation;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.Hibernate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +36,10 @@ public class User extends TimeStampedEntity {
     @Builder.Default
     private List<Diary> ownedDiaries = new ArrayList<>();
 
+    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Comment> comments = new ArrayList<>();
+
     public void addOwnedDiaryBook(DiaryBook diaryBook) {
         this.ownedDiaryBooks.add(diaryBook);
         diaryBook.setOwner(this);
@@ -52,5 +55,4 @@ public class User extends TimeStampedEntity {
         ownedDiaries = new ArrayList<>(ownedDiaries);
         invitations = new ArrayList<>(invitations);
     }
-
 }
