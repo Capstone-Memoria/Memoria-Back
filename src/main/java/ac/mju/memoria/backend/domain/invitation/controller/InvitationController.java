@@ -52,4 +52,10 @@ public class InvitationController {
         return invitationService.acceptByDirect(request, user);
     }
 
+    @GetMapping("/invitation/by-code/{code}")
+    public InvitationDto.CodeInviteDetailsResponse getCodeInviteDetails(
+            @PathVariable String code
+    ) {
+        return invitationService.getCodeInviteDetails(code);
+    }
 }

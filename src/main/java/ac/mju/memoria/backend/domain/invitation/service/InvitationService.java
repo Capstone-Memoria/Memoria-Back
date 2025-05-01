@@ -111,5 +111,17 @@ public class InvitationService {
             throw new RestException(ErrorCode.INVITE_ALREADY_MEMBER);
         }
     }
+    @Transactional(readOnly = true)
+    public InvitationDto.CodeInviteDetailsResponse getCodeInviteDetails(String code) {
+        CodeInvitation invitation = codeInvitationRepository.findByInviteCode(code)
+                .orElseThrow(() -> new RestException(ErrorCode.GLOBAL_NOT_FOUND));
+
+        if (invitation.isExpired()) {
+            codeInvitationRepository.delete(invitation);
+            throw new RestException(ErrorCode.INVITE_CODE_EXPIRED);
+        }
+
+        return InvitationDto.CodeInviteDetailsResponse.from(invitation);
+    }
 }
 

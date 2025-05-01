@@ -90,4 +90,27 @@ public class InvitationDto {
                     .build();
         }
     }
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class CodeInviteDetailsResponse {
+        private Long id;
+        private DiaryBookDto.DiaryBookResponse diaryBook;
+        private UserDto.UserResponse inviteBy;
+        private String inviteCode;
+        private LocalDateTime expiresAt;
+        private LocalDateTime createdAt;
+
+        public static CodeInviteDetailsResponse from(CodeInvitation entity) {
+            return CodeInviteDetailsResponse.builder()
+                    .id(entity.getId())
+                    .diaryBook(DiaryBookDto.DiaryBookResponse.from(entity.getDiaryBook()))
+                    .inviteBy(UserDto.UserResponse.from(entity.getInviteBy()))
+                    .inviteCode(entity.getInviteCode())
+                    .expiresAt(entity.getExpiresAt())
+                    .createdAt(entity.getCreatedAt())
+                    .build();
+        }
+    }
 }
