@@ -1,12 +1,19 @@
 package ac.mju.memoria.backend.domain.diarybook.service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import ac.mju.memoria.backend.domain.diarybook.dto.DiaryBookMemberDto;
 import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
 import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBookMember;
+import ac.mju.memoria.backend.domain.diarybook.entity.enums.MemberPermission;
 import ac.mju.memoria.backend.domain.diarybook.repository.DiaryBookMemberRepository;
 import ac.mju.memoria.backend.domain.diarybook.repository.DiaryBookQueryRepository;
+import ac.mju.memoria.backend.domain.user.dto.UserDto;
 import ac.mju.memoria.backend.system.exception.model.ErrorCode;
 import ac.mju.memoria.backend.system.exception.model.RestException;
 import ac.mju.memoria.backend.system.security.model.UserDetails;
@@ -31,10 +38,25 @@ public class DiaryBookMemberService {
     }
 
     @Transactional(readOnly = true)
-    public Object getMembers(Long diaryBookId, UserDetails userDetails) {
+    public List<DiaryBookMemberDto.MemberResponse> getMembers(Long diaryBookId, UserDetails userDetails) {
         DiaryBook diaryBook = diaryBookQueryRepository.findByIdAndUserEmail(diaryBookId, userDetails.getKey())
                 .orElseThrow(() -> new RestException(ErrorCode.DIARYBOOK_NOT_FOUND));
 
-        return diaryBook.getMembers();
+        // 기존 멤버 목록을 DTO로 변환
+        List<DiaryBookMemberDto.MemberResponse> members = diaryBook.getMembers().stream()
+                .map(DiaryBookMemberDto.MemberResponse::from)
+                .collect(Collectors.toCollection(ArrayList::new)); // 수정 가능한 리스트로 생성
+
+        // 오너 정보를 ADMIN 권한으로 추가
+        DiaryBookMemberDto.MemberResponse ownerMember = DiaryBookMemberDto.MemberResponse.builder()
+                .id(null) // 오너는 DiaryBookMember 엔티티가 아니므로 ID는 null 또는 다른 값으로 설정
+                .diaryBookId(diaryBook.getId())
+                .user(UserDto.UserResponse.from(diaryBook.getOwner()))
+                .permission(MemberPermission.ADMIN)
+                .build();
+
+        members.add(ownerMember);
+
+        return members;
     }
 }
