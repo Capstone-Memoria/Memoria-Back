@@ -1,5 +1,8 @@
 package ac.mju.memoria.backend.domain.diarybook.service;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
 import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBookMember;
 import ac.mju.memoria.backend.domain.diarybook.repository.DiaryBookMemberRepository;
@@ -8,8 +11,6 @@ import ac.mju.memoria.backend.system.exception.model.ErrorCode;
 import ac.mju.memoria.backend.system.exception.model.RestException;
 import ac.mju.memoria.backend.system.security.model.UserDetails;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,5 +28,13 @@ public class DiaryBookMemberService {
 
         diaryBook.getMembers().remove(member);
         diaryBookMemberRepository.delete(member);
+    }
+
+    @Transactional(readOnly = true)
+    public Object getMembers(Long diaryBookId, UserDetails userDetails) {
+        DiaryBook diaryBook = diaryBookQueryRepository.findByIdAndUserEmail(diaryBookId, userDetails.getKey())
+                .orElseThrow(() -> new RestException(ErrorCode.DIARYBOOK_NOT_FOUND));
+
+        return diaryBook.getMembers();
     }
 }
