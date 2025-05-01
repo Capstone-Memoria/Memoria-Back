@@ -45,10 +45,6 @@ public class Diary extends UserStampedEntity {
 
     @OneToMany(mappedBy = "diary", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
-    private List<Reaction> reactions = new ArrayList<>();
-
-    @OneToMany(mappedBy = "diary", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
     private List<Comment> comments = new ArrayList<>();
 
     public void addImage(Image image) {

@@ -82,10 +82,6 @@ public class DiaryDto {
                             diary.getImages().stream().
                                     map(FileDto.FileResponse::from)
                                     .collect(Collectors.toList()))
-                    .reactions(diary.getReactions() == null? Collections.emptyList() :
-                            diary.getReactions().stream()
-                                    .map(ReactionDto.Response::from)
-                                    .collect(Collectors.toList()))
                     .build();
         }
     }

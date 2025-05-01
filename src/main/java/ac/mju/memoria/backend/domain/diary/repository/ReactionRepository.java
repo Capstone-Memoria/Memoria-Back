@@ -1,12 +1,12 @@
 package ac.mju.memoria.backend.domain.diary.repository;
 
-import ac.mju.memoria.backend.domain.diary.entity.Diary;
-import ac.mju.memoria.backend.domain.diary.entity.Reaction;
-import ac.mju.memoria.backend.domain.user.entity.User;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
+import ac.mju.memoria.backend.domain.diary.entity.Reaction;
+import ac.mju.memoria.backend.domain.diary.entity.ReactionId;
 
-public interface ReactionRepository extends JpaRepository<Reaction, Long> {
-    Optional<Reaction> findByDiaryAndUser(Diary diary, User user);
+public interface ReactionRepository extends JpaRepository<Reaction, ReactionId> {
+    List<Reaction> findById_Diary_Id(Long diaryId);
 }

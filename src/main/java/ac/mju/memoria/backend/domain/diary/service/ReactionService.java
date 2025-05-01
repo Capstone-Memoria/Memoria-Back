@@ -1,8 +1,18 @@
 package ac.mju.memoria.backend.domain.diary.service;
 
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import ac.mju.memoria.backend.domain.diary.repository.ReactionQueryRepository;
+import org.jetbrains.annotations.Nullable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import ac.mju.memoria.backend.domain.diary.dto.ReactionDto;
 import ac.mju.memoria.backend.domain.diary.entity.Diary;
 import ac.mju.memoria.backend.domain.diary.entity.Reaction;
+import ac.mju.memoria.backend.domain.diary.entity.ReactionId;
 import ac.mju.memoria.backend.domain.diary.repository.DiaryRepository;
 import ac.mju.memoria.backend.domain.diary.repository.ReactionRepository;
 import ac.mju.memoria.backend.domain.user.entity.User;
@@ -10,11 +20,6 @@ import ac.mju.memoria.backend.system.exception.model.ErrorCode;
 import ac.mju.memoria.backend.system.exception.model.RestException;
 import ac.mju.memoria.backend.system.security.model.UserDetails;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -22,59 +27,36 @@ public class ReactionService {
 
     private final ReactionRepository reactionRepository;
     private final DiaryRepository diaryRepository;
+    private final ReactionQueryRepository reactionQueryRepository;
 
     @Transactional
-    public ReactionDto.Response addReaction(Long diaryId, ReactionDto.Request request, UserDetails userDetails) {
+    @Nullable
+    public ReactionDto.Response reactToDiary(Long diaryId, ReactionDto.Request request, UserDetails userDetails) {
         User user = userDetails.getUser();
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new RestException(ErrorCode.DIARY_NOT_FOUND));
 
         diary.isDiaryBookMember(user);
 
-        reactionRepository.findByDiaryAndUser(diary, user).ifPresent(
-                e -> {
-                    throw new RestException(ErrorCode.REACTION_ALREADY_EXISTS);
-                }
-        );
+        Reaction toModify = reactionRepository.findById(ReactionId.of(diary, userDetails.getUser()))
+                .orElseGet(() -> saveAndGetNewReaction(diary, user, request));
 
+        if (Objects.isNull(request.getReactionType())) {
+            reactionRepository.delete(toModify);
+            return null;
+        } else {
+            toModify.setType(request.getReactionType());
+        }
+
+        return ReactionDto.Response.from(toModify);
+    }
+
+    private Reaction saveAndGetNewReaction(Diary diary, User user, ReactionDto.Request request) {
         Reaction reaction = Reaction.builder()
+                .id(ReactionId.of(diary, user))
                 .type(request.getReactionType())
-                .diary(diary)
-                .user(user)
                 .build();
-
-        Reaction saved = reactionRepository.save(reaction);
-        return ReactionDto.Response.from(saved);
-    }
-
-    @Transactional
-    public ReactionDto.Response updateReaction(Long diaryId, ReactionDto.Request request, UserDetails userDetails) {
-        User user = userDetails.getUser();
-        Diary diary = diaryRepository.findById(diaryId)
-                .orElseThrow(() -> new RestException(ErrorCode.DIARY_NOT_FOUND));
-
-        diary.isDiaryBookMember(user);
-
-        Reaction reaction = reactionRepository.findByDiaryAndUser(diary, user)
-                .orElseThrow(() ->  new RestException(ErrorCode.REACTION_NOT_FOUND));
-
-        reaction.setType(request.getReactionType());
-
-        return ReactionDto.Response.from(reaction);
-    }
-
-    @Transactional
-    public void deleteReaction(Long diaryId, UserDetails userDetails) {
-        User user = userDetails.getUser();
-        Diary diary = diaryRepository.findById(diaryId)
-                .orElseThrow(() -> new RestException(ErrorCode.DIARY_NOT_FOUND));
-
-        diary.isDiaryBookMember(user);
-
-        Reaction reaction = reactionRepository.findByDiaryAndUser(diary, user)
-                .orElseThrow(() ->  new RestException(ErrorCode.REACTION_NOT_FOUND));
-
-        reactionRepository.delete(reaction);
+        return reactionRepository.save(reaction);
     }
 
     @Transactional(readOnly = true)
@@ -85,7 +67,7 @@ public class ReactionService {
 
         diary.isDiaryBookMember(user);
 
-        List<Reaction> reactions = diary.getReactions();
+        List<Reaction> reactions = reactionQueryRepository.findByDiaryId(diaryId);
 
         return reactions.stream()
                 .map(ReactionDto.Response::from)

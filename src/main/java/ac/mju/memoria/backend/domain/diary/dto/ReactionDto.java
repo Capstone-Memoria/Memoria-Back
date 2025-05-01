@@ -1,13 +1,15 @@
 package ac.mju.memoria.backend.domain.diary.dto;
 
-import ac.mju.memoria.backend.domain.diary.entity.Reaction;
-import ac.mju.memoria.backend.domain.diary.entity.enums.ReactionType;
-import ac.mju.memoria.backend.domain.user.dto.UserDto;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.*;
-
 import java.time.LocalDateTime;
+
+import ac.mju.memoria.backend.domain.diary.entity.Reaction;
+import ac.mju.memoria.backend.domain.diary.entity.ReactionId;
+import ac.mju.memoria.backend.domain.diary.entity.enums.ReactionType;
+import ac.mju.memoria.backend.domain.user.dto.UserDto.UserResponse;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 public class ReactionDto {
 
@@ -16,7 +18,6 @@ public class ReactionDto {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class Request {
-        @NotNull(message = "공감 종류를 선택하세요")
         private ReactionType reactionType;
 
     }
@@ -25,24 +26,34 @@ public class ReactionDto {
     @Builder
     @AllArgsConstructor
     @NoArgsConstructor
+    public static class IdResponse {
+        private UserResponse user;
+        private Long diaryId;
+
+        public static IdResponse from(ReactionId reactionId) {
+            return IdResponse.builder()
+                    .user(UserResponse.from(reactionId.getUser()))
+                    .diaryId(reactionId.getDiary().getId())
+                    .build();
+        }
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class Response {
-        private Long id;
+        private IdResponse reactionId;
         private ReactionType reactionType;
         private LocalDateTime createdAt;
-        private UserDto.UserResponse createdBy;
         private LocalDateTime lastModifiedAt;
-        private UserDto.UserResponse lastModifiedBy;
-
 
         public static Response from(Reaction reaction) {
-            if (reaction == null) return null;
             return Response.builder()
-                    .id(reaction.getId())
-                    .createdAt(reaction.getCreatedAt())
-                    .createdBy(UserDto.UserResponse.from(reaction.getCreatedBy()))
+                    .reactionId(IdResponse.from(reaction.getId()))
                     .reactionType(reaction.getType())
+                    .createdAt(reaction.getCreatedAt())
                     .lastModifiedAt(reaction.getLastModifiedAt())
-                    .lastModifiedBy(UserDto.UserResponse.from(reaction.getLastModifiedBy()))
                     .build();
         }
     }
