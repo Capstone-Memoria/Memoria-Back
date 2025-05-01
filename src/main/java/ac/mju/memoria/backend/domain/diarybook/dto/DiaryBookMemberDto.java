@@ -16,7 +16,7 @@ public class DiaryBookMemberDto {
     public static class MemberResponse {
         private Long id;
 
-        private DiaryBookDto.DiaryBookResponse diaryBook;
+        private Long diaryBookId;
 
         private UserDto.UserResponse user;
 
@@ -25,7 +25,7 @@ public class DiaryBookMemberDto {
         public static MemberResponse from(DiaryBookMember member) {
             return MemberResponse.builder()
                     .id(member.getId())
-                    .diaryBook(DiaryBookDto.DiaryBookResponse.from(member.getDiaryBook()))
+                    .diaryBookId(member.getDiaryBook().getId())
                     .user(UserDto.UserResponse.from(member.getUser()))
                     .permission(member.getPermission())
                     .build();
