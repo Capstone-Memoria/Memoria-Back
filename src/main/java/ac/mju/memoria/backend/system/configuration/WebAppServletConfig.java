@@ -5,6 +5,8 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -40,44 +42,39 @@ public class WebAppServletConfig implements WebMvcConfigurer {
                 });
     }
 
-    @Override
-    public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
-        String dateFormat = "yyyy-MM-dd";
+//    @Override
+//    public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+//        String dateFormat = "yyyy-MM-dd";
+//
+//        LocalDateSerializer localDateSerializer = new LocalDateSerializer(DateTimeFormatter.ofPattern(dateFormat));
+//        LocalDateTimeSerializer localDateTimeSerializer = new LocalDateTimeSerializer(DateTimeFormatter.ISO_DATE_TIME);
+//        LocalDateDeserializer localDateDeserializer = new LocalDateDeserializer(DateTimeFormatter.ofPattern(dateFormat));
+//        LocalDateTimeDeserializer localDateTimeDeserializer = new LocalDateTimeDeserializer(DateTimeFormatter.ISO_DATE_TIME);
+//
+//        ObjectMapper objectMapper = Jackson2ObjectMapperBuilder
+//                .json()
+//                .serializerByType(LocalDate.class, localDateSerializer)
+//                .serializerByType(LocalDateTime.class, localDateTimeSerializer)
+//                .deserializerByType(LocalDate.class, localDateDeserializer)
+//                .deserializerByType(LocalDateTime.class, localDateTimeDeserializer)
+//                .build();
+//
+//        converters.add(0, new MappingJackson2HttpMessageConverter(objectMapper));
+//    }
 
-        LocalDateSerializer localDateSerializer = new LocalDateSerializer(DateTimeFormatter.ofPattern(dateFormat));
-        LocalDateTimeSerializer localDateTimeSerializer = new LocalDateTimeSerializer(DateTimeFormatter.ISO_DATE_TIME);
-        LocalDateDeserializer localDateDeserializer = new LocalDateDeserializer(DateTimeFormatter.ofPattern(dateFormat));
-        LocalDateTimeDeserializer localDateTimeDeserializer = new LocalDateTimeDeserializer(DateTimeFormatter.ISO_DATE_TIME);
-
-        ObjectMapper objectMapper = Jackson2ObjectMapperBuilder
-                .json()
-                .serializerByType(LocalDate.class, localDateSerializer)
-                .serializerByType(LocalDateTime.class, localDateTimeSerializer)
-                .deserializerByType(LocalDate.class, localDateDeserializer)
-                .deserializerByType(LocalDateTime.class, localDateTimeDeserializer)
-                .build();
-
-        converters.add(0, new MappingJackson2HttpMessageConverter(objectMapper));
-    }
-
-    public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
-        Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
-
-        String dateFormat = "yyyy-MM-dd";
-        String dateTimeFormat = "yyyy-MM-dd HH:mm";
-
-        LocalDateSerializer localDateSerializer = new LocalDateSerializer(DateTimeFormatter.ofPattern(dateFormat));
-        LocalDateTimeSerializer localDateTimeSerializer = new LocalDateTimeSerializer(DateTimeFormatter.ofPattern(dateTimeFormat));
-        LocalDateDeserializer localDateDeserializer = new LocalDateDeserializer(DateTimeFormatter.ofPattern(dateFormat));
-        LocalDateTimeDeserializer localDateTimeDeserializer = new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern(dateTimeFormat));
-
-        builder.simpleDateFormat(dateFormat);
-        builder.serializerByType(LocalDate.class, localDateSerializer);
-        builder.serializerByType(LocalDateTime.class, localDateTimeSerializer);
-        builder.deserializerByType(LocalDate.class, localDateDeserializer);
-        builder.deserializerByType(LocalDateTime.class, localDateTimeDeserializer);
-
-        return new MappingJackson2HttpMessageConverter(builder.build());
+    @Bean
+    public Jackson2ObjectMapperBuilderCustomizer jacksonCustomizer() {
+        return new Jackson2ObjectMapperBuilderCustomizer() {
+            @Override
+            public void customize(Jackson2ObjectMapperBuilder builder) {
+                String datePattern = "yyyy-MM-dd";
+                builder
+                        .serializerByType(LocalDate.class, new LocalDateSerializer(DateTimeFormatter.ofPattern(datePattern)))
+                        .serializerByType(LocalDateTime.class, new LocalDateTimeSerializer(DateTimeFormatter.ISO_DATE_TIME))
+                        .deserializerByType(LocalDate.class, new LocalDateDeserializer(DateTimeFormatter.ofPattern(datePattern)))
+                        .deserializerByType(LocalDateTime.class, new LocalDateTimeDeserializer(DateTimeFormatter.ISO_DATE_TIME));
+            }
+        };
     }
 
 }

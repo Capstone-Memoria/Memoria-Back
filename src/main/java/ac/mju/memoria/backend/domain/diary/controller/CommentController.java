@@ -2,6 +2,10 @@ package ac.mju.memoria.backend.domain.diary.controller;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,59 +27,75 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/diary-book/{diaryBookId}/diary/{diaryId}/comments")
+@Tag(name = "Comment", description = "댓글 API")
 public class CommentController {
     private final CommentService commentService;
 
     @PostMapping
+    @Operation(summary = "댓글 생성", description = "특정 다이어리에 새로운 댓글을 생성합니다.")
+    @ApiResponse(responseCode = "201", description = "댓글 생성 성공")
     public ResponseEntity<CommentDto.CommentResponse> createComment(
-            @PathVariable Long diaryBookId, @PathVariable Long diaryId,
+            @Parameter(description = "다이어리 북 ID") @PathVariable Long diaryBookId,
+            @Parameter(description = "다이어리 ID") @PathVariable Long diaryId,
             @RequestBody @Valid CommentDto.UserCommentRequest request,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails) {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(commentService.createComment(diaryBookId, diaryId, request, userDetails));
     }
 
     @PostMapping("/{commentId}")
+    @Operation(summary = "대댓글 생성", description = "특정 댓글에 대한 대댓글을 생성합니다.")
+    @ApiResponse(responseCode = "201", description = "대댓글 생성 성공")
     public ResponseEntity<CommentDto.CommentResponse> createReply(
-            @PathVariable Long commentId,
+            @Parameter(description = "부모 댓글 ID") @PathVariable Long commentId,
             @RequestBody @Valid CommentDto.UserCommentRequest request,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails) {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(commentService.createReply(commentId, request, userDetails));
     }
 
     @PatchMapping("/{commentId}")
+    @Operation(summary = "댓글 수정", description = "특정 댓글의 내용을 수정합니다.")
+    @ApiResponse(responseCode = "200", description = "댓글 수정 성공")
     public ResponseEntity<CommentDto.CommentResponse> updateComment(
-            @PathVariable Long commentId,
+            @Parameter(description = "수정할 댓글 ID") @PathVariable Long commentId,
             @RequestBody @Valid CommentDto.UserCommentRequest request,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails) {
 
         return ResponseEntity.ok(commentService.updateComment(commentId, request, userDetails));
     }
 
     @GetMapping
+    @Operation(summary = "다이어리 댓글 목록 조회", description = "특정 다이어리의 모든 댓글을 계층 구조로 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "댓글 목록 조회 성공")
     public ResponseEntity<List<CommentDto.TreeResponse>> getCommentsByDiary(
-            @PathVariable Long diaryBookId, @PathVariable Long diaryId,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @Parameter(description = "다이어리 북 ID") @PathVariable Long diaryBookId,
+            @Parameter(description = "다이어리 ID") @PathVariable Long diaryId,
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails) {
 
         return ResponseEntity.ok(commentService.getCommentsByDiary(diaryBookId, diaryId, userDetails));
     }
 
     @DeleteMapping("/{commentId}")
+    @Operation(summary = "댓글 삭제", description = "특정 댓글을 삭제합니다.")
+    @ApiResponse(responseCode = "204", description = "댓글 삭제 성공")
     public ResponseEntity<Void> deleteComment(
-            @PathVariable Long commentId,
-            @AuthenticationPrincipal UserDetails userdetails) {
+            @Parameter(description = "삭제할 댓글 ID") @PathVariable Long commentId,
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetails userdetails) {
 
         commentService.deleteComment(commentId, userdetails);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/count")
+    @Operation(summary = "다이어리 댓글 수 조회", description = "특정 다이어리의 댓글 수를 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "댓글 수 조회 성공")
     public ResponseEntity<Long> getCommentCountByDiary(
-            @PathVariable Long diaryBookId, @PathVariable Long diaryId,
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @Parameter(description = "다이어리 북 ID") @PathVariable Long diaryBookId,
+            @Parameter(description = "다이어리 ID") @PathVariable Long diaryId,
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails) {
 
         return ResponseEntity.ok(commentService.getCommentCountByDiary(diaryBookId, diaryId, userDetails));
     }
