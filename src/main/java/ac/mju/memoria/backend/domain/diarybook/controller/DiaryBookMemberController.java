@@ -14,11 +14,11 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/diary-book/{id}/members/{memberId}")
+@RequestMapping("/api/diary-book/{id}/members")
 public class DiaryBookMemberController {
     private final DiaryBookMemberService diaryBookMemberService;
 
-    @DeleteMapping
+    @DeleteMapping("/{memberId}")
     public ResponseEntity<Void> deleteMember(
             @PathVariable Long id, @PathVariable Long memberId,
             @AuthenticationPrincipal UserDetails userDetails) {
