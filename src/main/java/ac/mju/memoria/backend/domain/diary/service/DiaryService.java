@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import ac.mju.memoria.backend.domain.ai.llm.service.MusicPromptGenerator;
+import ac.mju.memoria.backend.domain.ai.model.MusicCreationQueueItem;
+import ac.mju.memoria.backend.domain.ai.service.MusicCreateService;
 import ac.mju.memoria.backend.domain.diary.dto.DiaryDto;
 import ac.mju.memoria.backend.domain.diary.entity.Diary;
 import ac.mju.memoria.backend.domain.diary.repository.DiaryRepository;
@@ -31,6 +34,8 @@ public class DiaryService {
     private final DiaryBookRepository diaryBookRepository;
     private final ImageRepository imageRepository;
     private final FileSystemHandler fileSystemHandler;
+    private final MusicCreateService musicCreateService;
+    private final MusicPromptGenerator musicPromptGenerator;
 
     @Transactional
     public DiaryDto.DiaryResponse createDiary(Long diaryBookId, DiaryDto.DiaryRequest requestDto,
@@ -59,6 +64,11 @@ public class DiaryService {
             List<Image> savedImages = addImages(images, diary);
             savedImages.forEach(saved::addImage);
         }
+
+        // 음악 생성 프롬프트 생성 및 큐에 추가
+        String musicPrompt = musicPromptGenerator.generateMusicPrompt(requestDto.getContent());
+        MusicCreationQueueItem musicItem = new MusicCreationQueueItem(saved.getId(), musicPrompt, "[chorus]\n\n[outro]");
+        musicCreateService.addToQueue(musicItem);
 
         return DiaryDto.DiaryResponse.fromEntity(saved);
     }
