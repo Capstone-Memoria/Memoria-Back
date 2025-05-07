@@ -29,3 +29,10 @@ file:
 
 gemini:
   apiKey: ${GEMINI_API_KEY}
+
+ai:
+  music:
+    nodes:
+      - host: https://2yu4xstazgwld1-8080.proxy.runpod.net/
+        port: 5000
+      # Add more nodes as needed

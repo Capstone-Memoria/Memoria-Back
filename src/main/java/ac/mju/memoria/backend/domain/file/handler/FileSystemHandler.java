@@ -14,8 +14,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 @Component
 @RequiredArgsConstructor
@@ -29,7 +32,7 @@ public class FileSystemHandler {
 
         File targetFile = Paths.get(savePath, attachedFile.getId()).toFile();
 
-        if(targetFile.exists()) {
+        if (targetFile.exists()) {
             throw new RestException(ErrorCode.FILE_ALREADY_EXISTS);
         }
 
@@ -43,9 +46,22 @@ public class FileSystemHandler {
         }
     }
 
+    @SneakyThrows
+    public void saveStream(InputStream inputStream, AttachedFile attachedFile) {
+        createDirIfNotExist(savePath);
+
+        Path targetPath = Paths.get(savePath, attachedFile.getId());
+
+        if (Files.exists(targetPath)) {
+            throw new RestException(ErrorCode.FILE_ALREADY_EXISTS);
+        }
+
+        Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
+    }
+
     private void createDirIfNotExist(String path) {
         File targetDir = Paths.get(path).toFile();
-        if(targetDir.exists()) {
+        if (targetDir.exists()) {
             return;
         }
 
