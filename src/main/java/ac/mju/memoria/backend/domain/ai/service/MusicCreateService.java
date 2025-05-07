@@ -88,8 +88,8 @@ public class MusicCreateService {
             Diary diary = optionalDiary.get();
 
             MusicFile musicFile = MusicFile.builder()
-                    .id(UUID.randomUUID().toString() + ".mp3")
-                    .fileName(UUID.randomUUID().toString() + ".mp3")
+                    .id(UUID.randomUUID().toString())
+                    .fileName(diary.getId() + "_music.mp3")
                     .size(0L)
                     .fileType(FileType.DOWNLOADABLE)
                     .diary(diary)
