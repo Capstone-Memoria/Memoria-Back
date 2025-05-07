@@ -52,6 +52,9 @@ public class DiaryBook extends UserStampedEntity {
     @Builder.Default
     private List<Diary> diaries = new ArrayList<>();
 
+    @OneToMany(mappedBy = "diaryBook", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CustomAICharacter> characters = new ArrayList<>();
+
     public boolean isAdmin(User user) {
         if (owner.getEmail().equals(user.getEmail())) {
             return true;
@@ -75,5 +78,10 @@ public class DiaryBook extends UserStampedEntity {
     public void addDiary(Diary diary) {
         this.diaries.add(diary);
         diary.setDiaryBook(this);
+    }
+
+    public void addCharacter(CustomAICharacter character) {
+        this.characters.add(character);
+        character.setDiaryBook(this);
     }
 }
