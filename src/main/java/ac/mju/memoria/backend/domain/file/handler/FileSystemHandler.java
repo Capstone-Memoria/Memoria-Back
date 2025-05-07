@@ -47,7 +47,14 @@ public class FileSystemHandler {
     }
 
     @SneakyThrows
-    public void saveStream(InputStream inputStream, AttachedFile attachedFile) {
+    /**
+     * 스트림을 파일로 저장하고 파일 크기를 반환합니다.
+     * 
+     * @param inputStream  저장할 스트림
+     * @param attachedFile 저장할 파일 정보
+     * @return 저장된 파일의 크기
+     */
+    public long saveStream(InputStream inputStream, AttachedFile attachedFile) {
         createDirIfNotExist(savePath);
 
         Path targetPath = Paths.get(savePath, attachedFile.getId());
@@ -57,6 +64,7 @@ public class FileSystemHandler {
         }
 
         Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
+        return Files.size(targetPath);
     }
 
     private void createDirIfNotExist(String path) {

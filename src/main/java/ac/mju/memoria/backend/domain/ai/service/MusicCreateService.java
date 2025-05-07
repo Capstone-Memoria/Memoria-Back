@@ -1,9 +1,6 @@
 package ac.mju.memoria.backend.domain.ai.service;
 
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -89,16 +86,14 @@ public class MusicCreateService {
 
             MusicFile musicFile = MusicFile.builder()
                     .id(UUID.randomUUID().toString())
-                    .fileName(diary.getId() + "_music.mp3")
+                    .fileName(UUID.randomUUID().toString() + ".mp3")
                     .size(0L)
                     .fileType(FileType.DOWNLOADABLE)
                     .diary(diary)
                     .build();
 
-            fileSystemHandler.saveStream(is, musicFile);
+            long actualSize = fileSystemHandler.saveStream(is, musicFile);
 
-            Path savedFilePath = Paths.get(fileSavePath, musicFile.getId());
-            long actualSize = Files.size(savedFilePath);
             musicFile.setSize(actualSize);
 
             MusicFile savedMusicFile = attachedFileRepository.save(musicFile);
