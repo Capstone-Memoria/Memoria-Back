@@ -56,8 +56,6 @@ public class AICharacterService {
 
         AICharacter findCharacter = aiCharacterRepository.findByDiaryBookAndId(diaryBook, characterId)
                 .orElseThrow(() -> new RestException(ErrorCode.AI_CHARACTER_NOT_FOUND));
-        
-        validateCustomType(findCharacter);
 
         return AICharacterDto.AICharacterResponse.from(findCharacter);
     }
