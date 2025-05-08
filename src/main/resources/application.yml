@@ -19,7 +19,7 @@ logging:
     org.hibernate.type: trace # 실제 들어가는 파라미터값 찍어주는 설정
 
 server:
-  port: 8070
+  port: 8080
 
 jwt:
   secret: testadsadsffsdahjkafsdhjkldsfahkj12123132fdsa12123
