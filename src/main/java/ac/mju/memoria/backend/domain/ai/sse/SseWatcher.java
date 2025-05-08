@@ -33,7 +33,7 @@ public class SseWatcher {
     private final List<MusicServerNode> nodes;
     private final ObjectMapper objectMapper;
     private final List<Consumer<SseResponse>> listeners = new ArrayList<>();
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(nodes.size());
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private EventSource.Factory eventSourceFactory;
 
     @PostConstruct
