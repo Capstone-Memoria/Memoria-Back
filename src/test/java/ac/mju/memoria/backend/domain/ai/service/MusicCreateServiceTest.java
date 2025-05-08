@@ -142,7 +142,7 @@ public class MusicCreateServiceTest {
     assertEquals(1024L, capturedFile.getSize());
     assertEquals(diaryId, capturedFile.getDiary().getId());
 
-    verify(mockDiary, timeout(1000)).addMusicFile(any(MusicFile.class));
+    verify(mockDiary, timeout(1000)).setMusicFile(any(MusicFile.class));
     verify(diaryRepository, timeout(1000)).save(mockDiary);
   }
 

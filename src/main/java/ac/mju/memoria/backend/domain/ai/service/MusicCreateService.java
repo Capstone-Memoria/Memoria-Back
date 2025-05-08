@@ -98,7 +98,7 @@ public class MusicCreateService {
 
             MusicFile savedMusicFile = attachedFileRepository.save(musicFile);
 
-            diary.addMusicFile(savedMusicFile);
+            diary.setMusicFile(savedMusicFile);
             diaryRepository.save(diary);
 
             log.info("MusicFile entity saved and linked to diary {}: {}", diary.getId(), savedMusicFile.getId());
