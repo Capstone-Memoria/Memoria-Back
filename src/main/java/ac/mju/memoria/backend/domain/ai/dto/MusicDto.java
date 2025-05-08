@@ -25,6 +25,13 @@ public class MusicDto {
     public static class CreateRequest {
         private String genre_txt;
         private String lyrics_txt;
+
+        public static CreateRequest from(String genre) {
+            return CreateRequest.builder()
+                    .genre_txt(genre)
+                    .lyrics_txt("[chorus]\n\n\n\n\n\n[chorus]\n\n\n\n\n\n")
+                    .build();
+        }
     }
 
     @AllArgsConstructor

@@ -66,16 +66,19 @@ public class SseWatcher {
         }
 
         @Override
-        @SneakyThrows
         public void onEvent(@NotNull EventSource eventSource, @Nullable String id, @Nullable String type, @NotNull String data) {
-            if(Objects.isNull(type) || !type.equals("job_update"))
-                return;
+            try {
+                if(Objects.isNull(type) || !type.equals("job_update"))
+                    return;
 
-            TypeReference<SseResponse> typeReference = new TypeReference<>() {};
-            SseResponse output = objectMapper.readValue(data, typeReference);
+                TypeReference<SseResponse> typeReference = new TypeReference<>() {};
+                SseResponse output = objectMapper.readValue(data, typeReference);
 
-            for (Consumer<SseResponse> listener : listeners) {
-                listener.accept(output);
+                for (Consumer<SseResponse> listener : listeners) {
+                    listener.accept(output);
+                }
+            } catch (Exception e) {
+                log.error("Error processing SSE event", e);
             }
         }
     }

@@ -62,8 +62,7 @@ public class DiaryService {
             savedImages.forEach(saved::addImage);
         }
 
-        // 음악 생성 프롬프트 생성 및 큐에 추가
-//        musicCreateService.addToQueue(saved); TODO: 음악 생성 프롬프트 큐에 추가
+        musicCreateService.requestMusic(saved);
 
         return DiaryDto.DiaryResponse.fromEntity(saved);
     }

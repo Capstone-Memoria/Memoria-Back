@@ -1,22 +1,9 @@
 package ac.mju.memoria.backend.domain.ai.service;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.function.Function;
-
+import ac.mju.memoria.backend.common.utils.JsonUtils;
 import ac.mju.memoria.backend.domain.ai.dto.MusicDto;
 import ac.mju.memoria.backend.domain.ai.llm.service.MusicPromptGenerator;
 import ac.mju.memoria.backend.domain.ai.model.MusicCreationQueueItem;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
-import dev.langchain4j.service.AiServices;
-import okhttp3.*;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import ac.mju.memoria.backend.domain.ai.model.MusicServerNode;
 import ac.mju.memoria.backend.domain.ai.sse.SseWatcher;
 import ac.mju.memoria.backend.domain.diary.entity.Diary;
@@ -25,26 +12,38 @@ import ac.mju.memoria.backend.domain.file.entity.MusicFile;
 import ac.mju.memoria.backend.domain.file.entity.enums.FileType;
 import ac.mju.memoria.backend.domain.file.handler.FileSystemHandler;
 import ac.mju.memoria.backend.domain.file.repository.AttachedFileRepository;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class MusicCreateService {
+    private final MusicPromptGenerator musicPromptGenerator;
     private final List<MusicServerNode> nodes;
     private final SseWatcher sseWatcher;
     private final DiaryRepository diaryRepository;
     private final FileSystemHandler fileSystemHandler;
     private final OkHttpClient client = new OkHttpClient.Builder().build();
     private final AttachedFileRepository attachedFileRepository;
-    private final GoogleAiGeminiChatModel chatModel;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(4);
-    private final ObjectMapper objectMapper;
     private Thread scheduler;
     private final Queue<MusicCreationQueueItem> queue = new ConcurrentLinkedQueue<>();
 
@@ -58,10 +57,12 @@ public class MusicCreateService {
                     .map(Map.Entry::getKey)
                     .toList();
 
-            completedJobs.stream()
+            List<MusicServerNode> targets = completedJobs.stream()
                     .map(toRelatedNode())
-                    .filter(node -> node != null && !node.isBusy())
-                    .forEach(this::handleCompletedJob);
+                    .filter(node -> node != null && node.isBusy())
+                    .toList();
+
+            targets.forEach(this::handleCompletedJob);
         });
 
         scheduler = new Thread(() -> {
@@ -93,34 +94,26 @@ public class MusicCreateService {
 
         MusicServerNode musicServerNode = node.get();
 
+        createMusic(musicServerNode, item);
+    }
+
+    @SneakyThrows
+    private void createMusic(MusicServerNode node, MusicCreationQueueItem item) {
         Optional<Diary> found = diaryRepository.findById(item.getDiaryId());
         if (found.isEmpty()) {
             log.warn("Diary not found for ID: {}", item.getDiaryId());
             return;
         }
 
-        createMusic(musicServerNode, found.get());
-    }
+        String generatedGenre = musicPromptGenerator.generateMusicPrompt(found.get().getContent());
 
-    @SneakyThrows
-    private void createMusic(MusicServerNode node, Diary diary) {
-        MusicPromptGenerator promptGenerator = AiServices.builder(MusicPromptGenerator.class)
-                .chatLanguageModel(chatModel)
-                .build();
-
-        String genre = promptGenerator.generateMusicPrompt(diary.getContent());
-
-
-        String string = objectMapper.writeValueAsString(
-                MusicDto.CreateRequest.builder()
-                        .genre_txt(genre)
-                        .lyrics_txt("[verse]\n\n[chorus]\n\n")
-                        .build()
+        RequestBody requestBody = RequestBody.create(
+                JsonUtils.toJson(MusicDto.CreateRequest.from(generatedGenre)),
+                MediaType.parse("application/json")
         );
-
         Request request = new Request.Builder()
                 .url(node.getURL() + "/generate-music-async/")
-                .post(RequestBody.create(string, MediaType.parse("application/json")))
+                .post(requestBody)
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
@@ -130,10 +123,14 @@ public class MusicCreateService {
             }
 
             String body = response.body().string();
-            MusicDto.CreateResponse found = objectMapper.readValue(body, MusicDto.CreateResponse.class);
+            ObjectMapper objectMapper = new ObjectMapper();
+
+            JsonNode treeResult = objectMapper.readTree(body);
+            String jobId = treeResult.get("job_id").asText();
+
+            node.setActiveJobId(jobId);
             node.setBusy(true);
-            node.setActiveJobId(found.getJobId());
-            node.setRelatedDiaryId(diary.getId());
+            node.setRelatedDiaryId(item.getDiaryId());
         }
     }
 
@@ -141,12 +138,15 @@ public class MusicCreateService {
         MusicCreationQueueItem item = MusicCreationQueueItem.builder()
                 .diaryId(diary.getId())
                 .build();
+        queue.add(item);
+        log.info("Added music creation request to queue: {}", item);
     }
 
     @Transactional
     @SneakyThrows
     public void handleCompletedJob(MusicServerNode node) {
         node.setBusy(false);
+        log.info("Handling completed job for node: {}", node);
 
         Optional<Diary> found = diaryRepository.findById(node.getRelatedDiaryId());
         if (found.isEmpty()) {
@@ -185,6 +185,9 @@ public class MusicCreateService {
     @PreDestroy
     public void shutdown() {
         log.info("Shutting down executor service...");
+        if (scheduler != null && scheduler.isAlive()) {
+            scheduler.interrupt();
+        }
         executorService.shutdown();
     }
 

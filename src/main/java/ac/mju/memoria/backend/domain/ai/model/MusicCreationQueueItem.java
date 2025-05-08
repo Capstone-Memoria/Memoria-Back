@@ -9,6 +9,4 @@ import lombok.Data;
 @Builder
 public class MusicCreationQueueItem {
     private final Long diaryId;
-    private final String genre;
-    private final String lyrics;
 }
