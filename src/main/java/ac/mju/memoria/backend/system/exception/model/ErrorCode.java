@@ -58,6 +58,7 @@ public enum ErrorCode {
     //AI
     AI_IMAGE_CREATION_FAILED(500, "AI 이미지 생성에 실패했습니다."),
     AI_CHARACTER_NOT_FOUND(404, "AI 캐릭터를 찾을 수 없습니다"),
+    AI_CHARACTER_NOT_CUSTOM(403, "커스텀 AI 캐릭터만 수정/삭제가 가능합니다"),
 
     // Other
     INTERNAL_SERVER_ERROR(500, "오류가 발생했습니다."),;

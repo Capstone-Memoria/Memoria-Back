@@ -1,18 +1,18 @@
 package ac.mju.memoria.backend.domain.diarybook.dto;
 
-import ac.mju.memoria.backend.domain.diarybook.entity.CustomAICharacter;
+import java.time.LocalDateTime;
+import java.util.Objects;
+
+import ac.mju.memoria.backend.domain.diarybook.entity.AICharacter;
+import ac.mju.memoria.backend.domain.diarybook.entity.enums.AICharacterType;
 import ac.mju.memoria.backend.domain.file.dto.FileDto;
-import ac.mju.memoria.backend.domain.user.dto.UserDto;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-import java.util.Objects;
-
-public class CustomAICharacterDto {
+public class AICharacterDto {
     @AllArgsConstructor
     @NoArgsConstructor
     @Data
@@ -27,11 +27,12 @@ public class CustomAICharacterDto {
         @NotBlank(message = "AI캐릭터의 말투를 입력하세요")
         private String accent;
 
-        public CustomAICharacter toEntity() {
-            return CustomAICharacter.builder()
+        public AICharacter toEntity() {
+            return AICharacter.builder()
                     .name(name)
                     .feature(feature)
                     .accent(accent)
+                    .type(AICharacterType.CUSTOM)
                     .build();
         }
     }
@@ -45,7 +46,7 @@ public class CustomAICharacterDto {
         private String feature;
         private String accent;
 
-        public void applyTo(CustomAICharacter character) {
+        public void applyTo(AICharacter character) {
             if (Objects.nonNull(name)) {
                 character.setName(name);
             }
@@ -69,19 +70,21 @@ public class CustomAICharacterDto {
         private DiaryBookDto.DiaryBookResponse diaryBook;
         private String feature;
         private String accent;
+        private AICharacterType type;
         private LocalDateTime createdAt;
         private LocalDateTime lastModifiedAt;
 
-        public static AICharacterResponse from(CustomAICharacter custom) {
+        public static AICharacterResponse from(AICharacter character) {
             return AICharacterResponse.builder()
-                    .id(custom.getId())
-                    .name(custom.getName())
-                    .profileImage(FileDto.FileResponse.from(custom.getProfileImage()))
-                    .diaryBook(DiaryBookDto.DiaryBookResponse.from(custom.getDiaryBook()))
-                    .feature(custom.getFeature())
-                    .accent(custom.getAccent())
-                    .createdAt(custom.getCreatedAt())
-                    .lastModifiedAt(custom.getLastModifiedAt())
+                    .id(character.getId())
+                    .name(character.getName())
+                    .profileImage(FileDto.FileResponse.from(character.getProfileImage()))
+                    .diaryBook(DiaryBookDto.DiaryBookResponse.from(character.getDiaryBook()))
+                    .feature(character.getFeature())
+                    .accent(character.getAccent())
+                    .type(character.getType())
+                    .createdAt(character.getCreatedAt())
+                    .lastModifiedAt(character.getLastModifiedAt())
                     .build();
         }
     }
