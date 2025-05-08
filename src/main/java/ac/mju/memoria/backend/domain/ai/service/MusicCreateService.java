@@ -9,9 +9,9 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import ac.mju.memoria.backend.domain.ai.llm.service.MusicPromptGenerator;
 import ac.mju.memoria.backend.domain.ai.model.MusicCreationQueueItem;
 import ac.mju.memoria.backend.domain.ai.model.MusicCreationResult;
 import ac.mju.memoria.backend.domain.ai.model.MusicServerNode;
@@ -21,6 +21,8 @@ import ac.mju.memoria.backend.domain.file.entity.MusicFile;
 import ac.mju.memoria.backend.domain.file.entity.enums.FileType;
 import ac.mju.memoria.backend.domain.file.handler.FileSystemHandler;
 import ac.mju.memoria.backend.domain.file.repository.AttachedFileRepository;
+import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
+import dev.langchain4j.service.AiServices;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,9 +37,18 @@ public class MusicCreateService {
     private final DiaryRepository diaryRepository;
     private final AttachedFileRepository attachedFileRepository;
     private final FileSystemHandler fileSystemHandler;
+    private final GoogleAiGeminiChatModel chatModel;
 
-    @Value("${file.save-path}")
-    private String fileSavePath;
+    public void addToQueue(Diary diary) {
+        MusicPromptGenerator musicPromptGenerator = AiServices.builder(MusicPromptGenerator.class)
+                .chatLanguageModel(chatModel)
+                .build();
+
+        String musicPrompt = musicPromptGenerator.generateMusicPrompt(diary.getContent());
+        MusicCreationQueueItem musicItem = new MusicCreationQueueItem(diary.getId(), musicPrompt,
+                "[verse]\n\n[chorus]");
+        addToQueue(musicItem);
+    }
 
     public void addToQueue(MusicCreationQueueItem item) {
         creationQueue.add(item);

@@ -35,7 +35,6 @@ public class DiaryService {
     private final ImageRepository imageRepository;
     private final FileSystemHandler fileSystemHandler;
     private final MusicCreateService musicCreateService;
-    private final MusicPromptGenerator musicPromptGenerator;
 
     @Transactional
     public DiaryDto.DiaryResponse createDiary(Long diaryBookId, DiaryDto.DiaryRequest requestDto,
@@ -66,9 +65,7 @@ public class DiaryService {
         }
 
         // 음악 생성 프롬프트 생성 및 큐에 추가
-        String musicPrompt = musicPromptGenerator.generateMusicPrompt(requestDto.getContent());
-        MusicCreationQueueItem musicItem = new MusicCreationQueueItem(saved.getId(), musicPrompt, "[chorus]\n\n[outro]");
-        musicCreateService.addToQueue(musicItem);
+        musicCreateService.addToQueue(saved);
 
         return DiaryDto.DiaryResponse.fromEntity(saved);
     }
