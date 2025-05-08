@@ -19,6 +19,9 @@ import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 @Slf4j
@@ -30,18 +33,19 @@ public class SseWatcher {
     private final List<MusicServerNode> nodes;
     private final ObjectMapper objectMapper;
     private final List<Consumer<SseResponse>> listeners = new ArrayList<>();
-    private final EventSourceListener eventSourceListener = new SseEventListener();
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(nodes.size());
+    private EventSource.Factory eventSourceFactory;
 
     @PostConstruct
     public void init() {
         log.info("Starting SSE Watcher");
+        this.eventSourceFactory = EventSources.createFactory(client);
         nodes.forEach(node -> {
             Request request = new Request.Builder()
                     .url(node.getURL() + "/events")
                     .header("Accept", "text/event-stream")
                     .build();
-            EventSource.Factory factory = EventSources.createFactory(client);
-            factory.newEventSource(request, eventSourceListener);
+            eventSourceFactory.newEventSource(request, new SseEventListener(request));
         });
     }
 
@@ -50,14 +54,26 @@ public class SseWatcher {
     }
 
     private class SseEventListener extends EventSourceListener {
+        private final Request request;
+
+        public SseEventListener(Request request) {
+            this.request = request;
+        }
+
         @Override
         public void onFailure(@NotNull EventSource eventSource, @Nullable Throwable t, @Nullable Response response) {
+            String url = request.url().toString();
             if(Objects.nonNull(response)) {
-                log.error("SSE connection failed: {} - {}", response.request().url(), response.code(), t);
+                log.error("SSE connection failed for {}: {} - {}", url, response.code(), t);
             } else {
-                log.error("SSE connection failed", t);
+                log.error("SSE connection failed for {}", url, t);
             }
-            eventSource.cancel();
+
+            log.info("Attempting to reconnect to {} in 10 seconds...", url);
+            scheduler.schedule(() -> {
+                log.info("Retrying connection to {}...", url);
+                eventSourceFactory.newEventSource(request, this);
+            }, 10, TimeUnit.SECONDS);
         }
 
         @Override
