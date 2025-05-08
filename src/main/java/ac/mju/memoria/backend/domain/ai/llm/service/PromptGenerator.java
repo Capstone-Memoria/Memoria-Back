@@ -4,6 +4,7 @@ import ac.mju.memoria.backend.domain.ai.llm.model.StableDiffusionPrompts;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
 
+
 public interface PromptGenerator {
 
     // 여기에 앞서 정의한 시스템 프롬프트 (상세 버전)를 넣습니다.

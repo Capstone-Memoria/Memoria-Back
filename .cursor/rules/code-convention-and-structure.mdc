@@ -1,0 +1,35 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 코드 컨벤션 및 구조 가이드
+
+이 프로젝트는 일관성 있고 유지보수 가능한 코드를 작성하기 위해 다음과 같은 코드 컨벤션 및 구조 가이드를 따릅니다.
+
+## 1. 일반적인 코드 스타일
+
+- **주석:** 코드 자체로 의도를 명확히 드러내는 것을 지향하며, 부가적인 설명이 필요한 경우에만 주석을 사용합니다. (예: 복잡한 로직 설명, 특별한 고려사항 등)
+- **변수명 및 함수명:** 의미론적이고 명확한 이름을 사용합니다. 가독성을 위해 카멜 케이스(camelCase)를 사용합니다. (예: `diaryBookId`, `createDiary`)
+- **코드 포맷팅:** 일관된 코드 스타일 유지를 위해 IDE의 포맷팅 기능을 사용합니다.
+
+## 2. 프로젝트 구조 및 레이어별 책임
+
+프로젝트는 도메인 기반으로 설계되었으며, 각 도메인은 다음과 같은 레이어로 구성됩니다.
+
+- **Controller:** 외부 요청을 받아 Service 레이어로 전달하고, Service 레이어의 결과를 클라이언트에 응답합니다. 주로 요청/응답 매핑 및 기본적인 입력 유효성 검사를 담당합니다. ([src/main/java/ac/mju/memoria/backend/domain/diary/controller/DiaryController.java](mdc:src/main/java/ac/mju/memoria/backend/domain/diary/controller/DiaryController.java))
+- **Service:** 비즈니스 로직을 구현합니다. 여러 Repository를 조합하거나 외부 서비스와 연동하는 등의 복잡한 작업을 수행합니다. 트랜잭션 관리를 담당합니다. ([src/main/java/ac/mju/memoria/backend/domain/diary/service/DiaryService.java](mdc:src/main/java/ac/mju/memoria/backend/domain/diary/service/DiaryService.java))
+- **Repository:** 데이터베이스 접근을 담당합니다. 엔티티의 저장, 조회, 수정, 삭제 등 데이터 관리를 위한 메서드를 정의합니다. ([src/main/java/ac/mju/memoria/backend/domain/diary/repository/DiaryRepository.java](mdc:src/main/java/ac/mju/memoria/backend/domain/diary/repository/DiaryRepository.java))
+- **Entity:** 데이터베이스 테이블과 매핑되는 객체입니다. 데이터와 관련된 비즈니스 로직(예: 변경 메서드, 유효성 검증)을 포함할 수 있습니다. ([src/main/java/ac/mju/memoria/backend/domain/diary/entity/Diary.java](mdc:src/main/java/ac/mju/memoria/backend/domain/diary/entity/Diary.java))
+- **DTO (Data Transfer Object):** 레이어 간 데이터 전송을 위해 사용되는 객체입니다. ([src/main/java/ac/mju/memoria/backend/domain/diary/dto/DiaryDto.java](mdc:src/main/java/ac/mju/memoria/backend/domain/diary/dto/DiaryDto.java))
+
+## 3. 엔티티 CRUD 구현 예시 (Diary 도메인)
+
+Diary 도메인의 CRUD 구현은 위의 레이어별 책임에 따라 명확하게 분리되어 있습니다.
+
+- **생성 (Create):** `DiaryController`에서 요청을 받아 `DiaryService`의 `createDiary` 메서드를 호출하고, `DiaryService`는 `DiaryRepository`를 통해 엔티티를 저장합니다.
+- **조회 (Read):** `DiaryController`에서 요청을 받아 `DiaryService`의 `getDiary` 또는 `getDiariesByDiaryBook` 메서드를 호출하고, `DiaryService`는 `DiaryRepository`를 통해 엔티티를 조회합니다.
+- **수정 (Update):** `DiaryController`에서 요청을 받아 `DiaryService`의 `updateDiary` 메서드를 호출하고, `DiaryService`는 `DiaryRepository`를 통해 엔티티를 찾아 내용을 업데이트합니다.
+- **삭제 (Delete):** `DiaryController`에서 요청을 받아 `DiaryService`의 `deleteDiary` 메서드를 호출하고, `DiaryService`는 `DiaryRepository`를 통해 엔티티를 삭제합니다.
+
+각 레이어는 자신의 역할에만 집중하며, 다른 레이어의 내부 구현에 직접적으로 의존하지 않도록 설계되었습니다.

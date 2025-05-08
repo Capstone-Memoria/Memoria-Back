@@ -16,3 +16,8 @@ spring:
     properties: # property 사용 설정
       hibernate: # hibernate property 설정
         format_sql: true
+
+ai:
+  music:
+    nodes:
+      - host: http://localhost:8080
