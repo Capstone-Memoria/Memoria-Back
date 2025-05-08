@@ -1,18 +1,16 @@
 package ac.mju.memoria.backend.domain.diarybook.dto;
 
-import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
+import java.util.ArrayList;
+import java.util.List;
+
 import ac.mju.memoria.backend.domain.diarybook.entity.Sticker;
 import ac.mju.memoria.backend.domain.file.entity.enums.StickerType;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class StickerDto {
     @Data

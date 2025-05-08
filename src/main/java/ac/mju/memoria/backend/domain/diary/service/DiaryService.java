@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import ac.mju.memoria.backend.domain.ai.llm.service.MusicPromptGenerator;
-import ac.mju.memoria.backend.domain.ai.model.MusicCreationQueueItem;
 import ac.mju.memoria.backend.domain.ai.service.MusicCreateService;
 import ac.mju.memoria.backend.domain.diary.dto.DiaryDto;
 import ac.mju.memoria.backend.domain.diary.entity.Diary;
