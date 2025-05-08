@@ -3,12 +3,13 @@ package ac.mju.memoria.backend.domain.ai.model;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public class MusicCreationQueueItem {
-    private final Long diaryId;
-    private final String genre;
-    private final String lyrics;
+@Data
+public class NodeAddress {
+    private String host;
+    private int port;
 }

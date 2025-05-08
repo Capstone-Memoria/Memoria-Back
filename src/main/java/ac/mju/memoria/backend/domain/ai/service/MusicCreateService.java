@@ -1,122 +1,185 @@
 package ac.mju.memoria.backend.domain.ai.service;
 
-import java.io.InputStream;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Function;
 
-import org.springframework.stereotype.Service;
-
+import ac.mju.memoria.backend.domain.ai.dto.MusicDto;
 import ac.mju.memoria.backend.domain.ai.llm.service.MusicPromptGenerator;
 import ac.mju.memoria.backend.domain.ai.model.MusicCreationQueueItem;
-import ac.mju.memoria.backend.domain.ai.model.MusicCreationResult;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
+import dev.langchain4j.service.AiServices;
+import okhttp3.*;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import ac.mju.memoria.backend.domain.ai.model.MusicServerNode;
+import ac.mju.memoria.backend.domain.ai.sse.SseWatcher;
 import ac.mju.memoria.backend.domain.diary.entity.Diary;
 import ac.mju.memoria.backend.domain.diary.repository.DiaryRepository;
 import ac.mju.memoria.backend.domain.file.entity.MusicFile;
 import ac.mju.memoria.backend.domain.file.entity.enums.FileType;
 import ac.mju.memoria.backend.domain.file.handler.FileSystemHandler;
 import ac.mju.memoria.backend.domain.file.repository.AttachedFileRepository;
-import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
-import dev.langchain4j.service.AiServices;
+import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class MusicCreateService {
-    private final Queue<MusicCreationQueueItem> creationQueue = new LinkedList<>();
-    private final List<MusicServerNode> musicServerNodes;
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final List<MusicServerNode> nodes;
+    private final SseWatcher sseWatcher;
     private final DiaryRepository diaryRepository;
-    private final AttachedFileRepository attachedFileRepository;
     private final FileSystemHandler fileSystemHandler;
+    private final OkHttpClient client = new OkHttpClient.Builder().build();
+    private final AttachedFileRepository attachedFileRepository;
     private final GoogleAiGeminiChatModel chatModel;
 
-    public void addToQueue(Diary diary) {
-        MusicPromptGenerator musicPromptGenerator = AiServices.builder(MusicPromptGenerator.class)
-                .chatLanguageModel(chatModel)
-                .build();
+    private final ExecutorService executorService = Executors.newFixedThreadPool(4);
+    private final ObjectMapper objectMapper;
+    private Thread scheduler;
+    private final Queue<MusicCreationQueueItem> queue = new ConcurrentLinkedQueue<>();
 
-        String musicPrompt = musicPromptGenerator.generateMusicPrompt(diary.getContent());
-        MusicCreationQueueItem musicItem = new MusicCreationQueueItem(diary.getId(), musicPrompt,
-                "[verse]\n\n[chorus]");
-        addToQueue(musicItem);
+    @PostConstruct
+    public void init() {
+        sseWatcher.addListener(response -> {
+            List<String> completedJobs = response.getJobs().entrySet().stream()
+                    .filter(entry -> entry.getValue().getStatus().equals("completed"))
+                    .filter(entry -> nodes.stream()
+                            .anyMatch(node -> node.getActiveJobId().equals(entry.getKey())))
+                    .map(Map.Entry::getKey)
+                    .toList();
+
+            completedJobs.stream()
+                    .map(toRelatedNode())
+                    .filter(node -> node != null && !node.isBusy())
+                    .forEach(this::handleCompletedJob);
+        });
+
+        scheduler = new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(1000);
+                    popAndCreateMusicIfNodeAvailable();
+                } catch (InterruptedException e) {
+                    log.error("Scheduler interrupted", e);
+                    break;
+                }
+            }
+        });
+        scheduler.start();
     }
 
-    public void addToQueue(MusicCreationQueueItem item) {
-        creationQueue.add(item);
-        log.info("Item added to queue: {}", item.getDiaryId());
-        executorService.submit(this::processQueue);
-    }
-
-    private void processQueue() {
-        if (creationQueue.isEmpty()) {
+    private void popAndCreateMusicIfNodeAvailable() {
+        MusicCreationQueueItem item = queue.poll();
+        if (item == null) {
             return;
         }
 
-        while (!creationQueue.isEmpty()) {
-            Optional<MusicServerNode> availableNode = musicServerNodes.stream()
-                    .filter(node -> !node.getIsBusy().get())
-                    .findFirst();
+        Optional<MusicServerNode> node = nodes.stream()
+                .filter(n -> n.getActiveJobId() == null)
+                .findFirst();
+        if (node.isEmpty()) {
+            return;
+        }
 
-            if (availableNode.isPresent()) {
-                MusicServerNode node = availableNode.get();
-                MusicCreationQueueItem item = creationQueue.poll();
-                if (item != null) {
-                    log.info("Processing item {} using node {}", item.getDiaryId(),
-                            node.getHost() + ":" + node.getPort());
-                    try {
-                        MusicCreationResult result = node.createMusic(item);
-                        handleMusicCreationResult(result);
-                    } catch (Exception e) {
-                        log.error("Error processing music creation for item {}", item.getDiaryId(), e);
-                    }
-                }
-            } else {
-                log.info("No available music server nodes. Waiting...");
-                break;
+        MusicServerNode musicServerNode = node.get();
+
+        Optional<Diary> found = diaryRepository.findById(item.getDiaryId());
+        if (found.isEmpty()) {
+            log.warn("Diary not found for ID: {}", item.getDiaryId());
+            return;
+        }
+
+        createMusic(musicServerNode, found.get());
+    }
+
+    @SneakyThrows
+    private void createMusic(MusicServerNode node, Diary diary) {
+        MusicPromptGenerator promptGenerator = AiServices.builder(MusicPromptGenerator.class)
+                .chatLanguageModel(chatModel)
+                .build();
+
+        String genre = promptGenerator.generateMusicPrompt(diary.getContent());
+
+
+        String string = objectMapper.writeValueAsString(
+                MusicDto.CreateRequest.builder()
+                        .genre_txt(genre)
+                        .lyrics_txt("[verse]\n\n[chorus]\n\n")
+                        .build()
+        );
+
+        Request request = new Request.Builder()
+                .url(node.getURL() + "/generate-music-async/")
+                .post(RequestBody.create(string, MediaType.parse("application/json")))
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                log.error("Failed to create music: {}", response.body().string());
+                return;
             }
+
+            String body = response.body().string();
+            MusicDto.CreateResponse found = objectMapper.readValue(body, MusicDto.CreateResponse.class);
+            node.setBusy(true);
+            node.setActiveJobId(found.getJobId());
+            node.setRelatedDiaryId(diary.getId());
         }
     }
 
-    private void handleMusicCreationResult(MusicCreationResult result) {
-        try (InputStream is = result.getMusicFileStream()) {
-            Optional<Diary> optionalDiary = diaryRepository.findById(result.getDiaryId());
-            if (optionalDiary.isEmpty()) {
-                log.error("Diary with ID {} not found for music creation result.", result.getDiaryId());
+    public void requestMusic(Diary diary) {
+        MusicCreationQueueItem item = MusicCreationQueueItem.builder()
+                .diaryId(diary.getId())
+                .build();
+    }
+
+    @Transactional
+    @SneakyThrows
+    public void handleCompletedJob(MusicServerNode node) {
+        node.setBusy(false);
+
+        Optional<Diary> found = diaryRepository.findById(node.getRelatedDiaryId());
+        if (found.isEmpty()) {
+            log.warn("Diary not found for node: {}", node);
+            return;
+        }
+
+        Request request = new Request.Builder()
+                .url(node.getURL() + "/music/download/" + node.getActiveJobId())
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (!response.isSuccessful()) {
+                log.error("Failed to download music: {}", response.body().string());
                 return;
             }
-            Diary diary = optionalDiary.get();
 
             MusicFile musicFile = MusicFile.builder()
-                    .id(UUID.randomUUID().toString())
-                    .fileName(UUID.randomUUID().toString() + ".mp3")
-                    .size(0L)
+                    .diary(found.get())
                     .fileType(FileType.DOWNLOADABLE)
-                    .diary(diary)
+                    .fileName(found.get().getTitle() + ".mp3")
+                    .size(0L) // Temporary
+                    .id(UUID.randomUUID().toString())
                     .build();
 
-            long actualSize = fileSystemHandler.saveStream(is, musicFile);
+            long size = fileSystemHandler.saveStream(response.body().byteStream(), musicFile);
+            musicFile.setSize(size);
 
-            musicFile.setSize(actualSize);
-
-            MusicFile savedMusicFile = attachedFileRepository.save(musicFile);
-
-            diary.setMusicFile(savedMusicFile);
-            diaryRepository.save(diary);
-
-            log.info("MusicFile entity saved and linked to diary {}: {}", diary.getId(), savedMusicFile.getId());
-
-        } catch (Exception e) {
-            log.error("Error handling music creation result for diary {}", result.getDiaryId(), e);
+            attachedFileRepository.save(musicFile);
         }
+
+        node.setActiveJobId(null);
+        node.setRelatedDiaryId(null);
     }
 
     @PreDestroy
@@ -125,8 +188,11 @@ public class MusicCreateService {
         executorService.shutdown();
     }
 
-    public boolean isAnyNodeBusy() {
-        return musicServerNodes.stream()
-                .anyMatch(node -> node.getIsBusy().get());
+    @NotNull
+    private Function<String, MusicServerNode> toRelatedNode() {
+        return jobId -> nodes.stream()
+                .filter(node -> node.getActiveJobId().equals(jobId))
+                .findFirst()
+                .orElse(null);
     }
 }

@@ -33,6 +33,5 @@ gemini:
 ai:
   music:
     nodes:
-      - host: https://2yu4xstazgwld1-8080.proxy.runpod.net/
-        port: 5000
+      - host: http://216.249.100.66:14338
       # Add more nodes as needed

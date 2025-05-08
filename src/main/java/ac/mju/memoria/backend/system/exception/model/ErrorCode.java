@@ -58,6 +58,10 @@ public enum ErrorCode {
     // AI
     AI_IMAGE_CREATION_FAILED(500, "AI 이미지 생성에 실패했습니다."),
     AI_MUSIC_CREATION_FAILED(500, "AI 음악 생성에 실패했습니다."),
+    AI_MUSIC_SERVER_BUSY(429, "현재 다른 음악 생성 요청이 처리 중입니다. 잠시 후 다시 시도해주세요."),
+    AI_MUSIC_JOB_NOT_FOUND(404, "음악 생성 작업을 찾을 수 없습니다."),
+    AI_MUSIC_JOB_FAILED(500, "음악 생성 작업이 실패했습니다."),
+    AI_MUSIC_DOWNLOAD_FAILED(500, "음악 파일 다운로드에 실패했습니다."),
 
     // Other
     INTERNAL_SERVER_ERROR(500, "오류가 발생했습니다.");

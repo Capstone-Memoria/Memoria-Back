@@ -11,10 +11,13 @@ import ac.mju.memoria.backend.domain.ai.model.MusicServerNode;
 @Configuration
 public class AiConfiguration {
 
-  @Bean
-  public List<MusicServerNode> musicServerNodes(AiConfigProperties aiConfigProperties) {
-    return aiConfigProperties.getNodes().stream()
-        .map(nodeProperties -> new MusicServerNode(nodeProperties.getHost(), nodeProperties.getPort()))
-        .collect(Collectors.toList());
-  }
+    @Bean
+    public List<MusicServerNode> musicServerNodes(AiConfigProperties aiConfigProperties) {
+        return aiConfigProperties.getNodes().stream()
+                .map(nodeProperties ->
+                        new MusicServerNode(
+                                nodeProperties.getHost()
+                ))
+                .collect(Collectors.toList());
+    }
 }

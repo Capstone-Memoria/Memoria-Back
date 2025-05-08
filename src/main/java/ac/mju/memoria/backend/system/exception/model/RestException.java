@@ -1,10 +1,19 @@
 package ac.mju.memoria.backend.system.exception.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@AllArgsConstructor
 @Getter
-public class RestException extends RuntimeException{
-    private ErrorCode errorCode;
+public class RestException extends RuntimeException {
+    private final ErrorCode errorCode;
+    private final String message;
+
+    public RestException(ErrorCode errorCode) {
+        this.errorCode = errorCode;
+        this.message = errorCode.getMessage();
+    }
+
+    public RestException(ErrorCode errorCode, String message) {
+        this.errorCode = errorCode;
+        this.message = message;
+    }
 }
