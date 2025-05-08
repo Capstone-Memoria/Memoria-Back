@@ -54,6 +54,7 @@ public enum ErrorCode {
     // Comment
     PARENT_COMMENT_NOT_FOUND(404, "부모 댓글을 찾을 수 없습니다"),
     COMMENT_NOT_FOUND(404, "댓글을 찾을 수 없습니다"),
+    COMMENT_NOT_USER_TYPE(403, "사용자 댓글만 수정/삭제할 수 있습니다."),
 
     //AI
     AI_IMAGE_CREATION_FAILED(500, "AI 이미지 생성에 실패했습니다."),
