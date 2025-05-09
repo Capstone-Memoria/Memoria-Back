@@ -31,7 +31,9 @@ public class DiaryBookQueryRepository {
                 .leftJoin(diaryBook.lastModifiedBy).fetchJoin()
                 .where(
                         diaryBook.id.eq(diaryBookId),
-                        diaryBook.owner.email.eq(userEmail)
+                        diaryBook.owner.email.eq(userEmail).or(
+                                diaryBook.members.any().user.email.eq(userEmail)
+                        )
                 )
                 .fetchOne();
 
