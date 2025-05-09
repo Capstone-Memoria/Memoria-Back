@@ -120,6 +120,9 @@ public class InvitationService {
         toSave.makeRelationWIthDiaryBook(foundInvitation.getDiaryBook());
 
         DiaryBookMember saved = diaryBookMemberRepository.save(toSave);
+
+        directInvitationRepository.delete(foundInvitation);
+
         return DiaryBookMemberDto.MemberResponse.from(saved);
     }
 
