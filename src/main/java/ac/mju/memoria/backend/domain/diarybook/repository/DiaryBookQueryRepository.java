@@ -44,7 +44,9 @@ public class DiaryBookQueryRepository {
                 .innerJoin(diaryBook.createdBy).fetchJoin()
                 .innerJoin(diaryBook.owner).fetchJoin()
                 .leftJoin(diaryBook.lastModifiedBy).fetchJoin()
-                .where(diaryBook.owner.email.eq(userEmail))
+                .where(diaryBook.owner.email.eq(userEmail).or(
+                        diaryBook.members.any().user.email.eq(userEmail)
+                ))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .orderBy(getOrderSpecifiers(pageable))
@@ -53,7 +55,9 @@ public class DiaryBookQueryRepository {
         Long total = queryFactory
                 .select(diaryBook.count())
                 .from(diaryBook)
-                .where(diaryBook.owner.email.eq(userEmail))
+                .where(diaryBook.owner.email.eq(userEmail).or(
+                        diaryBook.members.any().user.email.eq(userEmail)
+                ))
                 .fetchOne();
 
         long count = (total == null) ? 0L : total;
