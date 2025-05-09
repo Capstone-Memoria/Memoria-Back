@@ -14,6 +14,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -72,5 +74,14 @@ public class InvitationController {
             @Parameter(description = "초대 코드") @PathVariable String code
     ) {
         return invitationService.getCodeInviteDetails(code);
+    }
+
+    @GetMapping("/invitations/received")
+    @Operation(summary = "받은 초대 목록 조회", description = "인증된 사용자가 받은 직접 초대 목록을 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "받은 초대 목록 조회 성공")
+    public List<InvitationDto.ReceivedInvitationResponse> getReceivedInvitations(
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetails user
+    ) {
+        return invitationService.getReceivedInvitations(user);
     }
 }

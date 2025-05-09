@@ -20,4 +20,3 @@ spring:
 ai:
   music:
     nodes:
-      - host: http://localhost:8080

@@ -140,4 +140,29 @@ public class InvitationDto {
                     .build();
         }
     }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Schema(description = "받은 초대 정보 응답 DTO")
+    public static class ReceivedInvitationResponse {
+        @Schema(description = "초대 ID")
+        private Long id;
+        @Schema(description = "초대한 사용자 정보")
+        private UserDto.UserResponse inviteBy;
+        @Schema(description = "초대된 다이어리 북 정보")
+        private DiaryBookDto.DiaryBookResponse diaryBook;
+        @Schema(description = "초대 생성 시간")
+        private LocalDateTime createdAt;
+
+        public static ReceivedInvitationResponse from(DirectInvitation entity) {
+            return ReceivedInvitationResponse.builder()
+                    .id(entity.getId())
+                    .inviteBy(UserDto.UserResponse.from(entity.getInviteBy()))
+                    .diaryBook(DiaryBookDto.DiaryBookResponse.from(entity.getDiaryBook()))
+                    .createdAt(entity.getCreatedAt())
+                    .build();
+        }
+    }
 }

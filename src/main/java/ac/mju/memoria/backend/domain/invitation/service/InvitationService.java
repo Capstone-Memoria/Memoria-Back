@@ -21,8 +21,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -122,6 +124,16 @@ public class InvitationService {
         }
 
         return InvitationDto.CodeInviteDetailsResponse.from(invitation);
+    }
+
+    @Transactional(readOnly = true)
+    public List<InvitationDto.ReceivedInvitationResponse> getReceivedInvitations(UserDetails userDetails) {
+        User inviteToUser = userDetails.getUser();
+        List<DirectInvitation> receivedInvitations = directInvitationRepository.findByInviteTo(inviteToUser);
+
+        return receivedInvitations.stream()
+                .map(InvitationDto.ReceivedInvitationResponse::from)
+                .collect(Collectors.toList());
     }
 }
 
