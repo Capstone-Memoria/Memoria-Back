@@ -25,6 +25,8 @@ public enum ErrorCode {
     // Invite
     INVITE_ALREADY_MEMBER(400, "이미 등록된 멤버입니다."),
     INVITE_CODE_EXPIRED(400, "만료된 초대 코드입니다."),
+    INVITE_SELF_INVITATION_NOT_ALLOWED(400, "스스로를 초대할 수 없습니다."),
+    INVITE_ALREADY_SENT(400, "이미 초대장이 발송되었습니다."),
 
     // jwt
     AUTH_TOKEN_NOT_FOUND(401, "인증 토큰을 찾을 수 없습니다."),

@@ -67,6 +67,21 @@ public class InvitationService {
         User inviteTo = userRepository.findByEmail(request.getTargetEmail())
                 .orElseThrow(() -> new RestException(ErrorCode.AUTH_USER_NOT_FOUND));
 
+        // 초대를 보내는 사용자와 초대받는 사용자가 동일한지 검증
+        if (user.getUser().equals(inviteTo)) {
+            throw new RestException(ErrorCode.INVITE_SELF_INVITATION_NOT_ALLOWED);
+        }
+
+        // 직접 초대 시 이미 해당 일기장 멤버인지 검증
+        if (diaryBook.isMember(inviteTo)) {
+            throw new RestException(ErrorCode.INVITE_ALREADY_MEMBER);
+        }
+
+        // 직접 초대 시 이미 해당 사용자에게 초대장이 발송되었는지 검증
+        if (directInvitationRepository.existsByDiaryBookAndInviteTo(diaryBook, inviteTo)) {
+            throw new RestException(ErrorCode.INVITE_ALREADY_SENT);
+        }
+
         DirectInvitation toSave = DirectInvitation.of(diaryBook, inviteTo, user.getUser());
         toSave.canInviteBy(user);
 
