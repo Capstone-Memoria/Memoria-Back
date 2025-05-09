@@ -135,5 +135,18 @@ public class InvitationService {
                 .map(InvitationDto.ReceivedInvitationResponse::from)
                 .collect(Collectors.toList());
     }
+
+    @Transactional
+    public void declineDirectInvite(Long invitationId, UserDetails userDetails) {
+        DirectInvitation foundInvitation = directInvitationRepository.findById(invitationId)
+                .orElseThrow(() -> new RestException(ErrorCode.GLOBAL_NOT_FOUND));
+
+        // 초대를 받은 본인만 거절 가능
+        if (!foundInvitation.getInviteTo().getEmail().equals(userDetails.getUser().getEmail())) {
+            throw new RestException(ErrorCode.AUTH_FORBIDDEN);
+        }
+
+        directInvitationRepository.delete(foundInvitation);
+    }
 }
 
