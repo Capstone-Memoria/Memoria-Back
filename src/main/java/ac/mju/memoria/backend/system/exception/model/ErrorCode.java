@@ -56,9 +56,12 @@ public enum ErrorCode {
     // Comment
     PARENT_COMMENT_NOT_FOUND(404, "부모 댓글을 찾을 수 없습니다"),
     COMMENT_NOT_FOUND(404, "댓글을 찾을 수 없습니다"),
+    COMMENT_NOT_USER_TYPE(403, "사용자 댓글만 수정/삭제할 수 있습니다."),
 
     // AI
     AI_IMAGE_CREATION_FAILED(500, "AI 이미지 생성에 실패했습니다."),
+    AI_CHARACTER_NOT_FOUND(404, "AI 캐릭터를 찾을 수 없습니다"),
+    AI_CHARACTER_NOT_CUSTOM(403, "커스텀 AI 캐릭터만 수정/삭제가 가능합니다"),
     AI_MUSIC_CREATION_FAILED(500, "AI 음악 생성에 실패했습니다."),
     AI_MUSIC_SERVER_BUSY(429, "현재 다른 음악 생성 요청이 처리 중입니다. 잠시 후 다시 시도해주세요."),
     AI_MUSIC_JOB_NOT_FOUND(404, "음악 생성 작업을 찾을 수 없습니다."),

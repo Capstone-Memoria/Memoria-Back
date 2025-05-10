@@ -1,18 +1,31 @@
 package ac.mju.memoria.backend.domain.diarybook.entity;
 
-import ac.mju.memoria.backend.common.auditor.UserStampedEntity;
-import ac.mju.memoria.backend.domain.diary.entity.Diary;
-import ac.mju.memoria.backend.domain.file.entity.CoverImageFile;
-import ac.mju.memoria.backend.domain.diary.entity.Diary;
-import ac.mju.memoria.backend.domain.diarybook.entity.enums.MemberPermission;
-import ac.mju.memoria.backend.domain.invitation.entity.Invitation;
-import ac.mju.memoria.backend.domain.user.entity.User;
-import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.SuperBuilder;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import ac.mju.memoria.backend.common.auditor.UserStampedEntity;
+import ac.mju.memoria.backend.domain.diary.entity.Diary;
+import ac.mju.memoria.backend.domain.diarybook.entity.enums.MemberPermission;
+import ac.mju.memoria.backend.domain.file.entity.CoverImageFile;
+import ac.mju.memoria.backend.domain.invitation.entity.Invitation;
+import ac.mju.memoria.backend.domain.user.entity.User;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
@@ -52,6 +65,10 @@ public class DiaryBook extends UserStampedEntity {
     @Builder.Default
     private List<Diary> diaries = new ArrayList<>();
 
+    @OneToMany(mappedBy = "diaryBook", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<AICharacter> characters = new ArrayList<>();
+
     public boolean isAdmin(User user) {
         if (owner.getEmail().equals(user.getEmail())) {
             return true;
@@ -75,5 +92,10 @@ public class DiaryBook extends UserStampedEntity {
     public void addDiary(Diary diary) {
         this.diaries.add(diary);
         diary.setDiaryBook(this);
+    }
+
+    public void addCharacter(AICharacter character) {
+        this.characters.add(character);
+        character.setDiaryBook(this);
     }
 }

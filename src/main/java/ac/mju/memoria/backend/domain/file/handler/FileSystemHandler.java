@@ -6,7 +6,8 @@ import ac.mju.memoria.backend.system.exception.model.RestException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
- import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -97,6 +98,26 @@ public class FileSystemHandler {
         }
 
         if (!targetFile.delete()) {
+            throw new RestException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @SneakyThrows
+    public void saveFile(ClassPathResource resource, AttachedFile attachedFile) {
+        createDirIfNotExist(savePath);
+
+        File targetFile = Paths.get(savePath, attachedFile.getId()).toFile();
+
+        if(targetFile.exists()) {
+            throw new RestException(ErrorCode.FILE_ALREADY_EXISTS);
+        }
+
+        targetFile.createNewFile();
+
+        try (FileOutputStream fileOutputStream = new FileOutputStream(targetFile)) {
+            fileOutputStream.write(resource.getInputStream().readAllBytes());
+            fileOutputStream.flush();
+        } catch (Exception e) {
             throw new RestException(ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }

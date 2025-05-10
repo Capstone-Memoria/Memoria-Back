@@ -1,17 +1,21 @@
 package ac.mju.memoria.backend.domain.diary.dto;
 
-import ac.mju.memoria.backend.domain.diary.entity.Comment;
-import ac.mju.memoria.backend.domain.diary.entity.UserComment;
-import ac.mju.memoria.backend.domain.user.dto.UserDto;
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import lombok.*;
-import lombok.experimental.SuperBuilder;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import ac.mju.memoria.backend.domain.diary.entity.Comment;
+import ac.mju.memoria.backend.domain.diary.entity.enums.CommentType;
+import ac.mju.memoria.backend.domain.user.dto.UserDto;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 public class CommentDto {
     @Data
@@ -24,10 +28,11 @@ public class CommentDto {
         @Schema(description = "댓글 내용", example = "정말 멋진 하루였네요!")
         private String content;
 
-        public UserComment toEntity() {
-            return UserComment.builder()
+        public Comment toEntity() {
+            return Comment.builder()
                     .content(content)
                     .isDeleted(false)
+                    .type(CommentType.USER)
                     .build();
         }
     }
@@ -56,6 +61,8 @@ public class CommentDto {
         private UserDto.UserResponse lastModifiedBy;
         @Schema(description = "부모 댓글 ID (대댓글이 아닌 경우 null)")
         private Long parentId;
+        @Schema(description = "댓글 타입")
+        private CommentType type;
 
         public static CommentResponse from(Comment comment) {
             return CommentResponse.builder()
@@ -68,6 +75,7 @@ public class CommentDto {
                     .createdAt(comment.getCreatedAt())
                     .lastModifiedAt(comment.getLastModifiedAt())
                     .lastModifiedBy(UserDto.UserResponse.from(comment.getLastModifiedBy()))
+                    .type(comment.getType())
                     .build();
         }
     }
@@ -94,6 +102,7 @@ public class CommentDto {
                     .createdAt(comment.getCreatedAt())
                     .lastModifiedAt(comment.getLastModifiedAt())
                     .lastModifiedBy(UserDto.UserResponse.from(comment.getLastModifiedBy()))
+                    .type(comment.getType())
                     .build();
         }
     }
