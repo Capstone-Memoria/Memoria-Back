@@ -78,7 +78,7 @@ public class DiaryBook extends UserStampedEntity {
     }
 
     public boolean isMember(User user) {
-        return members.stream().anyMatch(member -> member.getUser().getEmail().equals(user.getEmail()));
+        return members.stream().anyMatch(member -> member.getUser().getEmail().equals(user.getEmail())) || isAdmin(user);
     }
 
     private boolean isMemberAdmin(User user) {

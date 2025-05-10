@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import ac.mju.memoria.backend.domain.ai.service.MusicCreateService;
 import ac.mju.memoria.backend.domain.diary.dto.DiaryDto;
 import ac.mju.memoria.backend.domain.diary.entity.Diary;
 import ac.mju.memoria.backend.domain.diary.repository.DiaryRepository;
@@ -35,6 +36,7 @@ public class DiaryService {
     private final FileSystemHandler fileSystemHandler;
     private final AICommentService aiCommentService;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final MusicCreateService musicCreateService;
 
     @Transactional
     public DiaryDto.DiaryResponse createDiary(Long diaryBookId, DiaryDto.DiaryRequest requestDto,
@@ -67,6 +69,7 @@ public class DiaryService {
         applicationEventPublisher.publishEvent(
                 AiCommentNeededEvent.of(this, saved.getId())
         );
+        musicCreateService.requestMusic(saved);
 
         return DiaryDto.DiaryResponse.fromEntity(saved);
     }

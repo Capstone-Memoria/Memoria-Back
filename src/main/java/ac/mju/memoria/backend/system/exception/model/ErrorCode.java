@@ -12,6 +12,7 @@ public enum ErrorCode {
     GLOBAL_ALREADY_EXIST(400, "요청의 대상이 이미 존재합니다."),
     GLOBAL_METHOD_NOT_ALLOWED(405, "허용되지 않는 Method 입니다."),
     GLOBAL_INVALID_PARAMETER(400, "올바르지 않은 파라미터입니다."),
+    INVALID_INPUT_VALUE(400, "유효하지 않은 입력 값입니다."),
 
     // Auth
     AUTH_PASSWORD_NOT_MATCH(401, "비밀번호가 올바르지 않습니다."),
@@ -24,6 +25,8 @@ public enum ErrorCode {
     // Invite
     INVITE_ALREADY_MEMBER(400, "이미 등록된 멤버입니다."),
     INVITE_CODE_EXPIRED(400, "만료된 초대 코드입니다."),
+    INVITE_SELF_INVITATION_NOT_ALLOWED(400, "스스로를 초대할 수 없습니다."),
+    INVITE_ALREADY_SENT(400, "이미 초대장이 발송되었습니다."),
 
     // jwt
     AUTH_TOKEN_NOT_FOUND(401, "인증 토큰을 찾을 수 없습니다."),
@@ -45,7 +48,6 @@ public enum ErrorCode {
     MEMBER_NOT_FOUND(404, "멤버를 찾을 수 없습니다."),
     DIARY_NOT_FOUND(404, "일기를 찾을 수 없습니다."),
 
-
     STICKER_NOT_FOUND(404, "스티커를 찾을 수 없습니다."),
 
     REACTION_ALREADY_EXISTS(400, "이미 공감 한 일기입니다."),
@@ -56,13 +58,18 @@ public enum ErrorCode {
     COMMENT_NOT_FOUND(404, "댓글을 찾을 수 없습니다"),
     COMMENT_NOT_USER_TYPE(403, "사용자 댓글만 수정/삭제할 수 있습니다."),
 
-    //AI
+    // AI
     AI_IMAGE_CREATION_FAILED(500, "AI 이미지 생성에 실패했습니다."),
     AI_CHARACTER_NOT_FOUND(404, "AI 캐릭터를 찾을 수 없습니다"),
     AI_CHARACTER_NOT_CUSTOM(403, "커스텀 AI 캐릭터만 수정/삭제가 가능합니다"),
+    AI_MUSIC_CREATION_FAILED(500, "AI 음악 생성에 실패했습니다."),
+    AI_MUSIC_SERVER_BUSY(429, "현재 다른 음악 생성 요청이 처리 중입니다. 잠시 후 다시 시도해주세요."),
+    AI_MUSIC_JOB_NOT_FOUND(404, "음악 생성 작업을 찾을 수 없습니다."),
+    AI_MUSIC_JOB_FAILED(500, "음악 생성 작업이 실패했습니다."),
+    AI_MUSIC_DOWNLOAD_FAILED(500, "음악 파일 다운로드에 실패했습니다."),
 
     // Other
-    INTERNAL_SERVER_ERROR(500, "오류가 발생했습니다."),;
+    INTERNAL_SERVER_ERROR(500, "오류가 발생했습니다.");
 
     private final int statusCode;
     private final String message;

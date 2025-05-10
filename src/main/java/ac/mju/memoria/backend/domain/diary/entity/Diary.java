@@ -1,17 +1,23 @@
 package ac.mju.memoria.backend.domain.diary.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ac.mju.memoria.backend.common.auditor.UserStampedEntity;
 import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
 import ac.mju.memoria.backend.domain.file.entity.Image;
+import ac.mju.memoria.backend.domain.file.entity.MusicFile;
 import ac.mju.memoria.backend.domain.user.entity.User;
 import ac.mju.memoria.backend.system.exception.model.ErrorCode;
 import ac.mju.memoria.backend.system.exception.model.RestException;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -46,6 +52,9 @@ public class Diary extends UserStampedEntity {
     @OneToMany(mappedBy = "diary", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<Comment> comments = new ArrayList<>();
+
+    @OneToOne(mappedBy = "diary", cascade = CascadeType.ALL, orphanRemoval = true)
+    private MusicFile musicFile;
 
     public void addImage(Image image) {
         this.images.add(image);

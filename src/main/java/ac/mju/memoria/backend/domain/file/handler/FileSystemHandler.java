@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -15,8 +16,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 @Component
 @RequiredArgsConstructor
@@ -30,7 +34,7 @@ public class FileSystemHandler {
 
         File targetFile = Paths.get(savePath, attachedFile.getId()).toFile();
 
-        if(targetFile.exists()) {
+        if (targetFile.exists()) {
             throw new RestException(ErrorCode.FILE_ALREADY_EXISTS);
         }
 
@@ -44,9 +48,30 @@ public class FileSystemHandler {
         }
     }
 
+    @SneakyThrows
+    /**
+     * 스트림을 파일로 저장하고 파일 크기를 반환합니다.
+     * 
+     * @param inputStream  저장할 스트림
+     * @param attachedFile 저장할 파일 정보
+     * @return 저장된 파일의 크기
+     */
+    public long saveStream(InputStream inputStream, AttachedFile attachedFile) {
+        createDirIfNotExist(savePath);
+
+        Path targetPath = Paths.get(savePath, attachedFile.getId());
+
+        if (Files.exists(targetPath)) {
+            throw new RestException(ErrorCode.FILE_ALREADY_EXISTS);
+        }
+
+        Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
+        return Files.size(targetPath);
+    }
+
     private void createDirIfNotExist(String path) {
         File targetDir = Paths.get(path).toFile();
-        if(targetDir.exists()) {
+        if (targetDir.exists()) {
             return;
         }
 
@@ -61,7 +86,7 @@ public class FileSystemHandler {
             throw new RestException(ErrorCode.FILE_NOT_FOUND);
         }
 
-        return new InputStreamResource(new FileInputStream(targetFile));
+        return new FileSystemResource(targetFile);
     }
 
     @SneakyThrows
