@@ -6,6 +6,7 @@ import ac.mju.memoria.backend.domain.diary.entity.Reaction;
 import ac.mju.memoria.backend.domain.diary.repository.CommentRepository;
 import ac.mju.memoria.backend.domain.diary.repository.DiaryRepository;
 import ac.mju.memoria.backend.domain.diary.repository.ReactionRepository;
+import ac.mju.memoria.backend.domain.diarybook.dto.DiaryBookMemberDto;
 import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
 import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBookMember;
 import ac.mju.memoria.backend.domain.diarybook.repository.DiaryBookMemberRepository;
@@ -17,15 +18,19 @@ import ac.mju.memoria.backend.domain.notification.entity.enums.NotificationType;
 import ac.mju.memoria.backend.domain.notification.event.*;
 import ac.mju.memoria.backend.domain.notification.repository.NotificationRepository;
 import ac.mju.memoria.backend.domain.notification.service.SseEmitterService;
+import ac.mju.memoria.backend.domain.user.dto.UserDto;
 import ac.mju.memoria.backend.domain.user.entity.User;
 import ac.mju.memoria.backend.system.exception.model.ErrorCode;
 import ac.mju.memoria.backend.system.exception.model.RestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -57,6 +62,7 @@ public class NotificationEventListener {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleNewDiaryEvent(NewDiaryEvent event) {
         Diary diary = diaryRepository.findById(event.getDiaryId())
                 .orElseThrow(() -> new RestException(ErrorCode.DIARY_NOT_FOUND));
@@ -67,16 +73,17 @@ public class NotificationEventListener {
                 author.getNickName(), diaryBook.getTitle(), diary.getTitle());
         String url = String.format("/api/diary-book/%d/diary/%d", diaryBook.getId(), diary.getId());
 
-        List<User> toSend = diaryBook.getMembers().stream()
-                .map(DiaryBookMember::getUser)
-                .filter(user -> !user.equals(author))
-                .toList();
+        List<User> candidates = new ArrayList<>();
+        candidates.add(diaryBook.getOwner());
+        candidates.addAll(diaryBook.getMembers().stream().map(DiaryBookMember::getUser).toList());
+        candidates.removeIf(it -> it.getEmail().equals(author.getEmail()));
 
-        toSend.forEach(member -> saveAndSendNotification(member, NotificationType.NEW_DIARY, message, url));
+        candidates.forEach(member -> saveAndSendNotification(member, NotificationType.NEW_DIARY, message, url));
     }
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleNewReplyEvent(NewReplyEvent event) {
         Comment reply = commentRepository.findById(event.getReplyId())
                 .orElseThrow(() -> new RestException(ErrorCode.GLOBAL_NOT_FOUND));
@@ -93,6 +100,7 @@ public class NotificationEventListener {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleNewCommentEvent(NewCommentEvent event) {
         Comment comment = commentRepository.findById(event.getCommentId())
                 .orElseThrow(() -> new RestException(ErrorCode.GLOBAL_NOT_FOUND));
@@ -108,6 +116,7 @@ public class NotificationEventListener {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleNewReactionEvent(NewReactionEvent event) {
         Reaction reaction = reactionRepository.findById(event.getReactionId())
                 .orElseThrow(() -> new RestException(ErrorCode.GLOBAL_NOT_FOUND));
@@ -123,6 +132,7 @@ public class NotificationEventListener {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleInvitationAcceptedEvent(InvitationAcceptedEvent event) {
         Invitation invitation = invitationRepository.findById(event.getInvitationId())
                 .orElseThrow(() -> new RestException(ErrorCode.GLOBAL_NOT_FOUND));
