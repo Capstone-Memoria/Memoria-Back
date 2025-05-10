@@ -6,10 +6,10 @@ import ac.mju.memoria.backend.domain.diary.entity.Reaction;
 import ac.mju.memoria.backend.domain.diary.repository.CommentRepository;
 import ac.mju.memoria.backend.domain.diary.repository.DiaryRepository;
 import ac.mju.memoria.backend.domain.diary.repository.ReactionRepository;
-import ac.mju.memoria.backend.domain.diarybook.dto.DiaryBookMemberDto;
 import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
 import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBookMember;
 import ac.mju.memoria.backend.domain.diarybook.repository.DiaryBookMemberRepository;
+import ac.mju.memoria.backend.domain.invitation.entity.DirectInvitation;
 import ac.mju.memoria.backend.domain.invitation.entity.Invitation;
 import ac.mju.memoria.backend.domain.invitation.repository.InvitationRepository;
 import ac.mju.memoria.backend.domain.notification.dto.NotificationDto;
@@ -18,7 +18,6 @@ import ac.mju.memoria.backend.domain.notification.entity.enums.NotificationType;
 import ac.mju.memoria.backend.domain.notification.event.*;
 import ac.mju.memoria.backend.domain.notification.repository.NotificationRepository;
 import ac.mju.memoria.backend.domain.notification.service.SseEmitterService;
-import ac.mju.memoria.backend.domain.user.dto.UserDto;
 import ac.mju.memoria.backend.domain.user.entity.User;
 import ac.mju.memoria.backend.system.exception.model.ErrorCode;
 import ac.mju.memoria.backend.system.exception.model.RestException;
@@ -150,28 +149,36 @@ public class NotificationEventListener {
                 accepter.getNickName(), diaryBook.getTitle());
         String toMemberUrl = String.format("/diary-book/%d", diaryBook.getId());
 
-        List<DiaryBookMember> members = diaryBook.getMembers();
+        List<User> toSend = new ArrayList<>();
+        toSend.add(diaryBook.getOwner());
+        toSend.addAll(diaryBook.getMembers().stream().map(DiaryBookMember::getUser).toList());
 
         saveAndSendNotification(inviter, NotificationType.INVITATION_ACCEPTED, message, url);
 
-        members.stream()
-                .map(DiaryBookMember::getUser)
-                .filter(memberUser -> !memberUser.equals(accepter))
-                .forEach(memberUser -> saveAndSendNotification(memberUser, NotificationType.NEW_MEMBER_JOINED, toMemberMessage, toMemberUrl));
+        toSend.stream()
+                .filter(member -> !member.equals(accepter))
+                .forEach(member -> saveAndSendNotification(member, NotificationType.NEW_MEMBER_JOINED, toMemberMessage, toMemberUrl));
+
+        if (invitation instanceof DirectInvitation) {
+            invitationRepository.deleteById(invitation.getId());
+        }
     }
 
-    // @Async
-    // @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    // public void handleNewInvitationEvent(NewInvitationEvent event) {
-    //     DirectInvitation invitation = event.getInvitation();
-    //     User inviter = invitation.getInviteBy();
-    //     User invitee = invitation.getInviteTo();
-    //     DiaryBook diaryBook = invitation.getDiaryBook();
-    //
-    //     String message = String.format("'%s'님이 회원님을 '%s' 일기장으로 초대했습니다.",
-    //             inviter.getNickName(), diaryBook.getTitle());
-    //     String url = "";
-    //
-    //     saveAndSendNotification(invitee, NotificationType.NEW_INVITATION, message, url);
-    // }
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void handleNewInvitationEvent(NewInvitationEvent event) {
+        DirectInvitation invitation = (DirectInvitation) invitationRepository.findById(event.getInvitationId())
+                .orElseThrow(() -> new RestException(ErrorCode.GLOBAL_NOT_FOUND));
+
+        User inviter = invitation.getInviteBy();
+        User invitee = invitation.getInviteTo();
+        DiaryBook diaryBook = invitation.getDiaryBook();
+
+        String message = String.format("'%s'님이 회원님을 '%s' 일기장으로 초대했습니다.",
+                inviter.getNickName(), diaryBook.getTitle());
+        String url = String.format("/api/user/%s", invitee.getEmail());
+
+        saveAndSendNotification(invitee, NotificationType.NEW_INVITATION, message, url);
+    }
 }

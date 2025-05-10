@@ -132,8 +132,6 @@ public class InvitationService {
 
         eventPublisher.publishEvent(new InvitationAcceptedEvent(saved.getId(), foundInvitation.getId()));
 
-        directInvitationRepository.delete(foundInvitation);
-
         return DiaryBookMemberDto.MemberResponse.from(saved);
     }
 
