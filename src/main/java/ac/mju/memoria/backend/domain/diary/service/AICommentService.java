@@ -2,6 +2,7 @@ package ac.mju.memoria.backend.domain.diary.service;
 
 import ac.mju.memoria.backend.domain.ai.llm.model.AICommentResponse;
 import ac.mju.memoria.backend.domain.ai.llm.service.CommentGenerator;
+import ac.mju.memoria.backend.domain.diary.dto.AICommentDto;
 import ac.mju.memoria.backend.domain.diary.entity.AIComment;
 import ac.mju.memoria.backend.domain.diary.entity.Diary;
 import ac.mju.memoria.backend.domain.diary.repository.AICommentRepository;
@@ -26,6 +27,13 @@ public class AICommentService {
     private final DiaryRepository diaryRepository;
     private final CommentGenerator commentGenerator;
     private final AICharacterQueryRepository aicharacterQueryRepository;
+
+    @Transactional(readOnly = true)
+    public List<AICommentDto.AICommentResponse> getAICommentsByDiaryId(Long diaryId) {
+        return aiCommentRepository.findByDiaryId(diaryId).stream()
+                .map(AICommentDto.AICommentResponse::from)
+                .toList();
+    }
 
     @Async
     @Transactional
