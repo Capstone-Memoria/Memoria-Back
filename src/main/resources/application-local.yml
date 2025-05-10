@@ -12,7 +12,7 @@ spring:
   # jpa설정
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties: # property 사용 설정
       hibernate: # hibernate property 설정
         format_sql: true

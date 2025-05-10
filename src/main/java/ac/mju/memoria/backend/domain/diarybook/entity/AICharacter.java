@@ -33,7 +33,7 @@ public class AICharacter extends UserStampedEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "aiCharacter")
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "aiCharacter")
     private ProfileImage profileImage;
 
     private String name;

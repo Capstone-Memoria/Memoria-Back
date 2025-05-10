@@ -4,10 +4,12 @@ import ac.mju.memoria.backend.domain.diarybook.entity.AICharacter;
 import ac.mju.memoria.backend.domain.diarybook.entity.enums.AICharacterType;
 import ac.mju.memoria.backend.domain.file.dto.FileDto;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -27,6 +29,9 @@ public class AICharacterDto {
         @NotBlank(message = "AI캐릭터의 말투를 입력하세요")
         private String accent;
 
+        @NotNull(message = "AI캐릭터의 프로필 이미지를 업로드하세요")
+        private MultipartFile profileImage;
+
         public AICharacter toEntity() {
             return AICharacter.builder()
                     .name(name)
@@ -45,6 +50,7 @@ public class AICharacterDto {
         private String name;
         private String feature;
         private String accent;
+        private MultipartFile profileImage;
 
         public void applyTo(AICharacter character) {
             if (Objects.nonNull(name)) {
