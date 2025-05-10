@@ -14,6 +14,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -72,5 +74,26 @@ public class InvitationController {
             @Parameter(description = "초대 코드") @PathVariable String code
     ) {
         return invitationService.getCodeInviteDetails(code);
+    }
+
+    @GetMapping("/invitations/received")
+    @Operation(summary = "받은 초대 목록 조회", description = "인증된 사용자가 받은 직접 초대 목록을 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "받은 초대 목록 조회 성공")
+    public List<InvitationDto.ReceivedInvitationResponse> getReceivedInvitations(
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetails user
+    ) {
+        return invitationService.getReceivedInvitations(user);
+    }
+
+    @DeleteMapping("/invitations/{invitationId}")
+    @Operation(summary = "초대 거절", description = "받은 직접 초대를 거절합니다.")
+    @ApiResponse(responseCode = "200", description = "초대 거절 성공")
+    @ApiResponse(responseCode = "404", description = "초대를 찾을 수 없음")
+    @ApiResponse(responseCode = "403", description = "초대를 거절할 권한이 없음")
+    public void declineDirectInvite(
+            @Parameter(description = "초대 ID") @PathVariable Long invitationId,
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetails user
+    ) {
+        invitationService.declineDirectInvite(invitationId, user);
     }
 }

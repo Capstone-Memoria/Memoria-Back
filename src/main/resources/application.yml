@@ -29,3 +29,9 @@ file:
 
 gemini:
   apiKey: ${GEMINI_API_KEY}
+
+ai:
+  music:
+    nodes:
+      - host: http://216.249.100.66:14338
+      # Add more nodes as needed

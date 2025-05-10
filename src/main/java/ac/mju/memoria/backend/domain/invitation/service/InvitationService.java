@@ -24,8 +24,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -68,6 +70,21 @@ public class InvitationService {
 
         User inviteTo = userRepository.findByEmail(request.getTargetEmail())
                 .orElseThrow(() -> new RestException(ErrorCode.AUTH_USER_NOT_FOUND));
+
+        // 초대를 보내는 사용자와 초대받는 사용자가 동일한지 검증
+        if (user.getUser().equals(inviteTo)) {
+            throw new RestException(ErrorCode.INVITE_SELF_INVITATION_NOT_ALLOWED);
+        }
+
+        // 직접 초대 시 이미 해당 일기장 멤버인지 검증
+        if (diaryBook.isMember(inviteTo)) {
+            throw new RestException(ErrorCode.INVITE_ALREADY_MEMBER);
+        }
+
+        // 직접 초대 시 이미 해당 사용자에게 초대장이 발송되었는지 검증
+        if (directInvitationRepository.existsByDiaryBookAndInviteTo(diaryBook, inviteTo)) {
+            throw new RestException(ErrorCode.INVITE_ALREADY_SENT);
+        }
 
         DirectInvitation toSave = DirectInvitation.of(diaryBook, inviteTo, user.getUser());
         toSave.canInviteBy(user);
@@ -136,6 +153,29 @@ public class InvitationService {
         }
 
         return InvitationDto.CodeInviteDetailsResponse.from(invitation);
+    }
+
+    @Transactional(readOnly = true)
+    public List<InvitationDto.ReceivedInvitationResponse> getReceivedInvitations(UserDetails userDetails) {
+        User inviteToUser = userDetails.getUser();
+        List<DirectInvitation> receivedInvitations = directInvitationRepository.findByInviteTo(inviteToUser);
+
+        return receivedInvitations.stream()
+                .map(InvitationDto.ReceivedInvitationResponse::from)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void declineDirectInvite(Long invitationId, UserDetails userDetails) {
+        DirectInvitation foundInvitation = directInvitationRepository.findById(invitationId)
+                .orElseThrow(() -> new RestException(ErrorCode.GLOBAL_NOT_FOUND));
+
+        // 초대를 받은 본인만 거절 가능
+        if (!foundInvitation.getInviteTo().getEmail().equals(userDetails.getUser().getEmail())) {
+            throw new RestException(ErrorCode.AUTH_FORBIDDEN);
+        }
+
+        directInvitationRepository.delete(foundInvitation);
     }
 }
 

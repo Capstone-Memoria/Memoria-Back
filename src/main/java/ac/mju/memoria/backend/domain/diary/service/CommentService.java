@@ -29,7 +29,6 @@ public class CommentService {
     private final DiaryBookRepository diaryBookRepository;
     private final DiaryRepository diaryRepository;
     private final CommentRepository commentRepository;
-    private final CommentQueryRepository userCommentQueryRepository;
     private final CommentQueryRepository commentQueryRepository;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -58,7 +57,7 @@ public class CommentService {
     @Transactional
     public CommentDto.CommentResponse createReply(Long parentId, CommentDto.UserCommentRequest request,
             UserDetails userDetails) {
-        Comment parent = userCommentQueryRepository.findById(parentId)
+        Comment parent = commentQueryRepository.findById(parentId)
                 .orElseThrow(() -> new RestException(ErrorCode.PARENT_COMMENT_NOT_FOUND));
 
         Comment toSave = request.toEntity();

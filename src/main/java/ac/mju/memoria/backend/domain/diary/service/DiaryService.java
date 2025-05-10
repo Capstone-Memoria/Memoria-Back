@@ -5,12 +5,15 @@ import java.util.Objects;
 
 import ac.mju.memoria.backend.domain.notification.event.NewDiaryEvent;
 import org.springframework.context.ApplicationEventPublisher;
+import ac.mju.memoria.backend.domain.diary.event.AiCommentNeededEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import ac.mju.memoria.backend.domain.ai.service.MusicCreateService;
 import ac.mju.memoria.backend.domain.diary.dto.DiaryDto;
 import ac.mju.memoria.backend.domain.diary.entity.Diary;
 import ac.mju.memoria.backend.domain.diary.repository.DiaryRepository;
@@ -34,6 +37,8 @@ public class DiaryService {
     private final ImageRepository imageRepository;
     private final FileSystemHandler fileSystemHandler;
     private final ApplicationEventPublisher eventPublisher;
+    private final AICommentService aiCommentService;
+    private final MusicCreateService musicCreateService;
 
     @Transactional
     public DiaryDto.DiaryResponse createDiary(Long diaryBookId, DiaryDto.DiaryRequest requestDto,
@@ -63,6 +68,9 @@ public class DiaryService {
             savedImages.forEach(saved::addImage);
         }
 
+
+        musicCreateService.requestMusic(saved);
+        eventPublisher.publishEvent(AiCommentNeededEvent.of(this, saved.getId()));
         eventPublisher.publishEvent(new NewDiaryEvent(saved.getId()));
 
         return DiaryDto.DiaryResponse.fromEntity(saved);

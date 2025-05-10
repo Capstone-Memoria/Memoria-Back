@@ -4,7 +4,7 @@ spring:
       enabled: true
 
   datasource:
-    url: jdbc:h2:mem:testdb
+    url: jdbc:h2:file:./.db/testdb
     driver-class-name: org.h2.Driver
     username: sa
     password:
@@ -16,3 +16,7 @@ spring:
     properties: # property 사용 설정
       hibernate: # hibernate property 설정
         format_sql: true
+
+ai:
+  music:
+    nodes:

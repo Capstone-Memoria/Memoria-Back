@@ -86,8 +86,8 @@ public class DiaryDto {
         private UserDto.UserResponse lastModifiedBy;
         @Schema(description = "첨부된 이미지 파일 정보 목록")
         private List<FileDto.FileResponse> images;
-        @Schema(description = "다이어리에 달린 반응 목록")
-        private List<ReactionDto.Response> reactions; // 이 필드는 아직 사용되지 않을 수 있음
+        @Schema(description = "다이어리에 생성된 음악 파일")
+        private FileDto.FileResponse musicFile;
 
         public static DiaryResponse fromEntity(Diary diary) {
             return DiaryResponse.builder()
@@ -103,7 +103,7 @@ public class DiaryDto {
                             diary.getImages().stream().
                                     map(FileDto.FileResponse::from)
                                     .collect(Collectors.toList()))
-                    // .reactions(...) // 반응 정보 추가 로직 필요
+                    .musicFile(FileDto.FileResponse.from(diary.getMusicFile()))
                     .build();
         }
     }
