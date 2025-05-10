@@ -3,15 +3,25 @@ package ac.mju.memoria.backend.domain.diarybook.service;
 import ac.mju.memoria.backend.domain.diarybook.entity.AICharacter;
 import ac.mju.memoria.backend.domain.diarybook.entity.enums.AICharacterType;
 import ac.mju.memoria.backend.domain.diarybook.repository.AICharacterRepository;
+import ac.mju.memoria.backend.domain.file.entity.ProfileImage;
+import ac.mju.memoria.backend.domain.file.handler.FileSystemHandler;
+import ac.mju.memoria.backend.domain.file.repository.AttachedFileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
 public class DefaultCharacterLoader implements CommandLineRunner {
     private final AICharacterRepository aiCharacterRepository;
+    private final FileSystemHandler fileSystemHandler;
+    private final AttachedFileRepository attachedFileRepository;
 
     @Override
     @Transactional
@@ -34,7 +44,19 @@ public class DefaultCharacterLoader implements CommandLineRunner {
                     .accent("5살 정도의 순수한 아이의 말투")
                     .build();
 
-            aiCharacterRepository.save(coony);
+            AICharacter saved = aiCharacterRepository.save(coony);
+            ClassPathResource profileImageResource = new ClassPathResource("images/coony.png");
+
+            ProfileImage profileImage = ProfileImage.builder()
+                    .id(UUID.randomUUID().toString())
+                    .fileName("coony.png")
+                    .aiCharacter(saved)
+                    .size(profileImageResource.contentLength())
+                    .build();
+
+            attachedFileRepository.save(profileImage);
+
+            fileSystemHandler.saveFile(profileImageResource, profileImage);
         }
     }
 }

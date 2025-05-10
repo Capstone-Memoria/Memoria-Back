@@ -6,16 +6,7 @@ import ac.mju.memoria.backend.common.auditor.UserStampedEntity;
 import ac.mju.memoria.backend.domain.diary.entity.enums.CommentType;
 import ac.mju.memoria.backend.domain.diarybook.entity.AICharacter;
 import ac.mju.memoria.backend.domain.user.entity.User;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -34,6 +25,7 @@ public class Comment extends UserStampedEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Lob
     private String content;
 
     private boolean isDeleted;

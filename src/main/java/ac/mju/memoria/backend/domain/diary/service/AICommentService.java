@@ -5,6 +5,7 @@ import ac.mju.memoria.backend.domain.ai.llm.service.CommentGenerator;
 import ac.mju.memoria.backend.domain.diary.dto.AICommentDto;
 import ac.mju.memoria.backend.domain.diary.entity.AIComment;
 import ac.mju.memoria.backend.domain.diary.entity.Diary;
+import ac.mju.memoria.backend.domain.diary.event.AiCommentNeededEvent;
 import ac.mju.memoria.backend.domain.diary.repository.AICommentRepository;
 import ac.mju.memoria.backend.domain.diary.repository.DiaryRepository;
 import ac.mju.memoria.backend.domain.diarybook.entity.AICharacter;
@@ -15,7 +16,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.List;
 
@@ -36,15 +40,16 @@ public class AICommentService {
     }
 
     @Async
-    @Transactional
-    public void generateCommentAsync(Long diaryId) {
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    public void generateCommentAsync(AiCommentNeededEvent event) {
         try {
-            Diary found = diaryRepository.findById(diaryId)
+            Diary found = diaryRepository.findById(event.getDiaryId())
                     .orElseThrow(() -> new RestException(ErrorCode.GLOBAL_NOT_FOUND));
 
             List<AICharacter> characters = aicharacterQueryRepository.findByDiaryBookId(found.getDiaryBook().getId());
             if (characters.isEmpty()) {
-                log.info("No AI characters found for diary ID: {}", diaryId);
+                log.info("No AI characters found for diary ID: {}", event.getDiaryId());
                 return;
             }
 
@@ -68,7 +73,7 @@ public class AICommentService {
             aiCommentRepository.save(toSave);
 
         }catch (Exception e) {
-            log.error("Error occurred while generating comment: {}", e.getMessage());
+            log.error("Error occurred while generating comment: {}", e.getMessage(),e);
             //ignore
         }
     }

@@ -3,6 +3,8 @@ package ac.mju.memoria.backend.domain.diary.service;
 import java.util.List;
 import java.util.Objects;
 
+import ac.mju.memoria.backend.domain.diary.event.AiCommentNeededEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,7 @@ public class DiaryService {
     private final ImageRepository imageRepository;
     private final FileSystemHandler fileSystemHandler;
     private final AICommentService aiCommentService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional
     public DiaryDto.DiaryResponse createDiary(Long diaryBookId, DiaryDto.DiaryRequest requestDto,
@@ -61,7 +64,9 @@ public class DiaryService {
             savedImages.forEach(saved::addImage);
         }
 
-        aiCommentService.generateCommentAsync(saved.getId());
+        applicationEventPublisher.publishEvent(
+                AiCommentNeededEvent.of(this, saved.getId())
+        );
 
         return DiaryDto.DiaryResponse.fromEntity(saved);
     }

@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/diaries/{diaryId}/ai-comments")
+@RequestMapping("/api/diary/{diaryId}/ai-comments")
 @Tag(name = "AIComment", description = "AI 댓글 API")
 public class AICommentController {
 

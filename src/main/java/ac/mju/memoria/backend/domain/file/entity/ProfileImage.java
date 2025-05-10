@@ -10,8 +10,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,7 +23,7 @@ import java.util.UUID;
 @SuperBuilder
 @NoArgsConstructor
 public class ProfileImage extends AttachedFile{
-    @OneToOne(mappedBy = "profileImage")
+    @OneToOne
     private AICharacter aiCharacter;
 
     public static ProfileImage from(MultipartFile file) {
@@ -53,4 +55,5 @@ public class ProfileImage extends AttachedFile{
             throw new RestException(ErrorCode.FILE_NOT_IMAGE);
         }
     }
+
 }

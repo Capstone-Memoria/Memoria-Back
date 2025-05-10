@@ -21,6 +21,7 @@ public class AIComment extends TimeStampedEntity {
 
     private String title;
 
+    @Lob
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)

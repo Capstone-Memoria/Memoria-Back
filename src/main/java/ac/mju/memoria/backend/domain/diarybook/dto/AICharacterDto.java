@@ -1,8 +1,5 @@
 package ac.mju.memoria.backend.domain.diarybook.dto;
 
-import java.time.LocalDateTime;
-import java.util.Objects;
-
 import ac.mju.memoria.backend.domain.diarybook.entity.AICharacter;
 import ac.mju.memoria.backend.domain.diarybook.entity.enums.AICharacterType;
 import ac.mju.memoria.backend.domain.file.dto.FileDto;
@@ -11,6 +8,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class AICharacterDto {
     @AllArgsConstructor
@@ -79,7 +79,11 @@ public class AICharacterDto {
                     .id(character.getId())
                     .name(character.getName())
                     .profileImage(FileDto.FileResponse.from(character.getProfileImage()))
-                    .diaryBook(DiaryBookDto.DiaryBookResponse.from(character.getDiaryBook()))
+                    .diaryBook(
+                            Objects.nonNull(character.getDiaryBook()) ?
+                                    DiaryBookDto.DiaryBookResponse.from(character.getDiaryBook())
+                                    : null
+                    )
                     .feature(character.getFeature())
                     .accent(character.getAccent())
                     .type(character.getType())
