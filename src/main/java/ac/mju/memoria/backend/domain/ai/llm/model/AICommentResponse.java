@@ -14,6 +14,6 @@ import lombok.NoArgsConstructor;
 public class AICommentResponse {
     @Description("AI 캐릭터의 답변 편지 제목")
     private String title;
-    @Description("AI 캐릭터의 답변 편지 내용")
+    @Description("AI 캐릭터의 답변 편지 내용 (마크다운으로 작성)")
     private String content;
 }

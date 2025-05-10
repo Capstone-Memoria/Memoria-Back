@@ -10,10 +10,12 @@ import ac.mju.memoria.backend.domain.diary.repository.AICommentRepository;
 import ac.mju.memoria.backend.domain.diary.repository.DiaryRepository;
 import ac.mju.memoria.backend.domain.diarybook.entity.AICharacter;
 import ac.mju.memoria.backend.domain.diarybook.repository.AICharacterQueryRepository;
+import ac.mju.memoria.backend.domain.notification.event.NewAICommentEvent;
 import ac.mju.memoria.backend.system.exception.model.ErrorCode;
 import ac.mju.memoria.backend.system.exception.model.RestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -31,6 +33,7 @@ public class AICommentService {
     private final DiaryRepository diaryRepository;
     private final CommentGenerator commentGenerator;
     private final AICharacterQueryRepository aicharacterQueryRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Transactional(readOnly = true)
     public List<AICommentDto.AICommentResponse> getAICommentsByDiaryId(Long diaryId) {
@@ -70,7 +73,11 @@ public class AICommentService {
                     .title(generated.getTitle())
                     .content(generated.getContent())
                     .build();
-            aiCommentRepository.save(toSave);
+            AIComment saved = aiCommentRepository.save(toSave);
+
+            applicationEventPublisher.publishEvent(
+                    new NewAICommentEvent(saved.getId())
+            );
 
         }catch (Exception e) {
             log.error("Error occurred while generating comment: {}", e.getMessage(),e);

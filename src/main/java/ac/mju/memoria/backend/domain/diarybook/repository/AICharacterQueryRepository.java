@@ -20,9 +20,8 @@ public class AICharacterQueryRepository {
         return queryFactory
                 .selectFrom(aICharacter)
                 .where(
-                        aICharacter.type.eq(AICharacterType.DEFAULT).or(
-                                aICharacter.diaryBook.id.eq(diaryBookId)
-                        )
+                        aICharacter.type.eq(AICharacterType.DEFAULT)
+                                .or(aICharacter.diaryBook.id.eq(diaryBookId))
                 )
                 .fetch();
     }

@@ -7,5 +7,6 @@ public enum NotificationType {
     NEW_REACTION,
     NEW_INVITATION,
     INVITATION_ACCEPTED,
-    NEW_MEMBER_JOINED
+    NEW_MEMBER_JOINED,
+    NEW_AI_COMMENT
 }

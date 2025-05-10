@@ -1,8 +1,10 @@
 package ac.mju.memoria.backend.domain.notification.listener;
 
+import ac.mju.memoria.backend.domain.diary.entity.AIComment;
 import ac.mju.memoria.backend.domain.diary.entity.Comment;
 import ac.mju.memoria.backend.domain.diary.entity.Diary;
 import ac.mju.memoria.backend.domain.diary.entity.Reaction;
+import ac.mju.memoria.backend.domain.diary.repository.AICommentRepository;
 import ac.mju.memoria.backend.domain.diary.repository.CommentRepository;
 import ac.mju.memoria.backend.domain.diary.repository.DiaryRepository;
 import ac.mju.memoria.backend.domain.diary.repository.ReactionRepository;
@@ -43,6 +45,7 @@ public class NotificationEventListener {
     private final ReactionRepository reactionRepository;
     private final InvitationRepository invitationRepository;
     private final DiaryBookMemberRepository diaryBookMemberRepository;
+    private final AICommentRepository aICommentRepository;
 
     private void saveAndSendNotification(User recipient, NotificationType type, String message, String url) {
         if (recipient == null) return;
@@ -180,5 +183,19 @@ public class NotificationEventListener {
         String url = String.format("/api/user/%s", invitee.getEmail());
 
         saveAndSendNotification(invitee, NotificationType.NEW_INVITATION, message, url);
+    }
+
+    @Async
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void handleNewAICommentEvent(NewAICommentEvent event) {
+        AIComment found = aICommentRepository.findById(event.getAiCommentId())
+                .orElseThrow(() -> new RestException(ErrorCode.GLOBAL_NOT_FOUND));
+        Diary diary = found.getDiary();
+
+        String message = String.format("'%s'가 회원님의 일기에 편지를 보냈습니다.", found.getCreatedBy().getName());
+        String url = String.format("/diary-book/%d/diary/%d", diary.getDiaryBook().getId(), diary.getId());
+
+        saveAndSendNotification(diary.getAuthor(), NotificationType.NEW_AI_COMMENT, message, url);
     }
 }
