@@ -3,6 +3,8 @@ package ac.mju.memoria.backend.domain.diary.service;
 import java.util.List;
 import java.util.Objects;
 
+import ac.mju.memoria.backend.domain.notification.event.NewDiaryEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,7 @@ public class DiaryService {
     private final DiaryBookRepository diaryBookRepository;
     private final ImageRepository imageRepository;
     private final FileSystemHandler fileSystemHandler;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public DiaryDto.DiaryResponse createDiary(Long diaryBookId, DiaryDto.DiaryRequest requestDto,
@@ -40,7 +43,7 @@ public class DiaryService {
         DiaryBook diaryBook = diaryBookRepository.findById(diaryBookId)
                 .orElseThrow(() -> new RestException(ErrorCode.DIARYBOOK_NOT_FOUND));
 
-        diaryBook.isAdmin(user);
+        diaryBook.isMember(user);
 
         Diary diary = Diary.builder()
                 .title(requestDto.getTitle())
@@ -60,6 +63,8 @@ public class DiaryService {
             savedImages.forEach(saved::addImage);
         }
 
+        eventPublisher.publishEvent(new NewDiaryEvent(saved.getId()));
+
         return DiaryDto.DiaryResponse.fromEntity(saved);
     }
 
@@ -68,7 +73,7 @@ public class DiaryService {
         DiaryBook diaryBook = diaryBookRepository.findById(diaryBookId)
                 .orElseThrow(() -> new RestException(ErrorCode.DIARYBOOK_NOT_FOUND));
 
-        diaryBook.isAdmin(userDetails.getUser());
+        diaryBook.isMember(userDetails.getUser());
 
         Diary diary = diaryRepository.findByIdAndDiaryBook(diaryId, diaryBook)
                 .orElseThrow(() -> new RestException(ErrorCode.DIARY_NOT_FOUND));
@@ -82,7 +87,7 @@ public class DiaryService {
         DiaryBook diaryBook = diaryBookRepository.findById(diaryBookId)
                 .orElseThrow(() -> new RestException(ErrorCode.DIARYBOOK_NOT_FOUND));
 
-        diaryBook.isAdmin(userDetails.getUser());
+        diaryBook.isMember(userDetails.getUser());
 
         Page<Diary> diaryPage = diaryRepository.findByDiaryBook(diaryBook, pageable);
 
@@ -95,7 +100,7 @@ public class DiaryService {
         DiaryBook diaryBook = diaryBookRepository.findById(diaryBookId)
                 .orElseThrow(() -> new RestException(ErrorCode.DIARYBOOK_NOT_FOUND));
 
-        diaryBook.isAdmin(userDetails.getUser());
+        diaryBook.isMember(userDetails.getUser());
 
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new RestException(ErrorCode.DIARY_NOT_FOUND));
@@ -132,7 +137,7 @@ public class DiaryService {
 
         User user = userDetails.getUser();
 
-        diaryBook.isAdmin(user);
+        diaryBook.isMember(user);
 
         Diary diary = diaryRepository.findByIdAndDiaryBook(diaryId, diaryBook)
                 .orElseThrow(() -> new RestException(ErrorCode.DIARY_NOT_FOUND));

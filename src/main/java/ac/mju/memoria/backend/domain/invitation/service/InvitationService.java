@@ -11,12 +11,15 @@ import ac.mju.memoria.backend.domain.invitation.entity.DirectInvitation;
 import ac.mju.memoria.backend.domain.invitation.entity.Invitation;
 import ac.mju.memoria.backend.domain.invitation.repository.CodeInvitationRepository;
 import ac.mju.memoria.backend.domain.invitation.repository.DirectInvitationRepository;
+import ac.mju.memoria.backend.domain.notification.event.InvitationAcceptedEvent;
+import ac.mju.memoria.backend.domain.notification.event.NewInvitationEvent;
 import ac.mju.memoria.backend.domain.user.entity.User;
 import ac.mju.memoria.backend.domain.user.repository.UserRepository;
 import ac.mju.memoria.backend.system.exception.model.ErrorCode;
 import ac.mju.memoria.backend.system.exception.model.RestException;
 import ac.mju.memoria.backend.system.security.model.UserDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +35,7 @@ public class InvitationService {
     private final DiaryBookMemberRepository diaryBookMemberRepository;
     private final UserRepository userRepository;
     private final DirectInvitationRepository directInvitationRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public InvitationDto.CreateCodeInviteResponse inviteByCode(InvitationDto.CreateCodeInviteRequest request, Long diaryBookId, UserDetails user) {
@@ -70,6 +74,8 @@ public class InvitationService {
 
         DirectInvitation saved = directInvitationRepository.save(toSave);
 
+        eventPublisher.publishEvent(new NewInvitationEvent(saved.getId()));
+
         return InvitationDto.CreateDirectInviteResponse.from(saved);
     }
 
@@ -89,6 +95,9 @@ public class InvitationService {
         toSave.makeRelationWIthDiaryBook(foundInvitation.getDiaryBook());
 
         DiaryBookMember saved = diaryBookMemberRepository.save(toSave);
+
+        eventPublisher.publishEvent(new InvitationAcceptedEvent(saved.getId(), foundInvitation.getId()));
+
         return DiaryBookMemberDto.MemberResponse.from(saved);
     }
 
@@ -103,6 +112,11 @@ public class InvitationService {
         toSave.makeRelationWIthDiaryBook(foundInvitation.getDiaryBook());
 
         DiaryBookMember saved = diaryBookMemberRepository.save(toSave);
+
+        eventPublisher.publishEvent(new InvitationAcceptedEvent(saved.getId(), foundInvitation.getId()));
+
+        directInvitationRepository.delete(foundInvitation);
+
         return DiaryBookMemberDto.MemberResponse.from(saved);
     }
 

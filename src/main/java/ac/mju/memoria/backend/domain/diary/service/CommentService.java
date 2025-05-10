@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import ac.mju.memoria.backend.domain.notification.event.NewCommentEvent;
+import ac.mju.memoria.backend.domain.notification.event.NewReplyEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +31,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final CommentQueryRepository userCommentQueryRepository;
     private final CommentQueryRepository commentQueryRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public CommentDto.CommentResponse createComment(Long diaryBookId, Long diaryId,
@@ -44,6 +48,10 @@ public class CommentService {
 
         Comment saved = commentRepository.save(toSave);
 
+        if (saved.getParent() == null && !saved.getDiary().getAuthor().equals(userDetails.getUser())) {
+            eventPublisher.publishEvent(new NewCommentEvent(saved.getId()));
+        }
+
         return CommentDto.CommentResponse.from(saved);
     }
 
@@ -59,6 +67,11 @@ public class CommentService {
         toSave.setUser(userDetails.getUser());
 
         Comment saved = commentRepository.save(toSave);
+
+        if (!parent.getUser().equals(userDetails.getUser())
+                && !saved.getDiary().getAuthor().equals(userDetails.getUser())) {
+            eventPublisher.publishEvent(new NewReplyEvent(saved.getId()));
+        }
 
         return CommentDto.CommentResponse.from(saved);
     }

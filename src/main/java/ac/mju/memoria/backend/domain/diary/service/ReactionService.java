@@ -5,7 +5,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import ac.mju.memoria.backend.domain.diary.repository.ReactionQueryRepository;
+import ac.mju.memoria.backend.domain.notification.event.NewReactionEvent;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +30,7 @@ public class ReactionService {
     private final ReactionRepository reactionRepository;
     private final DiaryRepository diaryRepository;
     private final ReactionQueryRepository reactionQueryRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     @Nullable
@@ -41,11 +44,21 @@ public class ReactionService {
         Reaction toModify = reactionRepository.findById(ReactionId.of(diary, userDetails.getUser()))
                 .orElseGet(() -> saveAndGetNewReaction(diary, user, request));
 
+        boolean shouldPublishEvent = false;
+
         if (Objects.isNull(request.getReactionType())) {
             reactionRepository.delete(toModify);
             return null;
         } else {
+            if (!toModify.getId().getDiary().getAuthor().equals(user)
+                    && toModify.getType() != request.getReactionType()) {
+                shouldPublishEvent = true;
+            }
             toModify.setType(request.getReactionType());
+        }
+
+        if (shouldPublishEvent) {
+            eventPublisher.publishEvent(new NewReactionEvent(toModify.getId()));
         }
 
         return ReactionDto.Response.from(toModify);

@@ -66,7 +66,7 @@ public class Diary extends UserStampedEntity {
     }
 
     public boolean isDiaryBookMember(User user) {
-        if (this.diaryBook.isAdmin(user)) {
+        if (this.diaryBook.isMember(user)) {
             return true;
         }
         throw new RestException(ErrorCode.AUTH_FORBIDDEN);
