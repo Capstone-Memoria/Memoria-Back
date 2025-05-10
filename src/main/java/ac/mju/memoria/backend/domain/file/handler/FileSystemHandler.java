@@ -6,6 +6,7 @@ import ac.mju.memoria.backend.system.exception.model.RestException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
+ import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
@@ -84,7 +85,7 @@ public class FileSystemHandler {
             throw new RestException(ErrorCode.FILE_NOT_FOUND);
         }
 
-        return new InputStreamResource(new FileInputStream(targetFile));
+        return new FileSystemResource(targetFile);
     }
 
     @SneakyThrows
