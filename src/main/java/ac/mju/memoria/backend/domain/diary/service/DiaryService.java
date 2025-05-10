@@ -31,6 +31,7 @@ public class DiaryService {
     private final DiaryBookRepository diaryBookRepository;
     private final ImageRepository imageRepository;
     private final FileSystemHandler fileSystemHandler;
+    private final AICommentService aiCommentService;
 
     @Transactional
     public DiaryDto.DiaryResponse createDiary(Long diaryBookId, DiaryDto.DiaryRequest requestDto,
@@ -59,6 +60,8 @@ public class DiaryService {
             List<Image> savedImages = addImages(images, diary);
             savedImages.forEach(saved::addImage);
         }
+
+        aiCommentService.generateCommentAsync(saved.getId());
 
         return DiaryDto.DiaryResponse.fromEntity(saved);
     }
