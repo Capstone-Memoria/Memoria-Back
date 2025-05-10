@@ -3,6 +3,8 @@ package ac.mju.memoria.backend.domain.diary.service;
 import java.util.List;
 import java.util.Objects;
 
+import ac.mju.memoria.backend.domain.notification.event.NewDiaryEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import ac.mju.memoria.backend.domain.diary.event.AiCommentNeededEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -34,8 +36,8 @@ public class DiaryService {
     private final DiaryBookRepository diaryBookRepository;
     private final ImageRepository imageRepository;
     private final FileSystemHandler fileSystemHandler;
+    private final ApplicationEventPublisher eventPublisher;
     private final AICommentService aiCommentService;
-    private final ApplicationEventPublisher applicationEventPublisher;
     private final MusicCreateService musicCreateService;
 
     @Transactional
@@ -46,7 +48,7 @@ public class DiaryService {
         DiaryBook diaryBook = diaryBookRepository.findById(diaryBookId)
                 .orElseThrow(() -> new RestException(ErrorCode.DIARYBOOK_NOT_FOUND));
 
-        diaryBook.isAdmin(user);
+        diaryBook.isMember(user);
 
         Diary diary = Diary.builder()
                 .title(requestDto.getTitle())
@@ -66,10 +68,10 @@ public class DiaryService {
             savedImages.forEach(saved::addImage);
         }
 
-        applicationEventPublisher.publishEvent(
-                AiCommentNeededEvent.of(this, saved.getId())
-        );
+
         musicCreateService.requestMusic(saved);
+        eventPublisher.publishEvent(AiCommentNeededEvent.of(this, saved.getId()));
+        eventPublisher.publishEvent(new NewDiaryEvent(saved.getId()));
 
         return DiaryDto.DiaryResponse.fromEntity(saved);
     }
@@ -79,7 +81,7 @@ public class DiaryService {
         DiaryBook diaryBook = diaryBookRepository.findById(diaryBookId)
                 .orElseThrow(() -> new RestException(ErrorCode.DIARYBOOK_NOT_FOUND));
 
-        diaryBook.isAdmin(userDetails.getUser());
+        diaryBook.isMember(userDetails.getUser());
 
         Diary diary = diaryRepository.findByIdAndDiaryBook(diaryId, diaryBook)
                 .orElseThrow(() -> new RestException(ErrorCode.DIARY_NOT_FOUND));
@@ -93,7 +95,7 @@ public class DiaryService {
         DiaryBook diaryBook = diaryBookRepository.findById(diaryBookId)
                 .orElseThrow(() -> new RestException(ErrorCode.DIARYBOOK_NOT_FOUND));
 
-        diaryBook.isAdmin(userDetails.getUser());
+        diaryBook.isMember(userDetails.getUser());
 
         Page<Diary> diaryPage = diaryRepository.findByDiaryBook(diaryBook, pageable);
 
@@ -106,7 +108,7 @@ public class DiaryService {
         DiaryBook diaryBook = diaryBookRepository.findById(diaryBookId)
                 .orElseThrow(() -> new RestException(ErrorCode.DIARYBOOK_NOT_FOUND));
 
-        diaryBook.isAdmin(userDetails.getUser());
+        diaryBook.isMember(userDetails.getUser());
 
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new RestException(ErrorCode.DIARY_NOT_FOUND));
@@ -143,7 +145,7 @@ public class DiaryService {
 
         User user = userDetails.getUser();
 
-        diaryBook.isAdmin(user);
+        diaryBook.isMember(user);
 
         Diary diary = diaryRepository.findByIdAndDiaryBook(diaryId, diaryBook)
                 .orElseThrow(() -> new RestException(ErrorCode.DIARY_NOT_FOUND));
