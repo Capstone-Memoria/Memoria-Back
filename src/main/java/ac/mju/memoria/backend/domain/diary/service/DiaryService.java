@@ -67,9 +67,14 @@ public class DiaryService {
             savedImages.forEach(saved::addImage);
         }
 
-        musicCreateService.requestMusic(saved);
-        eventPublisher.publishEvent(AiCommentNeededEvent.of(this, saved.getId()));
-        eventPublisher.publishEvent(new NewDiaryEvent(saved.getId()));
+        if (requestDto.isAICommentEnabled()) {
+            eventPublisher.publishEvent(AiCommentNeededEvent.of(this, saved.getId(), requestDto.getDesiredCharacterId()));
+            eventPublisher.publishEvent(new NewDiaryEvent(saved.getId()));
+        }
+
+        if (requestDto.isAIMusicEnabled()) {
+            musicCreateService.requestMusic(saved);
+        }
 
         return DiaryDto.DiaryResponse.fromEntity(saved);
     }

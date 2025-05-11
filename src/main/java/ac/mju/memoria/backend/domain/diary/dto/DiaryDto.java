@@ -5,6 +5,7 @@ import ac.mju.memoria.backend.domain.file.dto.FileDto;
 import ac.mju.memoria.backend.domain.user.dto.UserDto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,6 +32,17 @@ public class DiaryDto {
 
         @Schema(description = "첨부 이미지 파일 목록")
         private List<MultipartFile> images;
+
+        @Schema(description = "답장을 바라는 AI 캐릭터 ID", example = "character_id_123")
+        private Long desiredCharacterId;
+
+        @Schema(description = "AI 답장 활성화 여부")
+        @NotNull
+        private boolean isAICommentEnabled;
+
+        @Schema(description = "AI 음악 생성 활성화 여부")
+        @NotNull
+        private boolean isAIMusicEnabled;
     }
 
     @Data
