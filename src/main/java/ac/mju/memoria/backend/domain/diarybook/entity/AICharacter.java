@@ -3,17 +3,7 @@ package ac.mju.memoria.backend.domain.diarybook.entity;
 import ac.mju.memoria.backend.common.auditor.UserStampedEntity;
 import ac.mju.memoria.backend.domain.diarybook.entity.enums.AICharacterType;
 import ac.mju.memoria.backend.domain.file.entity.ProfileImage;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -44,7 +34,9 @@ public class AICharacter extends UserStampedEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private DiaryBook diaryBook;
 
+    @Column(length = 1000)
     private String feature;
 
+    @Column(length = 1000)
     private String accent;
 }
