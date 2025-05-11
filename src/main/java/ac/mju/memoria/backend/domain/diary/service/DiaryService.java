@@ -67,12 +67,12 @@ public class DiaryService {
             savedImages.forEach(saved::addImage);
         }
 
-        if (requestDto.isAICommentEnabled()) {
+        if (requestDto.getIsAICommentEnabled()) {
             eventPublisher.publishEvent(AiCommentNeededEvent.of(this, saved.getId(), requestDto.getDesiredCharacterId()));
             eventPublisher.publishEvent(new NewDiaryEvent(saved.getId()));
         }
 
-        if (requestDto.isAIMusicEnabled()) {
+        if (requestDto.getIsAIMusicEnabled()) {
             musicCreateService.requestMusic(saved);
         }
 

@@ -38,11 +38,11 @@ public class DiaryDto {
 
         @Schema(description = "AI 답장 활성화 여부")
         @NotNull
-        private boolean isAICommentEnabled;
+        private Boolean isAICommentEnabled;
 
         @Schema(description = "AI 음악 생성 활성화 여부")
         @NotNull
-        private boolean isAIMusicEnabled;
+        private Boolean isAIMusicEnabled;
     }
 
     @Data
