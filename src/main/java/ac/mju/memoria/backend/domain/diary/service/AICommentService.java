@@ -24,6 +24,7 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -56,8 +57,23 @@ public class AICommentService {
                 return;
             }
 
-            //pick random character
-            AICharacter character = characters.get((int) (Math.random() * characters.size()));
+            AICharacter character;
+
+            if(event.getDesiredCharacterId() != null) {
+                Optional<AICharacter> optionalCharacter = characters.stream()
+                        .filter(c -> c.getId().equals(event.getDesiredCharacterId()))
+                        .findFirst();
+
+                if (optionalCharacter.isPresent()) {
+                    character = optionalCharacter.get();
+                } else {
+                    log.info("Desired character ID {} not found, picking random character.", event.getDesiredCharacterId());
+                    character = characters.get((int) (Math.random() * characters.size()));
+                }
+            } else {
+                character = characters.get((int) (Math.random() * characters.size()));
+            }
+
             AICommentResponse generated = commentGenerator.generateComment(
                     found.getTitle(),
                     found.getContent(),
