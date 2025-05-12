@@ -7,6 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Embeddable
 @Getter
@@ -15,9 +17,11 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ReactionId {
   @ManyToOne
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private Diary diary;
 
   @ManyToOne
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private User user;
 
     public static ReactionId of(Diary diary, User user) {
