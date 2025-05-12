@@ -17,14 +17,12 @@ public class Sticker {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private StickerType stickerType;
-
+    private String stickerType;
     private int posX;
     private int posY;
     private int width;
     private int height;
+    private int rotation;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "diaryBook_id")

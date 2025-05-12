@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ac.mju.memoria.backend.domain.diarybook.entity.Sticker;
-import ac.mju.memoria.backend.domain.file.entity.enums.StickerType;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,10 +19,10 @@ public class StickerDto {
     @AllArgsConstructor
     @Builder
     @Schema(description = "스티커 정보 DTO")
-    public static class StickerInfo {
+    public static class StickerRequest {
         @NotNull(message = "stickerType은 필수입니다")
         @Schema(description = "스티커 타입", example = "BEAR")
-        private StickerType stickerType;
+        private String stickerType;
         @Schema(description = "스티커 X 좌표", example = "100")
         private int posX;
         @Schema(description = "스티커 Y 좌표", example = "150")
@@ -30,6 +31,10 @@ public class StickerDto {
         private int width;
         @Schema(description = "스티커 높이", example = "50")
         private int height;
+        @Schema(description = "스티커 회전 각도", example = "0")
+        @Max(value = 360, message = "회전 각도는 0에서 360 사이여야 합니다")
+        @Min(value = 0, message = "회전 각도는 0에서 360 사이여야 합니다")
+        private int rotation;
 
         public Sticker toEntity() {
             return Sticker.builder()
@@ -38,6 +43,7 @@ public class StickerDto {
                     .posY(posY)
                     .width(width)
                     .height(height)
+                    .rotation(rotation)
                     .build();
         }
     }
@@ -50,7 +56,7 @@ public class StickerDto {
     public static class StickerUpdateRequest {
         @Builder.Default
         @Schema(description = "업데이트할 스티커 정보 목록")
-        private List<StickerInfo> stickers = new ArrayList<>();
+        private List<StickerRequest> stickers = new ArrayList<>();
     }
 
     @Data
@@ -62,7 +68,7 @@ public class StickerDto {
         @Schema(description = "스티커 ID")
         private Long id;
         @Schema(description = "스티커 타입")
-        private StickerType stickerType;
+        private String stickerType;
         @Schema(description = "스티커가 부착된 다이어리 북 ID")
         private Long diaryBookId; // 순환 참조 방지를 위해 ID만 반환
         @Schema(description = "스티커 X 좌표")
