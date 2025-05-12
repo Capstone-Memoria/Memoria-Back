@@ -100,6 +100,10 @@ public class DiaryDto {
         private List<FileDto.FileResponse> images;
         @Schema(description = "다이어리에 생성된 음악 파일")
         private FileDto.FileResponse musicFile;
+        @Schema(description = "댓글 개수")
+        private Integer commentCount;
+        @Schema(description = "리액션 개수")
+        private Integer reactionCount;
 
         public static DiaryResponse from(Diary diary) {
             return DiaryResponse.builder()
@@ -115,7 +119,9 @@ public class DiaryDto {
                             diary.getImages().stream().
                                     map(FileDto.FileResponse::from)
                                     .collect(Collectors.toList()))
-                    .musicFile(FileDto.FileResponse.from(diary.getMusicFile()))
+                    .musicFile(diary.getMusicFile() == null ? null : FileDto.FileResponse.from(diary.getMusicFile()))
+                    .commentCount(diary.getComments() == null ? 0 : diary.getComments().size())
+                    .reactionCount(diary.getReactions() == null ? 0 : diary.getReactions().size())
                     .build();
         }
     }

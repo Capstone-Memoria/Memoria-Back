@@ -69,6 +69,11 @@ public class Diary extends UserStampedEntity {
     @Builder.Default
     private List<Comment> comments = new ArrayList<>();
 
+    @OneToMany(mappedBy = "id.diary", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    @Builder.Default
+    private List<Reaction> reactions = new ArrayList<>();
+
     @OneToOne(mappedBy = "diary", cascade = CascadeType.ALL, orphanRemoval = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private MusicFile musicFile;
@@ -81,6 +86,11 @@ public class Diary extends UserStampedEntity {
     public void addComment(Comment comment) {
         this.comments.add(comment);
         comment.setDiary(this);
+    }
+
+    public void addReaction(Reaction reaction) {
+        this.reactions.add(reaction);
+        // reaction.getId().setDiary(this); // ReactionId의 diary는 생성 시점에 설정되며, setter가 없습니다.
     }
 
     public boolean canUpdateAndDelete(User user) {
