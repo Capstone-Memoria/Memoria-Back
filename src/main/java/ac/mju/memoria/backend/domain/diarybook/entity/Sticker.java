@@ -13,14 +13,17 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 public class Sticker {
-    @Id @Setter(AccessLevel.NONE)
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    @Id
+    private String uuid;
 
     private String stickerType;
+
     private Integer posX;
+
     private Integer posY;
+
     private Double scale;
+
     private Integer rotation;
 
     @ManyToOne(fetch = FetchType.LAZY)
