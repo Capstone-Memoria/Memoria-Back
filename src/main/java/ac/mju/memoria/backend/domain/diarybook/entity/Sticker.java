@@ -18,11 +18,10 @@ public class Sticker {
     private Long id;
 
     private String stickerType;
-    private int posX;
-    private int posY;
-    private int width;
-    private int height;
-    private int rotation;
+    private Integer posX;
+    private Integer posY;
+    private Double scale;
+    private Integer rotation;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "diaryBook_id")

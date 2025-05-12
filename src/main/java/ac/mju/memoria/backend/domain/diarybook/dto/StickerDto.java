@@ -24,13 +24,11 @@ public class StickerDto {
         @Schema(description = "스티커 타입", example = "BEAR")
         private String stickerType;
         @Schema(description = "스티커 X 좌표", example = "100")
-        private int posX;
+        private Integer posX;
         @Schema(description = "스티커 Y 좌표", example = "150")
-        private int posY;
-        @Schema(description = "스티커 너비", example = "50")
-        private int width;
-        @Schema(description = "스티커 높이", example = "50")
-        private int height;
+        private Integer posY;
+        @Schema(description = "스티커 크기", example = "1")
+        private Double scale;
         @Schema(description = "스티커 회전 각도", example = "0")
         @Max(value = 360, message = "회전 각도는 0에서 360 사이여야 합니다")
         @Min(value = 0, message = "회전 각도는 0에서 360 사이여야 합니다")
@@ -41,8 +39,7 @@ public class StickerDto {
                     .stickerType(stickerType)
                     .posX(posX)
                     .posY(posY)
-                    .width(width)
-                    .height(height)
+                    .scale(scale)
                     .rotation(rotation)
                     .build();
         }
@@ -72,13 +69,13 @@ public class StickerDto {
         @Schema(description = "스티커가 부착된 다이어리 북 ID")
         private Long diaryBookId; // 순환 참조 방지를 위해 ID만 반환
         @Schema(description = "스티커 X 좌표")
-        private int posX;
+        private Integer posX;
         @Schema(description = "스티커 Y 좌표")
-        private int posY;
-        @Schema(description = "스티커 너비")
-        private int width;
-        @Schema(description = "스티커 높이")
-        private int height;
+        private Integer posY;
+        @Schema(description = "스티커 크기")
+        private Double scale;
+        @Schema(description = "스티커 회전 각도")
+        private Integer rotation;
 
         public static StickerResponse from(Sticker sticker) {
             return StickerResponse.builder()
@@ -87,8 +84,8 @@ public class StickerDto {
                     .diaryBookId(sticker.getDiaryBook().getId()) // ID만 설정
                     .posX(sticker.getPosX())
                     .posY(sticker.getPosY())
-                    .width(sticker.getWidth())
-                    .height(sticker.getHeight())
+                    .scale(sticker.getScale())
+                    .rotation(sticker.getRotation())
                     .build();
         }
     }
