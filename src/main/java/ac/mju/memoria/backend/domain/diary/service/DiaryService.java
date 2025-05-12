@@ -1,5 +1,6 @@
 package ac.mju.memoria.backend.domain.diary.service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
@@ -68,7 +69,8 @@ public class DiaryService {
         }
 
         if (requestDto.getIsAICommentEnabled()) {
-            eventPublisher.publishEvent(AiCommentNeededEvent.of(this, saved.getId(), requestDto.getDesiredCharacterId()));
+            eventPublisher
+                    .publishEvent(AiCommentNeededEvent.of(this, saved.getId(), requestDto.getDesiredCharacterId()));
             eventPublisher.publishEvent(new NewDiaryEvent(saved.getId()));
         }
 
@@ -76,7 +78,7 @@ public class DiaryService {
             musicCreateService.requestMusic(saved);
         }
 
-        return DiaryDto.DiaryResponse.fromEntity(saved);
+        return DiaryDto.DiaryResponse.from(saved);
     }
 
     @Transactional(readOnly = true)
@@ -89,7 +91,7 @@ public class DiaryService {
         Diary diary = diaryRepository.findByIdAndDiaryBook(diaryId, diaryBook)
                 .orElseThrow(() -> new RestException(ErrorCode.DIARY_NOT_FOUND));
 
-        return DiaryDto.DiaryResponse.fromEntity(diary);
+        return DiaryDto.DiaryResponse.from(diary);
     }
 
     @Transactional(readOnly = true)
@@ -102,7 +104,23 @@ public class DiaryService {
 
         Page<Diary> diaryPage = diaryRepository.findByDiaryBook(diaryBook, pageable);
 
-        return diaryPage.map(DiaryDto.DiaryResponse::fromEntity);
+        return diaryPage.map(DiaryDto.DiaryResponse::from);
+    }
+
+    @Transactional(readOnly = true)
+    public List<DiaryDto.DiaryResponse> getDiariesByDateRange(Long diaryBookId, LocalDate startDate, LocalDate endDate,
+            UserDetails userDetails) {
+        DiaryBook diaryBook = diaryBookRepository.findById(diaryBookId)
+                .orElseThrow(() -> new RestException(ErrorCode.DIARYBOOK_NOT_FOUND));
+
+        diaryBook.isMember(userDetails.getUser());
+
+        List<Diary> diaries = diaryRepository.findByDiaryBookAndCreatedAtBetween(diaryBook, startDate.atStartOfDay(),
+                endDate.plusDays(1).atStartOfDay());
+
+        return diaries.stream()
+                .map(DiaryDto.DiaryResponse::from)
+                .toList();
     }
 
     @Transactional
@@ -138,7 +156,7 @@ public class DiaryService {
 
         Diary updated = requestDto.applyTo(requestDto, diary);
 
-        return DiaryDto.DiaryResponse.fromEntity(updated);
+        return DiaryDto.DiaryResponse.from(updated);
     }
 
     @Transactional

@@ -101,7 +101,7 @@ public class DiaryDto {
         @Schema(description = "다이어리에 생성된 음악 파일")
         private FileDto.FileResponse musicFile;
 
-        public static DiaryResponse fromEntity(Diary diary) {
+        public static DiaryResponse from(Diary diary) {
             return DiaryResponse.builder()
                     .id(diary.getId())
                     .title(diary.getTitle())

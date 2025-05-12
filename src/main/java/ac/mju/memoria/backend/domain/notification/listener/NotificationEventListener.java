@@ -1,5 +1,16 @@
 package ac.mju.memoria.backend.domain.notification.listener;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import ac.mju.memoria.backend.domain.notification.event.*;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
+
 import ac.mju.memoria.backend.domain.diary.entity.AIComment;
 import ac.mju.memoria.backend.domain.diary.entity.Comment;
 import ac.mju.memoria.backend.domain.diary.entity.Diary;
@@ -17,22 +28,12 @@ import ac.mju.memoria.backend.domain.invitation.repository.InvitationRepository;
 import ac.mju.memoria.backend.domain.notification.dto.NotificationDto;
 import ac.mju.memoria.backend.domain.notification.entity.Notification;
 import ac.mju.memoria.backend.domain.notification.entity.enums.NotificationType;
-import ac.mju.memoria.backend.domain.notification.event.*;
 import ac.mju.memoria.backend.domain.notification.repository.NotificationRepository;
 import ac.mju.memoria.backend.domain.notification.service.SseEmitterService;
 import ac.mju.memoria.backend.domain.user.entity.User;
 import ac.mju.memoria.backend.system.exception.model.ErrorCode;
 import ac.mju.memoria.backend.system.exception.model.RestException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -48,7 +49,8 @@ public class NotificationEventListener {
     private final AICommentRepository aICommentRepository;
 
     private void saveAndSendNotification(User recipient, NotificationType type, String message, String url) {
-        if (recipient == null) return;
+        if (recipient == null)
+            return;
 
         Notification notification = Notification.builder()
                 .recipient(recipient)
@@ -160,7 +162,8 @@ public class NotificationEventListener {
 
         toSend.stream()
                 .filter(member -> !member.equals(accepter))
-                .forEach(member -> saveAndSendNotification(member, NotificationType.NEW_MEMBER_JOINED, toMemberMessage, toMemberUrl));
+                .forEach(member -> saveAndSendNotification(member, NotificationType.NEW_MEMBER_JOINED, toMemberMessage,
+                        toMemberUrl));
 
         if (invitation instanceof DirectInvitation) {
             invitationRepository.deleteById(invitation.getId());
