@@ -29,13 +29,13 @@ public class StickerDto {
         private String stickerType;
 
         @Schema(description = "스티커 X 좌표", example = "100")
-        private Integer posX;
+        private Double posX;
 
         @Schema(description = "스티커 Y 좌표", example = "150")
-        private Integer posY;
+        private Double posY;
 
         @Schema(description = "스티커 크기", example = "1")
-        private Double scale;
+        private Double size;
 
         @Schema(description = "스티커 회전 각도", example = "0")
         @Max(value = 360, message = "회전 각도는 0에서 360 사이여야 합니다")
@@ -48,7 +48,7 @@ public class StickerDto {
                     .stickerType(stickerType)
                     .posX(posX)
                     .posY(posY)
-                    .scale(scale)
+                    .size(size)
                     .rotation(rotation)
                     .build();
         }
@@ -78,11 +78,11 @@ public class StickerDto {
         @Schema(description = "스티커가 부착된 다이어리 북 ID")
         private Long diaryBookId; // 순환 참조 방지를 위해 ID만 반환
         @Schema(description = "스티커 X 좌표")
-        private Integer posX;
+        private Double posX;
         @Schema(description = "스티커 Y 좌표")
-        private Integer posY;
+        private Double posY;
         @Schema(description = "스티커 크기")
-        private Double scale;
+        private Double size;
         @Schema(description = "스티커 회전 각도")
         private Integer rotation;
 
@@ -93,7 +93,7 @@ public class StickerDto {
                     .diaryBookId(sticker.getDiaryBook().getId()) // ID만 설정
                     .posX(sticker.getPosX())
                     .posY(sticker.getPosY())
-                    .scale(sticker.getScale())
+                    .size(sticker.getSize())
                     .rotation(sticker.getRotation())
                     .build();
         }

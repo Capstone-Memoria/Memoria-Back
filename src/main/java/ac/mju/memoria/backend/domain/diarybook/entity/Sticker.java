@@ -1,8 +1,6 @@
 package ac.mju.memoria.backend.domain.diarybook.entity;
 
-import ac.mju.memoria.backend.domain.file.entity.enums.StickerType;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,11 +16,11 @@ public class Sticker {
 
     private String stickerType;
 
-    private Integer posX;
+    private Double posX;
 
-    private Integer posY;
+    private Double posY;
 
-    private Double scale;
+    private Double size;
 
     private Integer rotation;
 
