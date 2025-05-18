@@ -32,6 +32,13 @@ public class MusicDto {
                     .lyrics_txt("[chorus]\n\n\n\n\n\n[chorus]\n\n\n\n\n\n")
                     .build();
         }
+
+        public static CreateRequest of(String genre, String lyrics) {
+            return CreateRequest.builder()
+                    .genre_txt(genre)
+                    .lyrics_txt(lyrics)
+                    .build();
+        }
     }
 
     @AllArgsConstructor

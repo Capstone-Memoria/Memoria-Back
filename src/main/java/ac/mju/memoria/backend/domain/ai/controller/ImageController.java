@@ -14,12 +14,21 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @Tag(name = "Image", description = "AI 이미지 생성 API")
 public class ImageController {
+
     private final ImageCreateService imageCreateService;
 
     @PostMapping
-    @Operation(summary = "다이어리 북 커버 이미지 생성", description = "키워드를 기반으로 다이어리 북 커버 이미지를 생성합니다.")
-    @ApiResponse(responseCode = "200", description = "이미지 생성 성공 (Base64 인코딩된 문자열 반환)")
-    public ResponseEntity<String> createImage(@RequestBody ImageDto.CreateRequest request) {
+    @Operation(
+        summary = "다이어리 북 커버 이미지 생성",
+        description = "키워드를 기반으로 다이어리 북 커버 이미지를 생성합니다."
+    )
+    @ApiResponse(
+        responseCode = "200",
+        description = "이미지 생성 성공 (Base64 인코딩된 문자열 반환)"
+    )
+    public ResponseEntity<String> createImage(
+        @RequestBody ImageDto.CreateRequest request
+    ) {
         String base64Image = imageCreateService.generateImage(request);
         return ResponseEntity.ok(base64Image);
     }

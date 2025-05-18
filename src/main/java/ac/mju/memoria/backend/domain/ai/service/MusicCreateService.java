@@ -2,6 +2,8 @@ package ac.mju.memoria.backend.domain.ai.service;
 
 import ac.mju.memoria.backend.common.utils.JsonUtils;
 import ac.mju.memoria.backend.domain.ai.dto.MusicDto;
+import ac.mju.memoria.backend.domain.ai.llm.model.LyricsResponse;
+import ac.mju.memoria.backend.domain.ai.llm.service.LyricsGenerator;
 import ac.mju.memoria.backend.domain.ai.llm.service.MusicPromptGenerator;
 import ac.mju.memoria.backend.domain.ai.model.MusicCreationQueueItem;
 import ac.mju.memoria.backend.domain.ai.model.MusicServerNode;
@@ -44,6 +46,7 @@ public class MusicCreateService {
     private final AttachedFileRepository attachedFileRepository;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(4);
+    private final LyricsGenerator lyricsGenerator;
     private Thread scheduler;
     private final Queue<MusicCreationQueueItem> queue = new ConcurrentLinkedQueue<>();
 
@@ -106,9 +109,14 @@ public class MusicCreateService {
         }
 
         String generatedGenre = musicPromptGenerator.generateMusicPrompt(found.get().getContent());
+        LyricsResponse generatedLyrics = lyricsGenerator.generateLyrics(
+                found.get().getTitle(),
+                found.get().getContent(),
+                generatedGenre
+        );
 
         RequestBody requestBody = RequestBody.create(
-                JsonUtils.toJson(MusicDto.CreateRequest.from(generatedGenre)),
+                JsonUtils.toJson(MusicDto.CreateRequest.of(generatedGenre, generatedLyrics.getLyrics())),
                 MediaType.parse("application/json")
         );
         Request request = new Request.Builder()
