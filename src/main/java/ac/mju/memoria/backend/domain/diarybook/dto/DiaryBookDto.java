@@ -34,11 +34,14 @@ public class DiaryBookDto {
         // @NotNull(message = "커버이미지를 업로드해 주세요") TODO: 추후 활성화
         @Schema(description = "다이어리 북 커버 이미지 파일")
         private MultipartFile coverImage;
+        @Schema(description = "다이어리 북 책등 색상", example = "#FF5733")
+        private String spineColor;
 
         public DiaryBook toEntity(User user) {
             return DiaryBook.builder()
                     .title(title)
                     .owner(user)
+                    .spineColor(spineColor)
                     .build();
         }
     }
@@ -55,6 +58,8 @@ public class DiaryBookDto {
         private Boolean isPinned;
         @Schema(description = "수정할 다이어리 북 커버 이미지 파일")
         private MultipartFile coverImage;
+        @Schema(description = "수정할 다이어리 북 책등 색상", example = "#FF5733")
+        private String spineColor;
 
         public void applyTo(DiaryBook diaryBook) {
             if(Objects.nonNull(title)){
@@ -62,6 +67,9 @@ public class DiaryBookDto {
             }
             if (Objects.nonNull(isPinned)) {
                 diaryBook.setPinned(isPinned);
+            }
+            if (Objects.nonNull(spineColor)) {
+                diaryBook.setSpineColor(spineColor);
             }
         }
     }
@@ -78,6 +86,8 @@ public class DiaryBookDto {
         private String title;
         @Schema(description = "다이어리 북 고정 여부")
         private Boolean isPinned;
+        @Schema(description = "다이어리 북 책등 색상")
+        private String spineColor;
         @Schema(description = "다이어리 북 생성 시간")
         private LocalDateTime createdAt;
         @Schema(description = "다이어리 북 마지막 수정 시간")
@@ -100,6 +110,7 @@ public class DiaryBookDto {
                     .id(diaryBook.getId())
                     .title(diaryBook.getTitle())
                     .isPinned(diaryBook.isPinned())
+                    .spineColor(diaryBook.getSpineColor())
                     .createdAt(diaryBook.getCreatedAt())
                     .lastModifiedAt(diaryBook.getLastModifiedAt())
                     .createdBy(UserDto.UserResponse.from(diaryBook.getCreatedBy()))

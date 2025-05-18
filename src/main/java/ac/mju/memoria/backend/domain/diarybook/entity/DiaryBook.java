@@ -43,6 +43,8 @@ public class DiaryBook extends UserStampedEntity {
 
     private boolean isPinned;
 
+    private String spineColor;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
     private User owner;
