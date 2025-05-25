@@ -68,8 +68,11 @@ public enum ErrorCode {
     AI_MUSIC_JOB_FAILED(500, "음악 생성 작업이 실패했습니다."),
     AI_MUSIC_DOWNLOAD_FAILED(500, "음악 파일 다운로드에 실패했습니다."),
 
+    // DiaryBookMember
+    MEMBER_ALREADY_ADMIN(400, "이미 관리자인 멤버입니다."),
+
     // Other
-    INTERNAL_SERVER_ERROR(500, "오류가 발생했습니다.");
+    INTERNAL_SERVER_ERROR(500, "오류가 발생했습니다."), ;
 
     private final int statusCode;
     private final String message;

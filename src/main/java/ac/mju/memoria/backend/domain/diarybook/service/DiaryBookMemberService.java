@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import ac.mju.memoria.backend.domain.user.entity.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,5 +59,28 @@ public class DiaryBookMemberService {
         members.add(ownerMember);
 
         return members;
+    }
+
+    @Transactional
+    public DiaryBookMemberDto.MemberResponse addAdmin(Long diaryBookId, UserDetails userDetails, DiaryBookMemberDto.ChangeAdminRequest request) {
+        DiaryBook diaryBook = diaryBookQueryRepository.findByIdAndUserEmail(diaryBookId, userDetails.getKey())
+                .orElseThrow(() -> new RestException(ErrorCode.DIARYBOOK_NOT_FOUND));
+
+        User currentAdmin = userDetails.getUser();
+
+        if (!diaryBook.isAdmin(currentAdmin)) {
+            throw new RestException(ErrorCode.AUTH_FORBIDDEN);
+        }
+
+        DiaryBookMember newAdminMember = diaryBookMemberRepository.findById(request.getNewAdminId())
+                .orElseThrow(() -> new RestException(ErrorCode.MEMBER_NOT_FOUND));
+
+        if (newAdminMember.getPermission() == MemberPermission.ADMIN || diaryBook.getOwner().equals(newAdminMember.getUser())) {
+            throw new RestException(ErrorCode.MEMBER_ALREADY_ADMIN);
+        }
+
+        newAdminMember.setPermission(MemberPermission.ADMIN);
+
+        return DiaryBookMemberDto.MemberResponse.from(newAdminMember);
     }
 }

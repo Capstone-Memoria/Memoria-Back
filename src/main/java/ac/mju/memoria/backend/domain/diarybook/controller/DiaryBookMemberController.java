@@ -5,13 +5,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import ac.mju.memoria.backend.domain.diarybook.service.DiaryBookMemberService;
 import ac.mju.memoria.backend.system.security.model.UserDetails;
@@ -46,4 +43,17 @@ public class DiaryBookMemberController {
             @Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(diaryBookMemberService.getMembers(id, userDetails));
     }
+
+    @PostMapping("/add-admin")
+    @Operation(summary = "다이어리 북 관리자 추가", description = "다이어리 북 관리자가 특정 멤버를 관리자로 추가합니다.")
+    @ApiResponse(responseCode = "200", description = "관리자 추가 성공")
+    public ResponseEntity<DiaryBookMemberDto.MemberResponse> addAdmin(
+            @Parameter(description = "다이어리 북 Id") @PathVariable Long id,
+            @Valid @RequestBody DiaryBookMemberDto.ChangeAdminRequest request,
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        return ResponseEntity.ok(diaryBookMemberService.addAdmin(id, userDetails, request));
+    }
+
+
 }
