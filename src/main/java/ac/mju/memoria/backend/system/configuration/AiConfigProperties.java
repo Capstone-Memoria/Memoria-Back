@@ -8,15 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-@ConfigurationProperties(prefix = "ai.music")
+@ConfigurationProperties(prefix = "ai")
 @Data
 public class AiConfigProperties {
 
-  private List<MusicServerNodeProperties> nodes = new ArrayList<>();
+  private List<NodeProperties> musicNodes = new ArrayList<>();
+  private List<NodeProperties> imageNodes = new ArrayList<>();
 
   @Data
-  public static class MusicServerNodeProperties {
-    private String host;
-    private String port;
+  public static class NodeProperties {
+    private String url;
   }
 }

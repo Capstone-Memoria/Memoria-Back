@@ -3,65 +3,50 @@ package ac.mju.memoria.backend.domain.ai.service;
 import ac.mju.memoria.backend.domain.ai.dto.ImageDto;
 import ac.mju.memoria.backend.domain.ai.llm.model.StableDiffusionPrompts;
 import ac.mju.memoria.backend.domain.ai.llm.service.PromptGenerator;
-import ac.mju.memoria.backend.domain.diarybook.dto.AICharacterDto.CreateRequest;
+import ac.mju.memoria.backend.domain.ai.networking.DefaultNode;
+import ac.mju.memoria.backend.domain.ai.networking.image.ImageNodePool;
 import ac.mju.memoria.backend.system.exception.model.ErrorCode;
 import ac.mju.memoria.backend.system.exception.model.RestException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
 import dev.langchain4j.service.AiServices;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.concurrent.Future;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class ImageCreateService {
-
-    private static final String API_URL =
-        "https://83x3bdmyi1ovwt-8080.proxy.runpod.net/generate";
     private final GoogleAiGeminiChatModel chatModel;
-    private final OkHttpClient client = new OkHttpClient();
+    private final ImageNodePool imageNodePool = new ImageNodePool();
+
+    public ImageCreateService(
+        GoogleAiGeminiChatModel chatModel,
+        @Qualifier("imageServerNodes")
+        List<DefaultNode> imageServerNodes
+    ) {
+        this.chatModel = chatModel;
+        imageServerNodes.forEach(imageNodePool::addNode);
+        imageNodePool.start();
+    }
+
 
     @SneakyThrows
     public String generateImage(ImageDto.CreateRequest request) {
-        ObjectMapper objectMapper = new ObjectMapper();
-
         ImageDto.InternalCreateRequest req = buildChatRequest(
             request.getDescription()
         );
 
-        FormBody formBody = new FormBody.Builder()
-            .add("prompt", req.getPrompt())
-            .add("negative_prompt", req.getNegativePrompt())
-            .build();
-        Request toSend = new Request.Builder()
-            .url(API_URL)
-            .post(formBody)
-            .build();
-
-        try (Response response = client.newCall(toSend).execute()) {
-            if (!response.isSuccessful()) {
-                throw new RestException(ErrorCode.AI_IMAGE_CREATION_FAILED);
-            }
-
-            String responseBody = Objects.requireNonNull(
-                response.body()
-            ).string();
-
-            JsonNode jsonNode = objectMapper.readTree(responseBody);
-
-            return jsonNode.get("image").asText();
-        } catch (Exception e) {
-            throw new RestException(ErrorCode.AI_IMAGE_CREATION_FAILED);
-        }
+        Future<String> response = imageNodePool.submitRequest(req);
+        return response.get();
     }
 
     @SneakyThrows

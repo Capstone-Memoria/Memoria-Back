@@ -6,5 +6,7 @@ package ac.mju.memoria.backend.domain.ai.networking;
 public interface Node {
     String getURL();
 
-    Boolean getIsAvailable();
+    Boolean isAvailable();
+
+    void setAvailable(Boolean available);
 }

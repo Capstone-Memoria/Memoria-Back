@@ -1,4 +1,4 @@
-FROM azul/zulu-openjdk-alpine:17-latest
+FROM azul/zulu-openjdk-alpine:21-latest
 EXPOSE 8080
 
 ENV PROFILE=remote

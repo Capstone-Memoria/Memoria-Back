@@ -18,5 +18,6 @@ spring:
         format_sql: true
 
 ai:
-  music:
-    nodes:
+  image-nodes:
+    - url: http://87.197.127.62:41013
+  music-nodes:
