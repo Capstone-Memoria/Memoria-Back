@@ -1,20 +1,27 @@
 package ac.mju.memoria.backend.domain.diarybook.entity;
 
+import ac.mju.memoria.backend.common.auditor.UserStampedEntity;
+import ac.mju.memoria.backend.domain.file.entity.enums.StickerType;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-@Entity
-@Getter @Setter
+@Getter
+@Setter
 @SuperBuilder
-@NoArgsConstructor
-public class Sticker {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
+@Table(name = "sticker")
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "sticker_discriminator_type", discriminatorType = DiscriminatorType.STRING)
+public abstract class Sticker extends UserStampedEntity {
+
     @Id
     private String uuid;
 
-    private String stickerType;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "diary_book_id")
+    private DiaryBook diaryBook;
 
     private Double posX;
 
@@ -24,7 +31,6 @@ public class Sticker {
 
     private Integer rotation;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "diaryBook_id")
-    private DiaryBook diaryBook;
+    @Enumerated(EnumType.STRING)
+    private StickerType stickerType;
 }
