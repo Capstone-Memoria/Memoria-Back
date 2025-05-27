@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
 import dev.langchain4j.service.AiServices;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +36,10 @@ public class ImageCreateService {
     ) {
         this.chatModel = chatModel;
         imageServerNodes.forEach(imageNodePool::addNode);
+    }
+
+    @PostConstruct
+    private void init() {
         imageNodePool.start();
     }
 

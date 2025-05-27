@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import ac.mju.memoria.backend.domain.ai.model.MusicServerNode;
 
 @Configuration
 @RequiredArgsConstructor
@@ -31,12 +30,11 @@ public class AiConfiguration {
     }
 
     @Bean
-    public List<MusicServerNode> musicServerNodes(AiConfigProperties aiConfigProperties) {
+    @Qualifier("musicServerNodes")
+    public List<DefaultNode> musicServerNodes(AiConfigProperties aiConfigProperties) {
         return aiConfigProperties.getMusicNodes().stream()
                 .map(nodeProperties ->
-                        new MusicServerNode(
-                                nodeProperties.getUrl()
-                ))
+                        DefaultNode.fromURL(nodeProperties.getUrl()))
                 .collect(Collectors.toList());
     }
 

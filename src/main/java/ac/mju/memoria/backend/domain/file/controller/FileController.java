@@ -58,6 +58,7 @@ public class FileController {
         Resource resource = attachedFileService.getResourceById(fileId);
 
         return ResponseEntity.status(HttpStatus.OK)
+                .header("Cache-Control", "max-age=3600, must-revalidate") // 캐시 설정 (필요 시 조정)
                 .header("Content-Type", MediaType.IMAGE_JPEG_VALUE) // 실제 이미지 타입에 맞게 설정 필요
                 .body(resource);
     }
