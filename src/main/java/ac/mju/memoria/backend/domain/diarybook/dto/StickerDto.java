@@ -15,6 +15,7 @@ import ac.mju.memoria.backend.domain.diarybook.entity.stickers.PredefinedSticker
 import ac.mju.memoria.backend.domain.file.dto.FileDto;
 import ac.mju.memoria.backend.domain.file.entity.enums.StickerType;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -157,6 +158,7 @@ public class StickerDto {
     @Schema(description = "스티커 이미지 보관 요청 DTO")
     public static class HoldStickerImageRequest {
         @Schema(description = "이미지 파일")
+        @NotNull
         private MultipartFile imageFile;
     }
 
