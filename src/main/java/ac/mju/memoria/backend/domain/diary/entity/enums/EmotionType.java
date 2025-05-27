@@ -1,13 +1,16 @@
 package ac.mju.memoria.backend.domain.diary.entity.enums;
 
 public enum EmotionType {
-    JOY,
-    SADNESS,
-    ANGER,
-    CALM,
-    ANXIETY,
-    EXCITEMENT,
-    DISAPPOINTMENT,
-    FRUSTRATION,
-    CONFUSION,
+    AMBITIOUS,
+    ANGRY,
+    BAD,
+    BORED,
+    DISGUSTED,
+    HAPPY,
+    KIND,
+    LOVING,
+    RELAXED,
+    SAD,
+    SICK,
+    SUPERSAD;
 }
