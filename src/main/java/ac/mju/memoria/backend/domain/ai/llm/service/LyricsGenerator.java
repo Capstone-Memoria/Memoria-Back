@@ -98,7 +98,7 @@ public interface LyricsGenerator {
             Music Genre: {{musicGenre}}
             Diary Title: {{diaryTitle}}
             ---Diary Content---
-            {diaryContent}}
+            {{diaryContent}}
             """)
     LyricsResponse generateLyrics(
             @V("diaryTitle") String diaryTitle,

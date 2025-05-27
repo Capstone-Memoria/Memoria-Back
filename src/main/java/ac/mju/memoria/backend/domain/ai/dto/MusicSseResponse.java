@@ -1,5 +1,6 @@
-package ac.mju.memoria.backend.domain.ai.sse;
+package ac.mju.memoria.backend.domain.ai.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,7 +14,8 @@ import java.util.Map;
 @NoArgsConstructor
 @Data
 @Builder
-public class SseResponse {
+public class MusicSseResponse {
+    @JsonAlias("active_job")
     private String activeJob;
     private Map<String, JobInfo> jobs;
 
@@ -23,9 +25,12 @@ public class SseResponse {
     @Builder
     public static class JobInfo {
         private String status; //processing, completed
+        @JsonAlias("created_at")
         private LocalDateTime createdAt;
+        @JsonAlias("completed_at")
         private LocalDateTime completedAt;
         @Nullable
+        @JsonAlias("file_path")
         private String filePath;
         @Nullable
         private String error;
