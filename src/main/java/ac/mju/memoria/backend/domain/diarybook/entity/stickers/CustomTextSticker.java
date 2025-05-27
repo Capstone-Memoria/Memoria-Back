@@ -1,4 +1,4 @@
-package ac.mju.memoria.backend.domain.diarybook.entity;
+package ac.mju.memoria.backend.domain.diarybook.entity.stickers;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -13,11 +13,8 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @Table(name = "custom_text_sticker")
 @DiscriminatorValue("CUSTOM_TEXT")
-public class CustomTextSticker extends Sticker {
-
+public class CustomTextSticker extends AbstractSticker {
     private String textContent;
-    private String fontFamily;
-    private String fontSize;
+    private Integer fontSize;
     private String fontColor;
-    private String backgroundColor;
 }

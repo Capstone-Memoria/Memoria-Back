@@ -2,8 +2,7 @@ package ac.mju.memoria.backend.domain.diarybook.dto;
 
 
 import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
-import ac.mju.memoria.backend.domain.diarybook.entity.PredefinedSticker;
-import ac.mju.memoria.backend.domain.diarybook.entity.Sticker;
+import ac.mju.memoria.backend.domain.diarybook.entity.stickers.AbstractSticker;
 import ac.mju.memoria.backend.domain.file.dto.FileDto;
 import ac.mju.memoria.backend.domain.user.dto.UserDto;
 import ac.mju.memoria.backend.domain.user.entity.User;
@@ -17,9 +16,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
-import static ac.mju.memoria.backend.domain.diarybook.dto.StickerDto.toAllStickerResponse;
 
 
 public class DiaryBookDto {
@@ -103,23 +102,11 @@ public class DiaryBookDto {
         @Schema(description = "다이어리 북 커버 이미지 정보")
         private FileDto.FileResponse coverImage;
         @Schema(description = "다이어리 북에 부착된 스티커 목록")
-        private StickerDto.AllStickersResponse stickers;
+        private List<StickerDto.AbstractResponse> stickers;
         @Schema(description = "다이어리 북 참여 멤버 수 (소유자 포함)")
         private Integer memberCount;
 
         public static DiaryBookResponse from(DiaryBook diaryBook) {
-            StickerDto.AllStickersResponse stickersResponse = StickerDto.AllStickersResponse.builder()
-                    .predefinedStickers(new ArrayList<>())
-                    .customImageStickers(new ArrayList<>())
-                    .customTextStickers(new ArrayList<>())
-                    .build();
-
-            if (diaryBook.getStickers() != null && !diaryBook.getStickers().isEmpty()) {
-                for (Sticker sticker : diaryBook.getStickers()) {
-                    toAllStickerResponse(stickersResponse, sticker);
-                }
-            }
-
             return DiaryBookResponse.builder()
                     .id(diaryBook.getId())
                     .title(diaryBook.getTitle())
@@ -131,7 +118,10 @@ public class DiaryBookDto {
                     .lastModifiedBy(UserDto.UserResponse.from(diaryBook.getLastModifiedBy()))
                     .owner(UserDto.UserResponse.from(diaryBook.getOwner()))
                     .coverImage(FileDto.FileResponse.from(diaryBook.getCoverImageFile()))
-                    .stickers(stickersResponse)
+                    .stickers(
+                            diaryBook.getAbstractStickers().stream()
+                            .map(StickerDto.AbstractResponse::from).toList()
+                    )
                     .memberCount(diaryBook.getMembers() == null ? 1 : diaryBook.getMembers().size() + 1) // 소유자 포함
                     .build();
         }

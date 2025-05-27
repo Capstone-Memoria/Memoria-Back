@@ -1,4 +1,4 @@
-package ac.mju.memoria.backend.domain.diarybook.entity;
+package ac.mju.memoria.backend.domain.diarybook.entity.stickers;
 
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
@@ -13,7 +13,6 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @Table(name = "predefined_sticker")
 @DiscriminatorValue("PREDEFINED")
-public class PredefinedSticker extends Sticker {
-
+public class PredefinedSticker extends AbstractSticker {
     private String assetName;
 }

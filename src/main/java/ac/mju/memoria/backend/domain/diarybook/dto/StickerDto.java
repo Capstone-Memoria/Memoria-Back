@@ -1,281 +1,306 @@
 package ac.mju.memoria.backend.domain.diarybook.dto;
 
-import ac.mju.memoria.backend.domain.diarybook.entity.CustomImageSticker;
-import ac.mju.memoria.backend.domain.diarybook.entity.CustomTextSticker;
-import ac.mju.memoria.backend.domain.diarybook.entity.PredefinedSticker;
-import ac.mju.memoria.backend.domain.diarybook.entity.Sticker;
-import ac.mju.memoria.backend.domain.file.dto.FileDto;
-import ac.mju.memoria.backend.domain.file.entity.enums.StickerType;
-import ac.mju.memoria.backend.domain.user.dto.UserDto;
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.*;
-import lombok.experimental.SuperBuilder;
+import java.util.List;
+import java.util.UUID;
+
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import ac.mju.memoria.backend.domain.diarybook.entity.stickers.AbstractSticker;
+import ac.mju.memoria.backend.domain.diarybook.entity.stickers.CustomImageSticker;
+import ac.mju.memoria.backend.domain.diarybook.entity.stickers.CustomTextSticker;
+import ac.mju.memoria.backend.domain.diarybook.entity.stickers.PredefinedSticker;
+import ac.mju.memoria.backend.domain.file.dto.FileDto;
+import ac.mju.memoria.backend.domain.file.entity.enums.StickerType;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 public class StickerDto {
-
-    @Data
-    @NoArgsConstructor
     @AllArgsConstructor
-    @SuperBuilder
-    @Schema(description = "스티커 공통 요청 정보")
-    public static abstract class BaseStickerRequest {
-        @NotNull(message = "X 좌표는 필수입니다.")
-        @Schema(description = "스티커 X 좌표")
-        private Double posX;
-
-        @NotNull(message = "Y 좌표는 필수입니다.")
-        @Schema(description = "스티커 Y 좌표")
-        private Double posY;
-
-        @Schema(description = "스티커 크기")
-        private Double size;
-
-        @Schema(description = "스티커 회전 각도 (0-359)")
-        @Min(value = 0, message = "회전 각도는 0 이상이어야 합니다.")
-        @Max(value = 359, message = "회전 각도는 359 이하이어야 합니다.")
-        private Integer rotation;
+    @NoArgsConstructor
+    @Data
+    @Schema(description = "스티커 수정 요청 DTO")
+    public static class UpdateRequest {
+        @Schema(description = "수정할 스티커 목록")
+        private List<AbstractRequest> stickers;
     }
 
-    @EqualsAndHashCode(callSuper = true)
-    @Data
-    @NoArgsConstructor
     @AllArgsConstructor
-    @SuperBuilder
-    @Schema(description = "사전 정의된 스티커 요청 DTO")
-    public static class PredefinedStickerRequest extends BaseStickerRequest {
-        @NotBlank(message = "스티커 UUID는 필수입니다.")
-        @Schema(description = "스티커의 고유 식별자")
+    @NoArgsConstructor
+    @Data
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
+    @JsonSubTypes({
+            @JsonSubTypes.Type(value = PredefinedStickerRequest.class, name = "PREDEFINED"),
+            @JsonSubTypes.Type(value = CustomImageStickerRequest.class, name = "CUSTOM_IMAGE"),
+            @JsonSubTypes.Type(value = CustomTextStickerRequest.class, name = "CUSTOM_TEXT")
+    })
+    @Schema(description = "추상 스티커 요청 DTO")
+    public static abstract class AbstractRequest {
+        @Schema(description = "스티커 UUID", example = "a1b2c3d4-e5f6-7890-1234-567890abcdef")
         private String uuid;
-
-        @NotBlank(message = "에셋 이름은 필수입니다.")
-        @Schema(description = "사전 정의된 스티커의 에셋 이름")
-        private String assetName;
-    }
-
-    @EqualsAndHashCode(callSuper = true)
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @SuperBuilder
-    @Schema(description = "커스텀 이미지 스티커 생성 요청 DTO")
-    public static class CustomImageStickerCreateRequest extends BaseStickerRequest {
-        @Schema(description = "업로드할 이미지 파일")
-        private MultipartFile imageFile;
-    }
-
-    @EqualsAndHashCode(callSuper = true)
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @SuperBuilder
-    @Schema(description = "커스텀 텍스트 스티커 요청 DTO")
-    public static class CustomTextStickerRequest extends BaseStickerRequest {
-        @NotBlank(message = "텍스트 내용은 필수입니다.")
-        @Schema(description = "스티커에 표시될 텍스트 내용")
-        private String textContent;
-
-        @Schema(description = "폰트 패밀리")
-        private String fontFamily;
-
-        @Schema(description = "폰트 크기")
-        private String fontSize;
-
-        @Schema(description = "폰트 색상")
-        private String fontColor;
-
-        @Schema(description = "배경 색상")
-        private String backgroundColor;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @SuperBuilder
-    @Schema(description = "다이어리 북 스티커 전체 업데이트 요청 DTO")
-    public static class StickerUpdateRequest {
-        @Builder.Default
-        @Valid
-        @Schema(description = "업데이트할 사전 정의된 스티커 정보 목록")
-        private List<PredefinedStickerRequest> predefinedStickers = new ArrayList<>();
-
-        @Builder.Default
-        @Valid
-        @Schema(description = "업데이트할 커스텀 이미지 스티커 정보 목록 (생성 시 이미지 파일 포함)")
-        private List<CustomImageStickerCreateRequest> customImageStickers = new ArrayList<>();
-
-        @Builder.Default
-        @Valid
-        @Schema(description = "업데이트할 커스텀 텍스트 스티커 정보 목록")
-        private List<CustomTextStickerRequest> customTextStickers = new ArrayList<>();
-    }
-
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @SuperBuilder
-    @Schema(description = "스티커 공통 응답 정보")
-    public static abstract class BaseStickerResponse {
-        @Schema(description = "스티커 UUID")
-        private String uuid;
-
-        @Schema(description = "스티커 타입")
-        private StickerType stickerType;
-
-        @Schema(description = "스티커가 부착된 다이어리 북 ID")
-        private Long diaryBookId;
-
-        @Schema(description = "스티커 X 좌표")
+        private StickerType type;
+        @Schema(description = "스티커 X 좌표", example = "0.5")
         private Double posX;
-
-        @Schema(description = "스티커 Y 좌표")
+        @Schema(description = "스티커 Y 좌표", example = "0.5")
         private Double posY;
-
-        @Schema(description = "스티커 크기")
+        @Schema(description = "스티커 크기", example = "1.0")
         private Double size;
-
-        @Schema(description = "스티커 회전 각도")
+        @Schema(description = "스티커 회전 각도", example = "0")
         private Integer rotation;
 
-        @Schema(description = "스티커 생성자 정보")
-        private UserDto.UserResponse createdBy;
-
-        @Schema(description = "스티커 생성 시간")
-        private LocalDateTime createdAt;
-
-        @Schema(description = "스티커 마지막 수정 시간")
-        private LocalDateTime lastModifiedAt;
+        public abstract AbstractSticker toEntity();
     }
 
     @EqualsAndHashCode(callSuper = true)
-    @Data
-    @NoArgsConstructor
     @AllArgsConstructor
-    @SuperBuilder
-    @Schema(description = "사전 정의된 스티커 응답 DTO")
-    public static class PredefinedStickerResponse extends BaseStickerResponse {
-        @Schema(description = "사전 정의된 스티커의 에셋 이름")
+    @NoArgsConstructor
+    @Data
+    @Schema(description = "기본 스티커 요청 DTO")
+    public static class PredefinedStickerRequest extends AbstractRequest {
+        @Schema(description = "에셋 이름", example = "heart_sticker")
         private String assetName;
-    }
 
-    @EqualsAndHashCode(callSuper = true)
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @SuperBuilder
-    @Schema(description = "커스텀 이미지 스티커 응답 DTO")
-    public static class CustomImageStickerResponse extends BaseStickerResponse {
-        @Schema(description = "업로드된 이미지 파일 정보")
-        private FileDto.FileResponse imageFile;
-    }
+        @Override
+        @Schema(description = "스티커 타입", example = "PREDEFINED")
+        public StickerType getType() {
+            return super.getType();
+        }
 
-    @EqualsAndHashCode(callSuper = true)
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @SuperBuilder
-    @Schema(description = "커스텀 텍스트 스티커 응답 DTO")
-    public static class CustomTextStickerResponse extends BaseStickerResponse {
-        @Schema(description = "스티커 텍스트 내용")
-        private String textContent;
-        @Schema(description = "폰트 패밀리")
-        private String fontFamily;
-        @Schema(description = "폰트 크기")
-        private String fontSize;
-        @Schema(description = "폰트 색상")
-        private String fontColor;
-        @Schema(description = "배경 색상")
-        private String backgroundColor;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @SuperBuilder
-    @Schema(description = "다이어리 북의 모든 스티커 목록 응답 DTO")
-    public static class AllStickersResponse {
-        @Builder.Default
-        @Schema(description = "사전 정의된 스티커 목록")
-        private List<PredefinedStickerResponse> predefinedStickers = new ArrayList<>();
-        @Builder.Default
-        @Schema(description = "커스텀 이미지 스티커 목록")
-        private List<CustomImageStickerResponse> customImageStickers = new ArrayList<>();
-        @Builder.Default
-        @Schema(description = "커스텀 텍스트 스티커 목록")
-        private List<CustomTextStickerResponse> customTextStickers = new ArrayList<>();
-    }
-    public static void toAllStickerResponse(AllStickersResponse allStickersResponse, Sticker sticker) {
-        if (sticker.getStickerType() == StickerType.PREDEFINED) {
-            allStickersResponse.getPredefinedStickers().add(StickerDto.toPredefinedResponse((PredefinedSticker) sticker));
-        } else if (sticker.getStickerType() == StickerType.CUSTOM_IMAGE) {
-            allStickersResponse.getCustomImageStickers().add(StickerDto.toCustomImageResponse((CustomImageSticker) sticker));
-        } else if (sticker.getStickerType() == StickerType.CUSTOM_TEXT) {
-            allStickersResponse.getCustomTextStickers().add(StickerDto.toCustomTextResponse((CustomTextSticker) sticker));
+        @Override
+        public AbstractSticker toEntity() {
+            return PredefinedSticker.builder()
+                    .uuid(UUID.randomUUID().toString())
+                    .type(StickerType.PREDEFINED)
+                    .posX(getPosX())
+                    .posY(getPosY())
+                    .size(getSize())
+                    .rotation(getRotation())
+                    .assetName(assetName)
+                    .build();
         }
     }
 
-    public static PredefinedStickerResponse toPredefinedResponse(PredefinedSticker entity) {
-        if (entity == null) return null;
-        return PredefinedStickerResponse.builder()
-                .uuid(entity.getUuid())
-                .stickerType(entity.getStickerType())
-                .diaryBookId(entity.getDiaryBook().getId())
-                .posX(entity.getPosX())
-                .posY(entity.getPosY())
-                .size(entity.getSize())
-                .rotation(entity.getRotation())
-                .createdBy(UserDto.UserResponse.from(entity.getCreatedBy()))
-                .createdAt(entity.getCreatedAt())
-                .lastModifiedAt(entity.getLastModifiedAt())
-                .assetName(entity.getAssetName())
-                .build();
+    @EqualsAndHashCode(callSuper = true)
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Data
+    @Schema(description = "커스텀 이미지 스티커 요청 DTO")
+    public static class CustomImageStickerRequest extends AbstractRequest {
+        @Schema(description = "보관된 스티커 이미지 UUID", example = "b1c2d3e4-f5g6-7890-1234-567890abcdef")
+        private String heldStickerImageUuid;
+
+        @Override
+        @Schema(description = "스티커 타입", example = "CUSTOM_IMAGE")
+        public StickerType getType() {
+            return super.getType();
+        }
+
+        @Override
+        public AbstractSticker toEntity() {
+            return CustomImageSticker.builder()
+                    .uuid(UUID.randomUUID().toString())
+                    .type(StickerType.CUSTOM_IMAGE)
+                    .posX(getPosX())
+                    .posY(getPosY())
+                    .size(getSize())
+                    .rotation(getRotation())
+                    .build();
+        }
     }
 
-    public static CustomImageStickerResponse toCustomImageResponse(CustomImageSticker entity) {
-        if (entity == null) return null;
-        return CustomImageStickerResponse.builder()
-                .uuid(entity.getUuid())
-                .stickerType(entity.getStickerType())
-                .diaryBookId(entity.getDiaryBook().getId())
-                .posX(entity.getPosX())
-                .posY(entity.getPosY())
-                .size(entity.getSize())
-                .rotation(entity.getRotation())
-                .createdBy(UserDto.UserResponse.from(entity.getCreatedBy()))
-                .createdAt(entity.getCreatedAt())
-                .lastModifiedAt(entity.getLastModifiedAt())
-                .imageFile(entity.getImageFile() != null ? FileDto.FileResponse.from(entity.getImageFile()) : null)
-                .build();
+    @EqualsAndHashCode(callSuper = true)
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Data
+    @Schema(description = "커스텀 텍스트 스티커 요청 DTO")
+    public static class CustomTextStickerRequest extends AbstractRequest {
+        @Schema(description = "텍스트 내용", example = "Hello World!")
+        private String textContent;
+        @Schema(description = "글꼴 크기", example = "16")
+        private Integer fontSize;
+        @Schema(description = "글꼴 색상", example = "#000000")
+        private String fontColor;
+
+        @Override
+        @Schema(description = "스티커 타입", example = "CUSTOM_TEXT")
+        public StickerType getType() {
+            return super.getType();
+        }
+
+        @Override
+        public AbstractSticker toEntity() {
+            return CustomTextSticker.builder()
+                    .uuid(UUID.randomUUID().toString())
+                    .type(StickerType.CUSTOM_TEXT)
+                    .posX(getPosX())
+                    .posY(getPosY())
+                    .size(getSize())
+                    .rotation(getRotation())
+                    .textContent(textContent)
+                    .fontSize(fontSize)
+                    .fontColor(fontColor)
+                    .build();
+        }
     }
 
-    public static CustomTextStickerResponse toCustomTextResponse(CustomTextSticker entity) {
-        if (entity == null) return null;
-        return CustomTextStickerResponse.builder()
-                .uuid(entity.getUuid())
-                .stickerType(entity.getStickerType())
-                .diaryBookId(entity.getDiaryBook().getId())
-                .posX(entity.getPosX())
-                .posY(entity.getPosY())
-                .size(entity.getSize())
-                .rotation(entity.getRotation())
-                .createdBy(UserDto.UserResponse.from(entity.getCreatedBy()))
-                .createdAt(entity.getCreatedAt())
-                .lastModifiedAt(entity.getLastModifiedAt())
-                .textContent(entity.getTextContent())
-                .fontFamily(entity.getFontFamily())
-                .fontSize(entity.getFontSize())
-                .fontColor(entity.getFontColor())
-                .backgroundColor(entity.getBackgroundColor())
-                .build();
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Data
+    @Builder
+    @Schema(description = "스티커 이미지 보관 요청 DTO")
+    public static class HoldStickerImageRequest {
+        @Schema(description = "이미지 파일")
+        private MultipartFile imageFile;
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Data
+    @Builder
+    @Schema(description = "스티커 이미지 보관 응답 DTO")
+    public static class HoldStickerImageResponse {
+        @Schema(description = "보관된 스티커 이미지 UUID", example = "c1d2e3f4-g5h6-7890-1234-567890abcdef")
+        private String uuid;
+
+        public static HoldStickerImageResponse from(String uuid) {
+            return HoldStickerImageResponse.builder()
+                    .uuid(uuid)
+                    .build();
+        }
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Data
+    @SuperBuilder
+    @Schema(description = "추상 스티커 응답 DTO")
+    public static abstract class AbstractResponse {
+        @Schema(description = "스티커 UUID", example = "d1e2f3g4-h5i6-7890-1234-567890abcdef")
+        private String uuid;
+        private StickerType type;
+        @Schema(description = "다이어리 북 ID", example = "1")
+        private Long diaryBookId;
+        @Schema(description = "스티커 X 좌표", example = "0.5")
+        private Double posX;
+        @Schema(description = "스티커 Y 좌표", example = "0.5")
+        private Double posY;
+        @Schema(description = "스티커 크기", example = "1.0")
+        private Double size;
+        @Schema(description = "스티커 회전 각도", example = "0")
+        private Integer rotation;
+
+        public static AbstractResponse from(AbstractSticker sticker) {
+            if (sticker instanceof PredefinedSticker) {
+                return PredefinedStickerResponse.from((PredefinedSticker) sticker);
+            } else if (sticker instanceof CustomImageSticker) {
+                return CustomImageStickerResponse.from((CustomImageSticker) sticker);
+            } else if (sticker instanceof CustomTextSticker) {
+                return CustomTextStickerResponse.from((CustomTextSticker) sticker);
+            }
+            throw new IllegalArgumentException("Unknown sticker type: " + sticker.getClass().getSimpleName());
+        }
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Data
+    @SuperBuilder
+    @Schema(description = "기본 스티커 응답 DTO")
+    public static class PredefinedStickerResponse extends AbstractResponse {
+        @Schema(description = "에셋 이름", example = "heart_sticker")
+        private String assetName;
+
+        @Schema(description = "스티커 타입", example = "PREDEFINED")
+        @Override
+        public StickerType getType() {
+            return super.getType();
+        }
+
+        public static PredefinedStickerResponse from(PredefinedSticker sticker) {
+            return PredefinedStickerResponse.builder()
+                    .uuid(sticker.getUuid())
+                    .type(sticker.getType())
+                    .diaryBookId(sticker.getDiaryBook().getId())
+                    .posX(sticker.getPosX())
+                    .posY(sticker.getPosY())
+                    .size(sticker.getSize())
+                    .rotation(sticker.getRotation())
+                    .assetName(sticker.getAssetName())
+                    .build();
+        }
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Data
+    @SuperBuilder
+    @Schema(description = "커스텀 이미지 스티커 응답 DTO")
+    public static class CustomImageStickerResponse extends AbstractResponse {
+        @Schema(description = "이미지 파일 정보")
+        private FileDto.FileResponse imageFile;
+
+        @Schema(description = "스티커 타입", example = "CUSTOM_IMAGE")
+        @Override
+        public StickerType getType() {
+            return super.getType();
+        }
+
+        public static CustomImageStickerResponse from(CustomImageSticker sticker) {
+            return CustomImageStickerResponse.builder()
+                    .uuid(sticker.getUuid())
+                    .type(sticker.getType())
+                    .diaryBookId(sticker.getDiaryBook().getId())
+                    .posX(sticker.getPosX())
+                    .posY(sticker.getPosY())
+                    .size(sticker.getSize())
+                    .rotation(sticker.getRotation())
+                    .imageFile(FileDto.FileResponse.from(sticker.getImageFile()))
+                    .build();
+        }
+    }
+
+    @EqualsAndHashCode(callSuper = true)
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Data
+    @SuperBuilder
+    @Schema(description = "커스텀 텍스트 스티커 응답 DTO")
+    public static class CustomTextStickerResponse extends AbstractResponse {
+        @Schema(description = "텍스트 내용", example = "Hello World!")
+        private String textContent;
+        @Schema(description = "글꼴 크기", example = "16")
+        private Integer fontSize;
+        @Schema(description = "글꼴 색상", example = "#000000")
+        private String fontColor;
+
+        @Schema(description = "스티커 타입", example = "CUSTOM_TEXT")
+        @Override
+        public StickerType getType() {
+            return super.getType();
+        }
+
+        public static CustomTextStickerResponse from(CustomTextSticker sticker) {
+            return CustomTextStickerResponse.builder()
+                    .uuid(sticker.getUuid())
+                    .type(sticker.getType())
+                    .diaryBookId(sticker.getDiaryBook().getId())
+                    .posX(sticker.getPosX())
+                    .posY(sticker.getPosY())
+                    .size(sticker.getSize())
+                    .rotation(sticker.getRotation())
+                    .textContent(sticker.getTextContent())
+                    .fontSize(sticker.getFontSize())
+                    .fontColor(sticker.getFontColor())
+                    .build();
+        }
     }
 }

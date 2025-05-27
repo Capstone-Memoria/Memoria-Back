@@ -6,6 +6,7 @@ import java.util.List;
 import ac.mju.memoria.backend.common.auditor.UserStampedEntity;
 import ac.mju.memoria.backend.domain.diary.entity.Diary;
 import ac.mju.memoria.backend.domain.diarybook.entity.enums.MemberPermission;
+import ac.mju.memoria.backend.domain.diarybook.entity.stickers.AbstractSticker;
 import ac.mju.memoria.backend.domain.file.entity.CoverImageFile;
 import ac.mju.memoria.backend.domain.invitation.entity.Invitation;
 import ac.mju.memoria.backend.domain.user.entity.User;
@@ -54,7 +55,7 @@ public class DiaryBook extends UserStampedEntity {
     private CoverImageFile coverImageFile;
 
     @OneToMany(mappedBy = "diaryBook", orphanRemoval = true)
-    private List<Sticker> stickers = new ArrayList<>();
+    private List<AbstractSticker> abstractStickers = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "diaryBook")
     @Builder.Default
