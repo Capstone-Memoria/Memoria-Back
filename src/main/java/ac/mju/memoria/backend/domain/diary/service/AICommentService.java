@@ -43,7 +43,6 @@ public class AICommentService {
                 .toList();
     }
 
-    @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void generateCommentAsync(AiCommentNeededEvent event) {

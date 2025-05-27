@@ -2,6 +2,7 @@ package ac.mju.memoria.backend.domain.ai.networking;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -80,6 +81,10 @@ public abstract class AbstractAsyncNodePool<REQ, RES> implements NodePool<REQ, R
      */
     @Override
     public Future<RES> submitRequest(REQ request) {
+        if (nodes.isEmpty()) {
+            throw new IllegalStateException("No available nodes to process the request");
+        }
+
         NodePoolQueueItem<REQ, RES> toQueue = NodePoolQueueItem.from(request);
         return toQueue.getResponse();
     }
@@ -92,6 +97,11 @@ public abstract class AbstractAsyncNodePool<REQ, RES> implements NodePool<REQ, R
      */
     @Override
     public void submitRequest(REQ request, ResponseHandler<RES> responseHandler) {
+        if (nodes.isEmpty()) {
+            log.error("No available nodes to process the request");
+            return;
+        }
+
         NodePoolQueueItem<REQ, RES> toQueue = NodePoolQueueItem.from(request);
         toQueue.setResponseHandler(responseHandler);
         requestQueue.add(toQueue);

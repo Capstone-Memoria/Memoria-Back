@@ -19,5 +19,5 @@ spring:
 
 ai:
   image-nodes:
+    - url: http://87.197.127.62:41027
   music-nodes:
-    - url: http://80.15.7.37:46620

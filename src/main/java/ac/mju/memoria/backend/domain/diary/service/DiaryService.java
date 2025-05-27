@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
+import ac.mju.memoria.backend.domain.ai.service.ImageCreateService;
 import ac.mju.memoria.backend.domain.ai.service.MusicCreateService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -39,6 +40,7 @@ public class DiaryService {
     private final ApplicationEventPublisher eventPublisher;
     private final AICommentService aiCommentService;
     private final MusicCreateService musicCreateService;
+    private final ImageCreateService imageCreateService;
 
     @Transactional
     public DiaryDto.DiaryResponse createDiary(Long diaryBookId, DiaryDto.DiaryRequest requestDto,
@@ -76,6 +78,10 @@ public class DiaryService {
 
         if (requestDto.getIsAIMusicEnabled()) {
             musicCreateService.requestMusic(saved);
+        }
+
+        if(requestDto.getImages() == null || requestDto.getImages().isEmpty()) {
+            imageCreateService.requestGenerateImageFrom(saved);
         }
 
         return DiaryDto.DiaryResponse.from(saved);

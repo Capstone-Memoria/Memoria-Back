@@ -79,6 +79,10 @@ public abstract class AbstractSyncNodePool<REQ, RES> implements NodePool<REQ, RE
      */
     @Override
     public Future<RES> submitRequest(REQ request) {
+        if(nodes.isEmpty()) {
+            throw new IllegalStateException("No available nodes to process the request");
+        }
+
         NodePoolQueueItem<REQ, RES> toQueue = NodePoolQueueItem.from(request);
         requestQueue.add(toQueue);
         return toQueue.getResponse();
@@ -93,6 +97,11 @@ public abstract class AbstractSyncNodePool<REQ, RES> implements NodePool<REQ, RE
      */
     @Override
     public void submitRequest(REQ request, ResponseHandler<RES> responseHandler) {
+        if(nodes.isEmpty()) {
+            log.error("No available nodes to process the request");
+            return;
+        }
+
         NodePoolQueueItem<REQ, RES> toQueue = NodePoolQueueItem.from(request);
         toQueue.setResponseHandler(responseHandler);
         requestQueue.add(toQueue);
@@ -146,11 +155,11 @@ public abstract class AbstractSyncNodePool<REQ, RES> implements NodePool<REQ, RE
                     if (queueItem.getResponseHandler() != null) {
                         queueItem.getResponseHandler().handleResponse(res);
                     }
-                    log.info("Processed request with response: {}", res);
                 } catch (Exception e) {
                     if (queueItem.getRetryCountDown() > 0) {
                         queueItem.setRetryCountDown(queueItem.getRetryCountDown() - 1);
                         requestQueue.add(queueItem); // Re-add to the queue for retry
+                        log.error("Request failed, retrying. Error: {}", e.getMessage());
                         log.warn("Request failed, retrying. Remaining retries: {}", queueItem.getRetryCountDown());
                     } else {
                         queueItem.getResponse().completeExceptionally(e);
