@@ -16,5 +16,8 @@ import lombok.experimental.SuperBuilder;
 public class CustomTextSticker extends AbstractSticker {
     private String textContent;
     private Integer fontSize;
+    private String fontFamily;
     private String fontColor;
+    private Boolean italic;
+    private Boolean bold;
 }

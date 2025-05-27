@@ -128,6 +128,12 @@ public class StickerDto {
         private Integer fontSize;
         @Schema(description = "글꼴 색상", example = "#000000")
         private String fontColor;
+        @Schema(description = "글꼴", example = "Arial")
+        private String fontFamily;
+        @Schema(description = "이탤릭체 여부", example = "false")
+        private Boolean italic;
+        @Schema(description = "볼드체 여부", example = "false")
+        private Boolean bold;
 
         @Override
         @Schema(description = "스티커 타입", example = "CUSTOM_TEXT")
@@ -147,6 +153,9 @@ public class StickerDto {
                     .textContent(textContent)
                     .fontSize(fontSize)
                     .fontColor(fontColor)
+                    .fontFamily(fontFamily)
+                    .italic(italic)
+                    .bold(bold)
                     .build();
         }
     }
@@ -283,6 +292,12 @@ public class StickerDto {
         private Integer fontSize;
         @Schema(description = "글꼴 색상", example = "#000000")
         private String fontColor;
+        @Schema(description = "글꼴", example = "Arial")
+        private String fontFamily;
+        @Schema(description = "이탤릭체 여부", example = "false")
+        private Boolean italic;
+        @Schema(description = "볼드체 여부", example = "false")
+        private Boolean bold;
 
         @Schema(description = "스티커 타입", example = "CUSTOM_TEXT")
         @Override
@@ -302,6 +317,9 @@ public class StickerDto {
                     .textContent(sticker.getTextContent())
                     .fontSize(sticker.getFontSize())
                     .fontColor(sticker.getFontColor())
+                    .fontFamily(sticker.getFontFamily())
+                    .italic(sticker.getItalic())
+                    .bold(sticker.getBold())
                     .build();
         }
     }
