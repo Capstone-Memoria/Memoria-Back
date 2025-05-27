@@ -4,6 +4,7 @@ import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBookMember;
 import ac.mju.memoria.backend.domain.diarybook.entity.enums.MemberPermission;
 import ac.mju.memoria.backend.domain.user.dto.UserDto;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -37,4 +38,15 @@ public class DiaryBookMemberDto {
                     .build();
         }
     }
+
+    @AllArgsConstructor
+    @Data
+    @Builder
+    @Schema(description = "관리자 변경 요청 DTO")
+    public static class ChangeAdminRequest {
+        @Schema(description = "관리자 변경 대상 멤버 ID")
+        @NotNull(message = "현재 관리자 멤버 Id를 입력하세요")
+        private Long newAdminId;
+    }
+
 }
