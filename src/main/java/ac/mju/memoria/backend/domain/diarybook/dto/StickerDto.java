@@ -134,6 +134,8 @@ public class StickerDto {
         private Boolean italic;
         @Schema(description = "볼드체 여부", example = "false")
         private Boolean bold;
+        @Schema(description = "템플릿 너비 (글자 크기의 기준이 되는 cover의 너비)", example = "500")
+        private Integer templateWidth;
 
         @Override
         @Schema(description = "스티커 타입", example = "CUSTOM_TEXT")
@@ -156,6 +158,7 @@ public class StickerDto {
                     .fontFamily(fontFamily)
                     .italic(italic)
                     .bold(bold)
+                    .templateWidth(templateWidth)
                     .build();
         }
     }
@@ -298,6 +301,8 @@ public class StickerDto {
         private Boolean italic;
         @Schema(description = "볼드체 여부", example = "false")
         private Boolean bold;
+        @Schema(description = "템플릿 너비 (글자 크기의 기준이 되는 cover의  너비)", example = "500")
+        private Integer templateWidth;
 
         @Schema(description = "스티커 타입", example = "CUSTOM_TEXT")
         @Override
@@ -320,6 +325,7 @@ public class StickerDto {
                     .fontFamily(sticker.getFontFamily())
                     .italic(sticker.getItalic())
                     .bold(sticker.getBold())
+                    .templateWidth(sticker.getTemplateWidth())
                     .build();
         }
     }
