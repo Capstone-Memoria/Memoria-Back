@@ -36,12 +36,6 @@ public class DiaryBookStatistics {
   @ElementCollection
   private List<UserRanking> attendanceRanking; // 사용자 출석 랭킹 (UserRanking으로 변경)
 
-  @ElementCollection
-  private List<DiaryRanking> commentRanking; // 댓글 많은 일기 랭킹
-
-  @ElementCollection
-  private List<DiaryRanking> reactionRanking; // 반응 많은 일기 랭킹
-
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "diary_book_id")
   private DiaryBook diaryBook;
@@ -49,29 +43,24 @@ public class DiaryBookStatistics {
   @Builder
   public DiaryBookStatistics(YearMonth targetMonth, String oneLineSummary, String longSummary,
       EmotionWeather emotionWeather, String emotionWeatherReason, List<UserRanking> attendanceRanking,
-      List<DiaryRanking> commentRanking,
-      List<DiaryRanking> reactionRanking, DiaryBook diaryBook) {
+      DiaryBook diaryBook) {
     this.targetMonth = targetMonth;
     this.oneLineSummary = oneLineSummary;
     this.longSummary = longSummary;
     this.emotionWeather = emotionWeather;
     this.emotionWeatherReason = emotionWeatherReason;
     this.attendanceRanking = attendanceRanking;
-    this.commentRanking = commentRanking;
-    this.reactionRanking = reactionRanking;
     this.diaryBook = diaryBook;
   }
 
   public void updateStatistics(String oneLineSummary, String longSummary, EmotionWeather emotionWeather,
       String emotionWeatherReason,
-      List<UserRanking> attendanceRanking, List<DiaryRanking> commentRanking, List<DiaryRanking> reactionRanking) {
+      List<UserRanking> attendanceRanking) {
     this.oneLineSummary = oneLineSummary;
     this.longSummary = longSummary;
     this.emotionWeather = emotionWeather;
     this.emotionWeatherReason = emotionWeatherReason;
     this.attendanceRanking = attendanceRanking;
-    this.commentRanking = commentRanking;
-    this.reactionRanking = reactionRanking;
   }
 
   @Embeddable

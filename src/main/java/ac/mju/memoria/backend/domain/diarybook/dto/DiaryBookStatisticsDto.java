@@ -43,7 +43,9 @@ public class DiaryBookStatisticsDto {
     @Schema(description = "반응 랭킹")
     private List<DiaryRankingResponse> reactionRanking;
 
-    public static StatisticsResponse from(DiaryBookStatistics statistics) {
+    public static StatisticsResponse from(DiaryBookStatistics statistics,
+        List<ac.mju.memoria.backend.domain.diary.entity.Diary> topCommentDiaries,
+        List<ac.mju.memoria.backend.domain.diary.entity.Diary> topReactionDiaries) {
       return StatisticsResponse.builder()
           .targetMonth(statistics.getTargetMonth().toString())
           .oneLineSummary(statistics.getOneLineSummary())
@@ -53,11 +55,11 @@ public class DiaryBookStatisticsDto {
           .attendanceRanking(statistics.getAttendanceRanking().stream()
               .map(UserRankingResponse::from)
               .collect(Collectors.toList()))
-          .commentRanking(statistics.getCommentRanking().stream()
-              .map(DiaryRankingResponse::from)
+          .commentRanking(topCommentDiaries.stream()
+              .map(diary -> DiaryRankingResponse.from(diary, (long) diary.getComments().size()))
               .collect(Collectors.toList()))
-          .reactionRanking(statistics.getReactionRanking().stream()
-              .map(DiaryRankingResponse::from)
+          .reactionRanking(topReactionDiaries.stream()
+              .map(diary -> DiaryRankingResponse.from(diary, (long) diary.getReactions().size()))
               .collect(Collectors.toList()))
           .build();
     }
@@ -100,12 +102,19 @@ public class DiaryBookStatisticsDto {
     @Schema(description = "댓글 또는 반응 수", example = "10")
     private Long count;
 
-    public static DiaryRankingResponse from(DiaryBookStatistics.DiaryRanking diaryRanking) {
+    public static DiaryRankingResponse from(ac.mju.memoria.backend.domain.diary.entity.Diary diary, Long count) {
       return DiaryRankingResponse.builder()
-          .diaryId(diaryRanking.getDiaryId())
-          .diaryTitle(diaryRanking.getDiaryTitle())
-          .count(diaryRanking.getCount())
+          .diaryId(diary.getId())
+          .diaryTitle(diary.getTitle() != null ? diary.getTitle() : getContentPreview(diary.getContent()))
+          .count(count)
           .build();
+    }
+
+    private static String getContentPreview(String content) {
+      if (content == null || content.isEmpty()) {
+        return "";
+      }
+      return content.substring(0, Math.min(content.length(), 20));
     }
   }
 }

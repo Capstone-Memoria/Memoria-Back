@@ -13,10 +13,6 @@ import dev.langchain4j.service.spring.AiService;
 @AiService
 public interface EmotionWeatherAnalyzer {
 
-  String AVAILABLE_WEATHERS = Arrays.stream(EmotionWeather.values())
-      .map(Enum::name)
-      .collect(Collectors.joining(", "));
-
   @SystemMessage("""
       You are an AI assistant specialized in analyzing the emotional tone of diary entries for a given month and representing it as a weather condition.
       Your task is to select one weather condition from a predefined list and provide a brief explanation for your choice. The available weather conditions are: {{availableWeathers}}.
@@ -33,7 +29,7 @@ public interface EmotionWeatherAnalyzer {
       # CORRECT Example:
       # {
       #   "emotionWeather": "SUNNY_AND_CLOUDY",
-      #   "reason": "The diary entries for this month show a mix of joyful moments and some challenging days, reflecting a generally positive outlook with occasional difficulties, much like a day with both sunshine and clouds."
+      #   "reason": "이번 달 일기에는 즐거운 순간과 힘든 날들이 뒤섞여 기록되어 있습니다. 이는 마치 햇살과 구름이 공존하는 날처럼, 때때로 어려움도 있었지만 전반적으로 긍정적인 전망을 보여줍니다."
       # }
       #
       # INCORRECT Example (DO NOT DO THIS):
@@ -46,6 +42,7 @@ public interface EmotionWeatherAnalyzer {
       # --- END OF CRITICAL JSON FORMATTING RULES ---
 
       Guidelines for your analysis:
+      -   Answer in Korean Language.
       -   Analyze all provided diary entries for the month to understand the overall emotional landscape.
       -   Identify dominant or recurring emotions, moods, and themes.
       -   Choose the single weather condition from the list `[{{availableWeathers}}]` that best metaphorically represents the collective emotional tone of the month's diaries.
@@ -62,8 +59,4 @@ public interface EmotionWeatherAnalyzer {
       @V("targetMonth") String targetMonth, // e.g., "2023-10"
       @V("diaryEntries") String diaryEntries, // Concatenated string of all diary titles and contents for the month
       @V("availableWeathers") String availableWeathers);
-
-  default AIEmotionWeatherResponse analyzeEmotionWeather(String targetMonth, String diaryEntries) {
-    return analyzeEmotionWeather(targetMonth, diaryEntries, AVAILABLE_WEATHERS);
-  }
 }

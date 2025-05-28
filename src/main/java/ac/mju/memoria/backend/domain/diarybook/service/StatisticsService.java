@@ -2,6 +2,7 @@ package ac.mju.memoria.backend.domain.diarybook.service;
 
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,7 @@ import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
 import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBookStatistics;
 import ac.mju.memoria.backend.domain.diarybook.entity.enums.EmotionWeather;
 import ac.mju.memoria.backend.domain.diarybook.repository.DiaryBookRepository;
+import ac.mju.memoria.backend.domain.diarybook.repository.DiaryBookStatisticsQueryRepository;
 import ac.mju.memoria.backend.domain.diarybook.repository.DiaryBookStatisticsRepository;
 import ac.mju.memoria.backend.domain.user.entity.User;
 import ac.mju.memoria.backend.system.exception.model.ErrorCode;
@@ -40,6 +42,7 @@ public class StatisticsService {
   private final DiaryRepository diaryRepository;
   private final DiaryBookRepository diaryBookRepository;
   private final DiaryBookStatisticsRepository diaryBookStatisticsRepository;
+  private final DiaryBookStatisticsQueryRepository diaryBookStatisticsQueryRepository;
   private final SummaryGenerator summaryGenerator;
   private final EmotionWeatherAnalyzer emotionWeatherAnalyzer;
 
@@ -87,8 +90,11 @@ public class StatisticsService {
       }
 
       try {
-        AIEmotionWeatherResponse weatherResponse = emotionWeatherAnalyzer.analyzeEmotionWeather(targetMonthStr,
-            diaryEntries);
+        String AVAILABLE_WEATHERS = Arrays.stream(EmotionWeather.values())
+                .map(Enum::name)
+                .collect(Collectors.joining(", "));
+
+        AIEmotionWeatherResponse weatherResponse = emotionWeatherAnalyzer.analyzeEmotionWeather(targetMonthStr, diaryEntries, AVAILABLE_WEATHERS);
         emotionWeather = weatherResponse.getEmotionWeather();
         emotionWeatherReason = weatherResponse.getReason();
       } catch (Exception e) {
@@ -99,8 +105,6 @@ public class StatisticsService {
     }
 
     List<DiaryBookStatistics.UserRanking> attendanceRanking = calculateAttendanceRanking(diaries);
-    List<DiaryBookStatistics.DiaryRanking> commentRanking = calculateCommentRanking(diaries);
-    List<DiaryBookStatistics.DiaryRanking> reactionRanking = calculateReactionRanking(diaries);
 
     DiaryBookStatistics statistics = diaryBookStatisticsRepository.findByDiaryBookAndTargetMonth(diaryBook, targetMonth)
         .orElseGet(() -> DiaryBookStatistics.builder()
@@ -108,9 +112,7 @@ public class StatisticsService {
             .targetMonth(targetMonth)
             .build());
 
-    statistics.updateStatistics(oneLineSummary, longSummary, emotionWeather, emotionWeatherReason, attendanceRanking,
-        commentRanking,
-        reactionRanking);
+    statistics.updateStatistics(oneLineSummary, longSummary, emotionWeather, emotionWeatherReason, attendanceRanking);
     diaryBookStatisticsRepository.save(statistics);
   }
 
@@ -120,7 +122,11 @@ public class StatisticsService {
 
     DiaryBookStatistics statistics = diaryBookStatisticsRepository.findByDiaryBookAndTargetMonth(diaryBook, targetMonth)
         .orElseThrow(() -> new RestException(ErrorCode.DIARYBOOK_ANALYSIS_NOT_FOUND));
-    return DiaryBookStatisticsDto.StatisticsResponse.from(statistics);
+
+    List<Diary> topCommentDiaries = diaryBookStatisticsQueryRepository.findTopDiariesByCommentCount(diaryBook);
+    List<Diary> topReactionDiaries = diaryBookStatisticsQueryRepository.findTopDiariesByReactionCount(diaryBook);
+
+    return DiaryBookStatisticsDto.StatisticsResponse.from(statistics, topCommentDiaries, topReactionDiaries);
   }
 
   private List<DiaryBookStatistics.UserRanking> calculateAttendanceRanking(List<Diary> diaries) {
@@ -138,30 +144,6 @@ public class StatisticsService {
               .diaryCount(count)
               .build();
         })
-        .collect(Collectors.toList());
-  }
-
-  private List<DiaryBookStatistics.DiaryRanking> calculateCommentRanking(List<Diary> diaries) {
-    return diaries.stream()
-        .filter(diary -> diary.getComments() != null && !diary.getComments().isEmpty())
-        .sorted(Comparator.comparingInt((Diary diary) -> diary.getComments().size()).reversed())
-        .map(diary -> DiaryBookStatistics.DiaryRanking.builder()
-            .diaryId(diary.getId())
-            .diaryTitle(diary.getTitle() != null ? diary.getTitle() : getContentPreview(diary.getContent()))
-            .count((long) diary.getComments().size())
-            .build())
-        .collect(Collectors.toList());
-  }
-
-  private List<DiaryBookStatistics.DiaryRanking> calculateReactionRanking(List<Diary> diaries) {
-    return diaries.stream()
-        .filter(diary -> diary.getReactions() != null && !diary.getReactions().isEmpty())
-        .sorted(Comparator.comparingInt((Diary diary) -> diary.getReactions().size()).reversed())
-        .map(diary -> DiaryBookStatistics.DiaryRanking.builder()
-            .diaryId(diary.getId())
-            .diaryTitle(diary.getTitle() != null ? diary.getTitle() : getContentPreview(diary.getContent()))
-            .count((long) diary.getReactions().size())
-            .build())
         .collect(Collectors.toList());
   }
 
