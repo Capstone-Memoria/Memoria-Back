@@ -39,3 +39,4 @@ out/
 
 /uploaded/
 /.db/
+/src/main/resources/static/
