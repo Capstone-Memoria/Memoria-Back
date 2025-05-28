@@ -38,7 +38,6 @@ public class DiaryService {
     private final ImageRepository imageRepository;
     private final FileSystemHandler fileSystemHandler;
     private final ApplicationEventPublisher eventPublisher;
-    private final AICommentService aiCommentService;
     private final MusicCreateService musicCreateService;
     private final ImageCreateService imageCreateService;
 
@@ -55,6 +54,7 @@ public class DiaryService {
         Diary diary = Diary.builder()
                 .title(requestDto.getTitle())
                 .content(requestDto.getContent())
+                .emotion(requestDto.getEmotion())
                 .author(user)
                 .diaryBook(diaryBook)
                 .build();

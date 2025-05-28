@@ -1,6 +1,7 @@
 package ac.mju.memoria.backend.domain.diary.dto;
 
 import ac.mju.memoria.backend.domain.diary.entity.Diary;
+import ac.mju.memoria.backend.domain.diary.entity.enums.EmotionType;
 import ac.mju.memoria.backend.domain.file.dto.FileDto;
 import ac.mju.memoria.backend.domain.user.dto.UserDto;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -30,6 +31,10 @@ public class DiaryDto {
         @Schema(description = "다이어리 내용", example = "오늘은 즐거운 하루였다.")
         private String content;
 
+        @NotNull(message = "감정 상태는 필수 입력값입니다.")
+        @Schema(description = "다이어리 감정 상태", example = "HAPPY")
+        private EmotionType emotion;
+
         @Schema(description = "첨부 이미지 파일 목록")
         private List<MultipartFile> images;
 
@@ -55,6 +60,8 @@ public class DiaryDto {
         private String title;
         @Schema(description = "수정할 다이어리 내용", example = "오늘은 정말 즐거운 하루였다.")
         private String content;
+        @Schema(description = "수정할 다이어리 감정 상태", example = "SAD")
+        private EmotionType emotion;
         @Schema(description = "삭제할 이미지 ID 목록", example = "[\"image_id_1\", \"image_id_2\"]")
         private List<String> toDeleteImageIds;
         @Schema(description = "추가할 이미지 파일 목록")
@@ -67,6 +74,10 @@ public class DiaryDto {
 
             if (Objects.nonNull(request.getContent())) {
                 diary.setContent(request.getContent());
+            }
+
+            if (Objects.nonNull(request.getEmotion())) {
+                diary.setEmotion(request.getEmotion());
             }
 
             return diary;
@@ -86,6 +97,8 @@ public class DiaryDto {
         private String title;
         @Schema(description = "다이어리 내용")
         private String content;
+        @Schema(description = "다이어리 감정 상태")
+        private EmotionType emotion;
         @Schema(description = "다이어리가 속한 다이어리 북 ID")
         private Long diaryBookId;
         @Schema(description = "다이어리 생성 시간")
@@ -110,6 +123,7 @@ public class DiaryDto {
                     .id(diary.getId())
                     .title(diary.getTitle())
                     .content(diary.getContent())
+                    .emotion(diary.getEmotion())
                     .diaryBookId(diary.getDiaryBook().getId())
                     .createdAt(diary.getCreatedAt())
                     .lastModifiedAt(diary.getLastModifiedAt())

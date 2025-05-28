@@ -53,6 +53,8 @@ public enum ErrorCode {
     REACTION_ALREADY_EXISTS(400, "이미 공감 한 일기입니다."),
     REACTION_NOT_FOUND(404, "존재하지 않는 공감입니다."),
 
+    DIARYBOOK_ANALYSIS_NOT_FOUND(404, "일기장 분석 결과를 찾을 수 없습니다."),
+
     // Comment
     PARENT_COMMENT_NOT_FOUND(404, "부모 댓글을 찾을 수 없습니다"),
     COMMENT_NOT_FOUND(404, "댓글을 찾을 수 없습니다"),
@@ -75,7 +77,7 @@ public enum ErrorCode {
     STICKER_IMAGE_NOT_FOUND(404, "임시 업로드된 스티커 이미지를 찾을 수 없습니다."),
 
     // Other
-    INTERNAL_SERVER_ERROR(500, "오류가 발생했습니다.");
+    INTERNAL_SERVER_ERROR(500, "오류가 발생했습니다."),
 
     private final int statusCode;
     private final String message;

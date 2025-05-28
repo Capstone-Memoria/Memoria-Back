@@ -1,7 +1,6 @@
 package ac.mju.memoria.backend.domain.diarybook.repository;
 
 import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
-import ac.mju.memoria.backend.domain.diarybook.entity.QDiaryBook;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.PathBuilder;
