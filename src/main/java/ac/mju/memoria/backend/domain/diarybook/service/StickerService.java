@@ -48,7 +48,7 @@ public class StickerService {
                 .orElseThrow(() -> new RestException(ErrorCode.DIARYBOOK_NOT_FOUND));
 
         removeExistingStickers(diaryBook);
-        List<AbstractSticker> saved = createNewStickersFrom(request);
+        List<AbstractSticker> saved = createNewStickersFrom(request, diaryBook);
 
         return saved.stream()
                 .map(StickerDto.AbstractResponse::from)
@@ -56,10 +56,12 @@ public class StickerService {
     }
 
     @NotNull
-    private List<AbstractSticker> createNewStickersFrom(StickerDto.UpdateRequest request) {
+    private List<AbstractSticker> createNewStickersFrom(StickerDto.UpdateRequest request, DiaryBook diaryBook) {
         List<AbstractSticker> toSaves = request.getStickers().stream()
                 .map(this::convertRequestToEntity)
                 .toList();
+
+        toSaves.forEach(it -> it.setDiaryBook(diaryBook));
 
         return stickerRepository.saveAll(toSaves);
     }

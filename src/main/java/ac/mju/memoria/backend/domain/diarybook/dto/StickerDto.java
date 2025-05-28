@@ -36,7 +36,7 @@ public class StickerDto {
     @AllArgsConstructor
     @NoArgsConstructor
     @Data
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type", visible = true)
     @JsonSubTypes({
             @JsonSubTypes.Type(value = PredefinedStickerRequest.class, name = "PREDEFINED"),
             @JsonSubTypes.Type(value = CustomImageStickerRequest.class, name = "CUSTOM_IMAGE"),

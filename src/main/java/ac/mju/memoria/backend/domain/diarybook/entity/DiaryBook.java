@@ -55,6 +55,7 @@ public class DiaryBook extends UserStampedEntity {
     private CoverImageFile coverImageFile;
 
     @OneToMany(mappedBy = "diaryBook", orphanRemoval = true)
+    @Builder.Default
     private List<AbstractSticker> abstractStickers = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "diaryBook")

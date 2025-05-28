@@ -14,6 +14,7 @@ import lombok.experimental.SuperBuilder;
 @Table(name = "custom_text_sticker")
 @DiscriminatorValue("CUSTOM_TEXT")
 public class CustomTextSticker extends AbstractSticker {
+    private Integer templateWidth;
     private String textContent;
     private Integer fontSize;
     private String fontFamily;
