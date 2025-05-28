@@ -77,7 +77,7 @@ public enum ErrorCode {
     STICKER_IMAGE_NOT_FOUND(404, "임시 업로드된 스티커 이미지를 찾을 수 없습니다."),
 
     // Other
-    INTERNAL_SERVER_ERROR(500, "오류가 발생했습니다."),
+    INTERNAL_SERVER_ERROR(500, "오류가 발생했습니다.");
 
     private final int statusCode;
     private final String message;

@@ -31,7 +31,7 @@ public class DiaryDto {
         @Schema(description = "다이어리 내용", example = "오늘은 즐거운 하루였다.")
         private String content;
 
-        @NotNull(message = "감정 상태는 필수 입력값입니다.")
+//        @NotNull(message = "감정 상태는 필수 입력값입니다.")
         @Schema(description = "다이어리 감정 상태", example = "HAPPY")
         private EmotionType emotion;
 
