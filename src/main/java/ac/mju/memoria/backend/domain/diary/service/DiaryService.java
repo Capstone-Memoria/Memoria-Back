@@ -4,8 +4,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
-import ac.mju.memoria.backend.domain.ai.service.ImageCreateService;
-import ac.mju.memoria.backend.domain.ai.service.MusicCreateService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,9 +11,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import ac.mju.memoria.backend.domain.ai.service.ImageCreateService;
+import ac.mju.memoria.backend.domain.ai.service.MusicCreateService;
 import ac.mju.memoria.backend.domain.diary.dto.DiaryDto;
 import ac.mju.memoria.backend.domain.diary.entity.Diary;
 import ac.mju.memoria.backend.domain.diary.event.AiCommentNeededEvent;
+import ac.mju.memoria.backend.domain.diary.event.DiaryCreatedEvent;
 import ac.mju.memoria.backend.domain.diary.repository.DiaryRepository;
 import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
 import ac.mju.memoria.backend.domain.diarybook.repository.DiaryBookRepository;
@@ -80,9 +81,10 @@ public class DiaryService {
             musicCreateService.requestMusic(saved);
         }
 
-        if(requestDto.getImages() == null || requestDto.getImages().isEmpty()) {
+        if (requestDto.getImages() == null || requestDto.getImages().isEmpty()) {
             imageCreateService.requestGenerateImageFrom(saved);
         }
+        eventPublisher.publishEvent(new DiaryCreatedEvent(this, diaryBookId));
 
         return DiaryDto.DiaryResponse.from(saved);
     }
@@ -161,7 +163,7 @@ public class DiaryService {
         }
 
         Diary updated = requestDto.applyTo(requestDto, diary);
-
+        eventPublisher.publishEvent(new DiaryCreatedEvent(this, diaryBookId));
         return DiaryDto.DiaryResponse.from(updated);
     }
 
@@ -189,6 +191,7 @@ public class DiaryService {
         }
 
         diaryRepository.delete(diary);
+        eventPublisher.publishEvent(new DiaryCreatedEvent(this, diaryBookId));
     }
 
     private List<Image> addImages(List<MultipartFile> images, Diary diary) {
