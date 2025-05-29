@@ -116,6 +116,7 @@ public class StatisticsService {
     diaryBookStatisticsRepository.save(statistics);
   }
 
+  @Transactional(readOnly = true)
   public DiaryBookStatisticsDto.StatisticsResponse getDiaryBookStatistics(Long diaryBookId, YearMonth targetMonth) {
     DiaryBook diaryBook = diaryBookRepository.findById(diaryBookId)
         .orElseThrow(() -> new RestException(ErrorCode.DIARYBOOK_NOT_FOUND));
