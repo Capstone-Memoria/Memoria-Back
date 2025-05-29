@@ -1,5 +1,6 @@
 package ac.mju.memoria.backend.domain.ai.networking;
 
+import java.util.List;
 import java.util.concurrent.Future;
 
 /**
@@ -35,6 +36,13 @@ public interface NodePool<REQ, RES> {
      * @param node 제거할 노드 객체
      */
     void removeNode(Node node);
+
+    /**
+     * NodePool에 포함된 모든 노드를 반환합니다.
+     *
+     * @return NodePool에 포함된 모든 노드 목록
+     */
+    List<Node> getNodes();
 
     /**
      * 요청을 NodePool에 제출합니다.
