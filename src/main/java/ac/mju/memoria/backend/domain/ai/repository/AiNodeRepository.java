@@ -7,5 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface AiNodeRepository extends JpaRepository<AiNode, Long> {
-  List<AiNode> findAllByNodeType(NodeType nodeType);
+  boolean existsByUrl(String url);
+
+  boolean existsByUrlAndIdNot(String url, Long id);
 }

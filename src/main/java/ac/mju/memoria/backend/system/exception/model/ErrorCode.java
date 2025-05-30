@@ -69,6 +69,8 @@ public enum ErrorCode {
     AI_MUSIC_JOB_NOT_FOUND(404, "음악 생성 작업을 찾을 수 없습니다."),
     AI_MUSIC_JOB_FAILED(500, "음악 생성 작업이 실패했습니다."),
     AI_MUSIC_DOWNLOAD_FAILED(500, "음악 파일 다운로드에 실패했습니다."),
+    AI_NODE_NOT_FOUND(404, "AI 노드를 찾을 수 없습니다."),
+    AI_NODE_URL_ALREADY_EXISTS(400, "이미 등록된 AI 노드 URL입니다."),
 
     // DiaryBookMember
     MEMBER_ALREADY_ADMIN(400, "이미 관리자인 멤버입니다."),

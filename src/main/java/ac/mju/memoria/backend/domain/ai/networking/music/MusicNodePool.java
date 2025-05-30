@@ -1,58 +1,49 @@
 package ac.mju.memoria.backend.domain.ai.networking.music;
 
-import ac.mju.memoria.backend.common.utils.JsonUtils;
-import ac.mju.memoria.backend.domain.ai.dto.MusicDto;
-import ac.mju.memoria.backend.domain.ai.networking.AbstractAsyncNodePool;
-import ac.mju.memoria.backend.domain.ai.networking.Node;
-import ac.mju.memoria.backend.domain.ai.dto.MusicSseResponse;
-import ac.mju.memoria.backend.domain.ai.entity.AiNode;
-import ac.mju.memoria.backend.domain.ai.entity.NodeType;
-import ac.mju.memoria.backend.domain.ai.repository.AiNodeRepository;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+
+import jakarta.annotation.PostConstruct;
+import org.springframework.stereotype.Component;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.annotation.PostConstruct;
+
+import ac.mju.memoria.backend.common.utils.JsonUtils;
+import ac.mju.memoria.backend.domain.ai.dto.MusicDto;
+import ac.mju.memoria.backend.domain.ai.dto.MusicSseResponse;
+import ac.mju.memoria.backend.domain.ai.networking.AbstractAsyncNodePool;
+import ac.mju.memoria.backend.domain.ai.networking.DBNode;
+import ac.mju.memoria.backend.domain.ai.networking.Node;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
-import org.springframework.stereotype.Component;
-import ac.mju.memoria.backend.domain.ai.networking.BasicNode;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class MusicNodePool extends AbstractAsyncNodePool<MusicDto.CreateRequest, byte[]> {
     private final OkHttpClient client = new OkHttpClient();
     private final MusicSseWatcher sseWatcher;
-    private final AiNodeRepository aiNodeRepository;
     private final ObjectMapper objectMapper;
 
-    public MusicNodePool(ObjectMapper objectMapper, AiNodeRepository aiNodeRepository) {
-        this.objectMapper = objectMapper;
-        this.sseWatcher = new MusicSseWatcher(objectMapper);
-        this.aiNodeRepository = aiNodeRepository;
+    public Optional<DBNode> getNodeById(Long id) {
+        return getNodes().stream()
+                .filter(node -> ((DBNode) node).getId().equals(id))
+                .findFirst()
+                .map(DBNode.class::cast);
     }
 
     @PostConstruct
-    public void initNodes() {
-        List<AiNode> musicNodes = aiNodeRepository.findAllByNodeType(NodeType.MUSIC);
-        List<Node> nodes = musicNodes.stream()
-                .map(aiNode -> new BasicNode(aiNode.getUrl()))
-                .collect(Collectors.toList());
-        nodes.forEach(this::addNode);
-    }
-
     @Override
     public void start() {
         super.start();
-        sseWatcher.init();
         sseWatcher.addListener(this::handleSseResponse);
     }
 

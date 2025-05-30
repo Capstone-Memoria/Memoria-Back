@@ -1,6 +1,7 @@
 package ac.mju.memoria.backend.domain.ai.entity;
 
 import ac.mju.memoria.backend.common.auditor.TimeStampedEntity;
+import ac.mju.memoria.backend.domain.ai.dto.NodeDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -23,4 +24,20 @@ public class AiNode extends TimeStampedEntity {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private NodeType nodeType;
+
+  public static AiNode from(NodeDto.CreateRequest request) {
+    return AiNode.builder()
+        .url(request.getUrl())
+        .nodeType(request.getType())
+        .build();
+  }
+
+  public void updateFromRequest(NodeDto.UpdateRequest request) {
+    if (request.getUrl() != null) {
+      this.url = request.getUrl();
+    }
+    if (request.getType() != null) {
+      this.nodeType = request.getType();
+    }
+  }
 }

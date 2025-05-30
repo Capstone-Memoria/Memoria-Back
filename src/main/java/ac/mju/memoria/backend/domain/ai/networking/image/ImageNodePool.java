@@ -1,27 +1,24 @@
 package ac.mju.memoria.backend.domain.ai.networking.image;
 
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.Optional;
+
+import jakarta.annotation.PostConstruct;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import ac.mju.memoria.backend.domain.ai.dto.ImageDto;
-import ac.mju.memoria.backend.domain.ai.entity.AiNode;
-import ac.mju.memoria.backend.domain.ai.entity.NodeType;
 import ac.mju.memoria.backend.domain.ai.networking.AbstractSyncNodePool;
-import ac.mju.memoria.backend.domain.ai.networking.BasicNode;
+import ac.mju.memoria.backend.domain.ai.networking.DBNode;
 import ac.mju.memoria.backend.domain.ai.networking.Node;
-import ac.mju.memoria.backend.domain.ai.repository.AiNodeRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import org.springframework.stereotype.Component;
-import jakarta.annotation.PostConstruct;
 
 /**
  * 이미지 생성을 위한 동기 방식의 NodePool입니다.
@@ -33,16 +30,18 @@ import jakarta.annotation.PostConstruct;
 @RequiredArgsConstructor
 public class ImageNodePool extends AbstractSyncNodePool<ImageDto.InternalCreateRequest, String> {
     private final OkHttpClient client = new OkHttpClient();
-    private final AiNodeRepository aiNodeRepository;
+
+    public Optional<DBNode> getNodeById(Long id) {
+        return getNodes().stream()
+                .filter(node -> ((DBNode) node).getId().equals(id))
+                .findFirst()
+                .map(DBNode.class::cast);
+    }
 
     @PostConstruct
-    public void initNodes() {
-        List<AiNode> imageNodes = aiNodeRepository.findAllByNodeType(NodeType.IMAGE);
-        List<Node> nodes = imageNodes.stream()
-                .map(aiNode -> new BasicNode(aiNode.getUrl()))
-                .collect(Collectors.toList());
-        nodes.forEach(this::addNode);
-        start();
+    @Override
+    public void start() {
+        super.start();
     }
 
     /**

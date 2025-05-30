@@ -40,11 +40,6 @@ public class ImageCreateService {
     private final ImageRepository imageRepository;
     private final TransactionTemplate transactionTemplate;
 
-    @PostConstruct
-    private void init() {
-        imageNodePool.start();
-    }
-
     @SneakyThrows
     @Async
     public void requestGenerateImageFrom(Diary diary) {

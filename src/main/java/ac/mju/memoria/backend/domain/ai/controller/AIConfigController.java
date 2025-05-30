@@ -2,14 +2,15 @@ package ac.mju.memoria.backend.domain.ai.controller;
 
 import ac.mju.memoria.backend.domain.ai.dto.NodeDto;
 import ac.mju.memoria.backend.domain.ai.service.AiConfigService;
-import ac.mju.memoria.backend.system.security.model.UserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,53 +22,49 @@ import java.util.List;
 public class AIConfigController {
   private final AiConfigService aiConfigService;
 
-  @GetMapping("/image/nodes")
-  @Operation(summary = "이미지 생성 노드 목록 조회", description = "현재 등록된 이미지 생성 AI 노드 목록을 조회합니다.")
-  @ApiResponse(responseCode = "200", description = "이미지 노드 목록 조회 성공")
-  public ResponseEntity<List<NodeDto.InfoResponse>> getImageNodes() {
-    return ResponseEntity.ok(aiConfigService.getImageNodes());
+  @PostMapping("/nodes")
+  @Operation(summary = "AI 노드 생성", description = "새로운 AI 노드를 생성합니다.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "201", description = "AI 노드 생성 성공"),
+      @ApiResponse(responseCode = "400", description = "잘못된 요청 (URL 중복 등)")
+  })
+  public ResponseEntity<NodeDto.Response> createNode(
+      @Valid @RequestBody NodeDto.CreateRequest request) {
+    NodeDto.Response response = aiConfigService.createNode(request);
+    return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
-  @GetMapping("/music/nodes")
-  @Operation(summary = "음악 생성 노드 목록 조회", description = "현재 등록된 음악 생성 AI 노드 목록을 조회합니다.")
-  @ApiResponse(responseCode = "200", description = "음악 노드 목록 조회 성공")
-  public ResponseEntity<List<NodeDto.InfoResponse>> getMusicNodes() {
-    return ResponseEntity.ok(aiConfigService.getMusicNodes());
+  @GetMapping("/nodes")
+  @Operation(summary = "AI 노드 목록 조회", description = "등록된 모든 AI 노드 목록을 조회합니다.")
+  @ApiResponse(responseCode = "200", description = "AI 노드 목록 조회 성공")
+  public ResponseEntity<List<NodeDto.Response>> getAllNodes() {
+    List<NodeDto.Response> response = aiConfigService.getAllNodes();
+    return ResponseEntity.ok(response);
   }
 
-  @PostMapping("/image/nodes")
-  @Operation(summary = "이미지 생성 노드 추가", description = "새로운 이미지 생성 AI 노드를 추가합니다.")
-  @ApiResponse(responseCode = "200", description = "이미지 노드 추가 성공")
-  public ResponseEntity<Void> addImageNode(@RequestBody NodeDto.CreateRequest request, @AuthenticationPrincipal UserDetails user) {
-    aiConfigService.addImageNode(request, user);
-    return ResponseEntity.ok().build();
+  @PutMapping("/nodes/{nodeId}")
+  @Operation(summary = "AI 노드 수정", description = "기존 AI 노드의 정보를 수정합니다.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "AI 노드 수정 성공"),
+      @ApiResponse(responseCode = "404", description = "AI 노드를 찾을 수 없음"),
+      @ApiResponse(responseCode = "400", description = "잘못된 요청 (URL 중복 등)")
+  })
+  public ResponseEntity<NodeDto.Response> updateNode(
+      @Parameter(description = "노드 ID", required = true) @PathVariable Long nodeId,
+      @Valid @RequestBody NodeDto.UpdateRequest request) {
+    NodeDto.Response response = aiConfigService.updateNode(nodeId, request);
+    return ResponseEntity.ok(response);
   }
 
-  @PostMapping("/music/nodes")
-  @Operation(summary = "음악 생성 노드 추가", description = "새로운 음악 생성 AI 노드를 추가합니다.")
-  @ApiResponse(responseCode = "200", description = "음악 노드 추가 성공")
-  public ResponseEntity<Void> addMusicNode(@RequestBody NodeDto.CreateRequest request, @AuthenticationPrincipal UserDetails user) {
-    aiConfigService.addMusicNode(request, user);
-    return ResponseEntity.ok().build();
-  }
-
-  @DeleteMapping("/image/nodes/{url}")
-  @Operation(summary = "이미지 생성 노드 삭제", description = "등록된 이미지 생성 AI 노드를 삭제합니다.")
-  @ApiResponse(responseCode = "200", description = "이미지 노드 삭제 성공")
-  public ResponseEntity<Void> deleteImageNode(
-      @Parameter(description = "삭제할 노드의 URL", example = "http://localhost:8001") @PathVariable String url,
-      @AuthenticationPrincipal UserDetails user) {
-    aiConfigService.deleteImageNode(url, user);
-    return ResponseEntity.ok().build();
-  }
-
-  @DeleteMapping("/music/nodes/{url}")
-  @Operation(summary = "음악 생성 노드 삭제", description = "등록된 음악 생성 AI 노드를 삭제합니다.")
-  @ApiResponse(responseCode = "200", description = "음악 노드 삭제 성공")
-  public ResponseEntity<Void> deleteMusicNode(
-      @Parameter(description = "삭제할 노드의 URL", example = "http://localhost:8002") @PathVariable String url,
-      @AuthenticationPrincipal UserDetails user) {
-    aiConfigService.deleteMusicNode(url, user);
-    return ResponseEntity.ok().build();
+  @DeleteMapping("/nodes/{nodeId}")
+  @Operation(summary = "AI 노드 삭제", description = "특정 AI 노드를 삭제합니다.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "204", description = "AI 노드 삭제 성공"),
+      @ApiResponse(responseCode = "404", description = "AI 노드를 찾을 수 없음")
+  })
+  public ResponseEntity<Void> deleteNode(
+      @Parameter(description = "노드 ID", required = true) @PathVariable Long nodeId) {
+    aiConfigService.deleteNode(nodeId);
+    return ResponseEntity.noContent().build();
   }
 }
