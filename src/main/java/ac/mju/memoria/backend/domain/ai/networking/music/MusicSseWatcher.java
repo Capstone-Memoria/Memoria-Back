@@ -5,6 +5,7 @@ import ac.mju.memoria.backend.domain.ai.dto.MusicSseResponse;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
@@ -15,6 +16,7 @@ import okhttp3.sse.EventSourceListener;
 import okhttp3.sse.EventSources;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -28,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @RequiredArgsConstructor
+@Component
 public class MusicSseWatcher implements SseWatcher<MusicSseResponse> {
     private final OkHttpClient client = new OkHttpClient.Builder()
             .readTimeout(Duration.ofMinutes(3)).build();
@@ -38,6 +41,7 @@ public class MusicSseWatcher implements SseWatcher<MusicSseResponse> {
     private final Map<Node, EventSource> eventSources = new ConcurrentHashMap<>();
     private final ObjectMapper objectMapper;
 
+    @PostConstruct
     @Override
     public void init() {
         log.info("Starting MusicSSEWatcher");

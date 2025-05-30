@@ -71,6 +71,16 @@ public abstract class AbstractSyncNodePool<REQ, RES> implements NodePool<REQ, RE
     }
 
     /**
+     * 노드 풀에 포함된 모든 노드를 반환합니다.
+     *
+     * @return 노드 풀에 포함된 모든 노드 목록
+     */
+    @Override
+    public List<Node> getNodes() {
+        return nodes;
+    }
+
+    /**
      * 요청을 제출하고 즉시 Future를 반환합니다.
      * 요청은 큐에 추가되어 순차적으로 처리됩니다.
      *
@@ -79,7 +89,7 @@ public abstract class AbstractSyncNodePool<REQ, RES> implements NodePool<REQ, RE
      */
     @Override
     public Future<RES> submitRequest(REQ request) {
-        if(nodes.isEmpty()) {
+        if (nodes.isEmpty()) {
             throw new IllegalStateException("No available nodes to process the request");
         }
 
@@ -97,7 +107,7 @@ public abstract class AbstractSyncNodePool<REQ, RES> implements NodePool<REQ, RE
      */
     @Override
     public void submitRequest(REQ request, ResponseHandler<RES> responseHandler) {
-        if(nodes.isEmpty()) {
+        if (nodes.isEmpty()) {
             log.error("No available nodes to process the request");
             return;
         }

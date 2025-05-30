@@ -20,7 +20,6 @@ import java.util.concurrent.*;
 public abstract class AbstractAsyncNodePool<REQ, RES> implements NodePool<REQ, RES> {
     private final static int POLLING_INTERVAL_MS = 500; // 요청 큐를 폴링하는 간격 (밀리초 단위)
 
-
     private final List<Node> nodes = new ArrayList<>();
 
     private final Queue<NodePoolQueueItem<REQ, RES>> requestQueue = new ConcurrentLinkedQueue<>();
@@ -70,6 +69,16 @@ public abstract class AbstractAsyncNodePool<REQ, RES> implements NodePool<REQ, R
     @Override
     public void removeNode(@NonNull Node node) {
         nodes.remove(node);
+    }
+
+    /**
+     * 노드 풀에 포함된 모든 노드를 반환합니다.
+     *
+     * @return 노드 풀에 포함된 모든 노드 목록
+     */
+    @Override
+    public List<Node> getNodes() {
+        return nodes;
     }
 
     /**
