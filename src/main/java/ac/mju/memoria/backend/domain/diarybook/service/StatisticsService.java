@@ -75,7 +75,7 @@ public class StatisticsService {
 
     if (!diaries.isEmpty()) {
       String diaryEntries = diaries.stream()
-          .map(diary -> "제목: " + (diary.getTitle() != null ? diary.getTitle() : "(제목 없음)") + "\n내용: "
+          .map(diary -> "글쓴이: " + diary.getAuthor().getNickName() + "\n" + "제목: " + (diary.getTitle() != null ? diary.getTitle() : "(제목 없음)") + "\n내용: "
               + diary.getContent() + "\n")
           .collect(Collectors.joining("\n---\n"));
       String targetMonthStr = targetMonth.format(DateTimeFormatter.ofPattern("yyyy-MM"));

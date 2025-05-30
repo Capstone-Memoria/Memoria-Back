@@ -43,6 +43,7 @@ public interface EmotionWeatherAnalyzer {
 
       Guidelines for your analysis:
       -   Answer in Korean Language.
+      -   Do not directly mention the item of availableWeathers(like 'SUNNY', 'CLOUDY').
       -   Analyze all provided diary entries for the month to understand the overall emotional landscape.
       -   Identify dominant or recurring emotions, moods, and themes.
       -   Choose the single weather condition from the list `[{{availableWeathers}}]` that best metaphorically represents the collective emotional tone of the month's diaries.
