@@ -21,7 +21,7 @@ public class AiConfigService {
   private final ImageNodePool imageNodePool;
   private final MusicNodePool musicNodePool;
 
-  private final String ADMIN_KEY = "admin";
+  private final String ADMIN_KEY = "admin@test.com";
 
   public List<NodeDto.InfoResponse> getImageNodes() {
     return imageNodePool.getNodes().stream()
