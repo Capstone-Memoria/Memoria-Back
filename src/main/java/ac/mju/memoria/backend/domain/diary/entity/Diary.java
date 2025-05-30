@@ -71,6 +71,8 @@ public class Diary extends UserStampedEntity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private MusicFile musicFile;
 
+    private Boolean aiMusicEnabled;
+
     public void addImage(Image image) {
         this.images.add(image);
         image.setDiary(this);

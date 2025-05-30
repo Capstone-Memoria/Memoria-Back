@@ -117,6 +117,8 @@ public class DiaryDto {
         private Integer commentCount;
         @Schema(description = "리액션 개수")
         private Integer reactionCount;
+        @Schema(description = "AI 음악 생성 활성화 여부")
+        private Boolean aiMusicEnabled;
 
         public static DiaryResponse from(Diary diary) {
             return DiaryResponse.builder()
@@ -134,6 +136,7 @@ public class DiaryDto {
                                     map(FileDto.FileResponse::from)
                                     .collect(Collectors.toList()))
                     .musicFile(diary.getMusicFile() == null ? null : FileDto.FileResponse.from(diary.getMusicFile()))
+                    .aiMusicEnabled(diary.getAiMusicEnabled())
                     .commentCount(diary.getComments() == null ? 0 : diary.getComments().size())
                     .reactionCount(diary.getReactions() == null ? 0 : diary.getReactions().size())
                     .build();

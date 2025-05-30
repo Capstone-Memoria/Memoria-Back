@@ -58,6 +58,7 @@ public class DiaryService {
                 .emotion(requestDto.getEmotion())
                 .author(user)
                 .diaryBook(diaryBook)
+                .aiMusicEnabled(requestDto.getIsAIMusicEnabled())
                 .build();
 
         diaryBook.addDiary(diary);
