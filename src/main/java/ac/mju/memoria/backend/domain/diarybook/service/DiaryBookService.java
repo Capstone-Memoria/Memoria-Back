@@ -2,8 +2,10 @@ package ac.mju.memoria.backend.domain.diarybook.service;
 
 import ac.mju.memoria.backend.domain.diarybook.dto.DiaryBookDto;
 import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
+import ac.mju.memoria.backend.domain.diarybook.entity.UserDiaryBookPin;
 import ac.mju.memoria.backend.domain.diarybook.repository.DiaryBookQueryRepository;
 import ac.mju.memoria.backend.domain.diarybook.repository.DiaryBookRepository;
+import ac.mju.memoria.backend.domain.diarybook.repository.UserDiaryBookPinRepository;
 import ac.mju.memoria.backend.domain.file.entity.CoverImageFile;
 import ac.mju.memoria.backend.domain.file.handler.FileSystemHandler;
 import ac.mju.memoria.backend.domain.file.repository.AttachedFileRepository;
@@ -30,16 +32,18 @@ public class DiaryBookService {
     private final UserRepository userRepository;
     private final AttachedFileRepository attachedFileRepository;
     private final FileSystemHandler fileSystemHandler;
+    private final UserDiaryBookPinRepository userDiaryBookPinRepository;
 
     @Transactional
-    public DiaryBookDto.DiaryBookResponse createDiaryBook(DiaryBookDto.DiaryBookCreateRequest request, UserDetails userDetails) {
+    public DiaryBookDto.DiaryBookResponse createDiaryBook(DiaryBookDto.DiaryBookCreateRequest request,
+            UserDetails userDetails) {
         String userEmail = userDetails.getKey();
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RestException(ErrorCode.AUTH_USER_NOT_FOUND));
 
         DiaryBook diaryBook = request.toEntity(user);
 
-        if(Objects.nonNull(request.getCoverImage())) {
+        if (Objects.nonNull(request.getCoverImage())) {
             CoverImageFile coverImage = CoverImageFile.from(request.getCoverImage());
             diaryBook.setCoverImageFile(coverImage);
             coverImage.setDiaryBook(diaryBook);
@@ -49,36 +53,45 @@ public class DiaryBookService {
         user.addOwnedDiaryBook(diaryBook);
         DiaryBook saved = diaryBookRepository.save(diaryBook);
 
-        return DiaryBookDto.DiaryBookResponse.from(saved);
+        return DiaryBookDto.DiaryBookResponse.from(saved, false);
     }
 
     public DiaryBookDto.DiaryBookResponse findDiaryBook(Long diaryBookId, UserDetails userDetails) {
         DiaryBook diaryBook = diaryBookQueryRepository.findByIdAndUserEmail(diaryBookId, userDetails.getKey())
                 .orElseThrow(() -> new RestException(ErrorCode.DIARYBOOK_NOT_FOUND));
+        boolean isPinned = userDiaryBookPinRepository.findByUserEmailAndDiaryBookId(userDetails.getKey(), diaryBookId)
+                .map(UserDiaryBookPin::isPinned)
+                .orElse(false);
 
-        return DiaryBookDto.DiaryBookResponse.from(diaryBook);
+        return DiaryBookDto.DiaryBookResponse.from(diaryBook, isPinned);
     }
 
     public Page<DiaryBookDto.DiaryBookResponse> getMyDiaryBooks(UserDetails userDetails, Pageable pageable) {
-        Sort primarySort = Sort.by(Sort.Direction.DESC, "isPinned");
-        Sort secondarySort = pageable.getSort();
-        Sort finalSort = primarySort.and(secondarySort);
-        Pageable finalPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), finalSort);
+        Page<DiaryBook> diaryBookPage = diaryBookQueryRepository.findByUserEmailWithDetails(userDetails.getKey(),
+                pageable);
 
-        Page<DiaryBook> diaryBookPage = diaryBookQueryRepository.findByUserEmailWithDetails(userDetails.getKey(), finalPageable);
-
-        return diaryBookPage.map(DiaryBookDto.DiaryBookResponse::from);
+        return diaryBookPage.map(diaryBook -> {
+            boolean isPinned = userDiaryBookPinRepository
+                    .findByUserEmailAndDiaryBookId(userDetails.getKey(), diaryBook.getId())
+                    .map(UserDiaryBookPin::isPinned)
+                    .orElse(false);
+            return DiaryBookDto.DiaryBookResponse.from(diaryBook, isPinned);
+        });
     }
 
     @Transactional
-    public DiaryBookDto.DiaryBookResponse updateDiaryBook(DiaryBookDto.DiaryBookUpdateRequest request, Long diaryBookId, UserDetails userDetails) {
+    public DiaryBookDto.DiaryBookResponse updateDiaryBook(DiaryBookDto.DiaryBookUpdateRequest request, Long diaryBookId,
+            UserDetails userDetails) {
         DiaryBook diaryBook = diaryBookQueryRepository.findByIdAndUserEmail(diaryBookId, userDetails.getKey())
                 .orElseThrow(() -> new RestException(ErrorCode.DIARYBOOK_NOT_FOUND));
 
         updateCoverImageIfNotNull(request, diaryBook);
         request.applyTo(diaryBook);
 
-        return DiaryBookDto.DiaryBookResponse.from(diaryBook);
+        boolean isPinned = userDiaryBookPinRepository.findByUserEmailAndDiaryBookId(userDetails.getKey(), diaryBookId)
+                .map(UserDiaryBookPin::isPinned)
+                .orElse(false);
+        return DiaryBookDto.DiaryBookResponse.from(diaryBook, isPinned);
     }
 
     private void updateCoverImageIfNotNull(DiaryBookDto.DiaryBookUpdateRequest request, DiaryBook diaryBook) {
@@ -99,6 +112,33 @@ public class DiaryBookService {
         DiaryBook diaryBook = diaryBookQueryRepository.findByIdAndUserEmail(diaryBookId, userDetails.getKey())
                 .orElseThrow(() -> new RestException(ErrorCode.DIARYBOOK_NOT_FOUND));
 
+        userDiaryBookPinRepository.findByUserEmailAndDiaryBookId(userDetails.getKey(), diaryBookId)
+                .ifPresent(userDiaryBookPinRepository::delete);
+
         diaryBookRepository.delete(diaryBook);
+    }
+
+    @Transactional
+    public DiaryBookDto.DiaryBookResponse togglePin(Long diaryBookId, UserDetails userDetails) {
+        User user = userRepository.findByEmail(userDetails.getKey())
+                .orElseThrow(() -> new RestException(ErrorCode.AUTH_USER_NOT_FOUND));
+        DiaryBook diaryBook = diaryBookRepository.findById(diaryBookId)
+                .orElseThrow(() -> new RestException(ErrorCode.DIARYBOOK_NOT_FOUND));
+
+        UserDiaryBookPin userDiaryBookPin = userDiaryBookPinRepository
+                .findByUserEmailAndDiaryBookId(user.getEmail(), diaryBook.getId())
+                .orElseGet(() -> {
+                    UserDiaryBookPin newPin = UserDiaryBookPin.builder()
+                            .user(user)
+                            .diaryBook(diaryBook)
+                            .isPinned(false)
+                            .build();
+                    return userDiaryBookPinRepository.save(newPin);
+                });
+
+        userDiaryBookPin.setPinned(!userDiaryBookPin.isPinned());
+        userDiaryBookPinRepository.save(userDiaryBookPin);
+
+        return DiaryBookDto.DiaryBookResponse.from(diaryBook, userDiaryBookPin.isPinned());
     }
 }

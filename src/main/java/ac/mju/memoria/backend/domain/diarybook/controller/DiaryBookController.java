@@ -81,4 +81,15 @@ public class DiaryBookController {
         diaryBookService.deleteDiaryBook(id, userDetails);
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/{id}/pin")
+    @Operation(summary = "다이어리 북 즐겨찾기 토글", description = "특정 다이어리 북의 즐겨찾기 상태를 토글합니다.")
+    @ApiResponse(responseCode = "200", description = "즐겨찾기 토글 성공")
+    public ResponseEntity<DiaryBookDto.DiaryBookResponse> togglePinDiaryBook(
+            @Parameter(description = "다이어리 북 ID") @PathVariable Long id,
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails) {
+
+        DiaryBookDto.DiaryBookResponse diaryBook = diaryBookService.togglePin(id, userDetails);
+        return ResponseEntity.ok(diaryBook);
+    }
 }

@@ -42,8 +42,6 @@ public class DiaryBook extends UserStampedEntity {
 
     private String title;
 
-    private boolean isPinned;
-
     private String spineColor;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -73,6 +71,10 @@ public class DiaryBook extends UserStampedEntity {
     @Builder.Default
     private List<AICharacter> characters = new ArrayList<>();
 
+    @OneToMany(mappedBy = "diaryBook", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<UserDiaryBookPin> userDiaryBookPins = new ArrayList<>();
+
     public boolean isAdmin(User user) {
         if (owner.getEmail().equals(user.getEmail())) {
             return true;
@@ -82,15 +84,15 @@ public class DiaryBook extends UserStampedEntity {
     }
 
     public boolean isMember(User user) {
-        return members.stream().anyMatch(member -> member.getUser().getEmail().equals(user.getEmail())) || isAdmin(user);
+        return members.stream().anyMatch(member -> member.getUser().getEmail().equals(user.getEmail()))
+                || isAdmin(user);
     }
 
     private boolean isMemberAdmin(User user) {
         return members.stream()
                 .anyMatch(
-                        member ->
-                                member.getUser().getEmail().equals(user.getEmail()) && member.getPermission() == MemberPermission.ADMIN
-                );
+                        member -> member.getUser().getEmail().equals(user.getEmail())
+                                && member.getPermission() == MemberPermission.ADMIN);
     }
 
     public void addDiary(Diary diary) {

@@ -4,6 +4,7 @@ import ac.mju.memoria.backend.common.auditor.TimeStampedEntity;
 import ac.mju.memoria.backend.domain.diary.entity.Comment;
 import ac.mju.memoria.backend.domain.diary.entity.Diary;
 import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
+import ac.mju.memoria.backend.domain.diarybook.entity.UserDiaryBookPin;
 import ac.mju.memoria.backend.domain.invitation.entity.Invitation;
 import jakarta.persistence.*;
 import lombok.*;
@@ -15,7 +16,8 @@ import java.util.List;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter @Setter
+@Getter
+@Setter
 @SuperBuilder
 @Table(name = "users")
 public class User extends TimeStampedEntity {
@@ -40,6 +42,10 @@ public class User extends TimeStampedEntity {
     @Builder.Default
     private List<Comment> comments = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<UserDiaryBookPin> diaryBookPins = new ArrayList<>();
+
     public void addOwnedDiaryBook(DiaryBook diaryBook) {
         this.ownedDiaryBooks.add(diaryBook);
         diaryBook.setOwner(this);
@@ -54,5 +60,6 @@ public class User extends TimeStampedEntity {
         ownedDiaryBooks = new ArrayList<>(ownedDiaryBooks);
         ownedDiaries = new ArrayList<>(ownedDiaries);
         invitations = new ArrayList<>(invitations);
+        diaryBookPins = new ArrayList<>(diaryBookPins);
     }
 }

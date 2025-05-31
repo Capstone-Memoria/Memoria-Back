@@ -1,6 +1,5 @@
 package ac.mju.memoria.backend.domain.diarybook.dto;
 
-
 import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
 import ac.mju.memoria.backend.domain.diarybook.entity.stickers.AbstractSticker;
 import ac.mju.memoria.backend.domain.file.dto.FileDto;
@@ -18,8 +17,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-
 
 public class DiaryBookDto {
 
@@ -55,19 +52,14 @@ public class DiaryBookDto {
     public static class DiaryBookUpdateRequest {
         @Schema(description = "수정할 다이어리 북 제목", example = "새로운 추억 앨범")
         private String title;
-        @Schema(description = "다이어리 북 고정 여부", example = "true")
-        private Boolean isPinned;
         @Schema(description = "수정할 다이어리 북 커버 이미지 파일")
         private MultipartFile coverImage;
         @Schema(description = "수정할 다이어리 북 책등 색상", example = "#FF5733")
         private String spineColor;
 
         public void applyTo(DiaryBook diaryBook) {
-            if(Objects.nonNull(title)){
+            if (Objects.nonNull(title)) {
                 diaryBook.setTitle(title);
-            }
-            if (Objects.nonNull(isPinned)) {
-                diaryBook.setPinned(isPinned);
             }
             if (Objects.nonNull(spineColor)) {
                 diaryBook.setSpineColor(spineColor);
@@ -107,10 +99,14 @@ public class DiaryBookDto {
         private Integer memberCount;
 
         public static DiaryBookResponse from(DiaryBook diaryBook) {
+            return from(diaryBook, false);
+        }
+
+        public static DiaryBookResponse from(DiaryBook diaryBook, boolean isPinned) {
             return DiaryBookResponse.builder()
                     .id(diaryBook.getId())
                     .title(diaryBook.getTitle())
-                    .isPinned(diaryBook.isPinned())
+                    .isPinned(isPinned)
                     .spineColor(diaryBook.getSpineColor())
                     .createdAt(diaryBook.getCreatedAt())
                     .lastModifiedAt(diaryBook.getLastModifiedAt())
@@ -120,8 +116,7 @@ public class DiaryBookDto {
                     .coverImage(FileDto.FileResponse.from(diaryBook.getCoverImageFile()))
                     .stickers(
                             diaryBook.getAbstractStickers().stream()
-                            .map(StickerDto.AbstractResponse::from).toList()
-                    )
+                                    .map(StickerDto.AbstractResponse::from).toList())
                     .memberCount(diaryBook.getMembers() == null ? 1 : diaryBook.getMembers().size() + 1) // 소유자 포함
                     .build();
         }
