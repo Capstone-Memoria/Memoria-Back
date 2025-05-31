@@ -50,7 +50,7 @@ public class ReactionService {
             reactionRepository.delete(toModify);
             return null;
         } else {
-            if (!toModify.getId().getDiary().getAuthor().equals(user)
+            if (!toModify.getId().getDiary().getAuthor().getEmail().equals(user.getEmail())
                     && toModify.getType() != request.getReactionType()) {
                 shouldPublishEvent = true;
             }

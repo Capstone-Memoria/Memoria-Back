@@ -47,7 +47,7 @@ public class CommentService {
 
         Comment saved = commentRepository.save(toSave);
 
-        if (saved.getParent() == null && !saved.getDiary().getAuthor().equals(userDetails.getUser())) {
+        if (saved.getParent() == null && !saved.getDiary().getAuthor().getEmail().equals(userDetails.getUser().getEmail())) {
             eventPublisher.publishEvent(new NewCommentEvent(saved.getId()));
         }
 
