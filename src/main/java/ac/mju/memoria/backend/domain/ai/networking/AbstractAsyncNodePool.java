@@ -82,6 +82,24 @@ public abstract class AbstractAsyncNodePool<REQ, RES> implements NodePool<REQ, R
     }
 
     /**
+     * 현재 요청 큐의 크기를 반환합니다.
+     *
+     * @return 현재 큐에 대기 중인 요청의 수
+     */
+    public int getRequestQueueSize() {
+        return requestQueue.size();
+    }
+
+    /**
+     * 현재 처리 중인 작업의 수를 반환합니다.
+     *
+     * @return 현재 처리 중인 작업의 수
+     */
+    public int getPendingJobsCount() {
+        return pendingJobs.size();
+    }
+
+    /**
      * 요청을 제출하고 즉시 Future를 반환합니다.
      * 응답은 Future를 통해 비동기적으로 받을 수 있습니다.
      *

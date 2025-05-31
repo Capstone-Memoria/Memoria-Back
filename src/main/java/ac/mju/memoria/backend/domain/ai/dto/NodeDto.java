@@ -73,4 +73,18 @@ public class NodeDto {
           .build();
     }
   }
+
+  @Getter
+  @Builder
+  public static class QueueStatusResponse {
+    private final int imageNodeQueueSize;
+    private final int musicNodeQueueSize;
+    private final int musicNodePendingJobsCount;
+
+    public QueueStatusResponse(int imageNodeQueueSize, int musicNodeQueueSize, int musicNodePendingJobsCount) {
+      this.imageNodeQueueSize = imageNodeQueueSize;
+      this.musicNodeQueueSize = musicNodeQueueSize;
+      this.musicNodePendingJobsCount = musicNodePendingJobsCount;
+    }
+  }
 }

@@ -67,4 +67,14 @@ public class AIConfigController {
     aiConfigService.deleteNode(nodeId);
     return ResponseEntity.noContent().build();
   }
+
+  @GetMapping("/nodes/queue-status")
+  @Operation(summary = "AI 노드 큐 상태 조회", description = "Image 및 Music 노드 풀의 현재 큐 상태를 조회합니다.")
+  @ApiResponse(responseCode = "200", description = "AI 노드 큐 상태 조회 성공")
+  public ResponseEntity<NodeDto.QueueStatusResponse> getQueueStatus() {
+    int imageQueueSize = aiConfigService.getImageNodeQueueSize();
+    int musicQueueSize = aiConfigService.getMusicNodeQueueSize();
+    int musicPendingJobs = aiConfigService.getMusicNodePendingJobsCount();
+    return ResponseEntity.ok(new NodeDto.QueueStatusResponse(imageQueueSize, musicQueueSize, musicPendingJobs));
+  }
 }

@@ -81,6 +81,15 @@ public abstract class AbstractSyncNodePool<REQ, RES> implements NodePool<REQ, RE
     }
 
     /**
+     * 현재 요청 큐의 크기를 반환합니다.
+     *
+     * @return 현재 큐에 대기 중인 요청의 수
+     */
+    public int getRequestQueueSize() {
+        return requestQueue.size();
+    }
+
+    /**
      * 요청을 제출하고 즉시 Future를 반환합니다.
      * 요청은 큐에 추가되어 순차적으로 처리됩니다.
      *

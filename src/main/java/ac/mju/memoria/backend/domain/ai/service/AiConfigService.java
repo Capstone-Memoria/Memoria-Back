@@ -121,4 +121,19 @@ public class AiConfigService {
     return aiNodeRepository.findById(nodeId)
         .orElseThrow(() -> new RestException(ErrorCode.AI_NODE_NOT_FOUND));
   }
+
+  @Transactional(readOnly = true)
+  public int getImageNodeQueueSize() {
+    return imageNodePool.getRequestQueueSize();
+  }
+
+  @Transactional(readOnly = true)
+  public int getMusicNodeQueueSize() {
+    return musicNodePool.getRequestQueueSize();
+  }
+
+  @Transactional(readOnly = true)
+  public int getMusicNodePendingJobsCount() {
+    return musicNodePool.getPendingJobsCount();
+  }
 }
