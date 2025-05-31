@@ -3,10 +3,6 @@ spring:
     active: remote
   main:
     allow-bean-definition-overriding: true
-  data:
-    web:
-      pageable:
-        one-indexed-parameters: true
   servlet:
     multipart:
       max-file-size: 10MB
