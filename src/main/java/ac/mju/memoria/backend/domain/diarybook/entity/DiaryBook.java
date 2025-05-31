@@ -52,7 +52,7 @@ public class DiaryBook extends UserStampedEntity {
     @JoinColumn(name = "coverImageFile_id")
     private CoverImageFile coverImageFile;
 
-    @OneToMany(mappedBy = "diaryBook", orphanRemoval = true)
+    @OneToMany(mappedBy = "diaryBook")
     @Builder.Default
     private List<AbstractSticker> abstractStickers = new ArrayList<>();
 
@@ -60,22 +60,22 @@ public class DiaryBook extends UserStampedEntity {
     @Builder.Default
     private List<DiaryBookMember> members = new ArrayList<>();
 
-    @OneToMany(mappedBy = "diaryBook", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "diaryBook", cascade = CascadeType.ALL)
     private List<Invitation> invitations = new ArrayList<>();
 
-    @OneToMany(mappedBy = "diaryBook", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "diaryBook", cascade = CascadeType.ALL)
     @Builder.Default
     private List<Diary> diaries = new ArrayList<>();
 
-    @OneToMany(mappedBy = "diaryBook", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "diaryBook", cascade = CascadeType.ALL)
     @Builder.Default
     private List<AICharacter> characters = new ArrayList<>();
 
-    @OneToMany(mappedBy = "diaryBook", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "diaryBook", cascade = CascadeType.ALL)
     @Builder.Default
     private List<UserDiaryBookPin> userDiaryBookPins = new ArrayList<>();
 
-    @OneToMany(mappedBy = "diaryBook", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "diaryBook", cascade = CascadeType.ALL)
     @Builder.Default
     private List<DiaryBookStatistics> statistics = new ArrayList<>();
 

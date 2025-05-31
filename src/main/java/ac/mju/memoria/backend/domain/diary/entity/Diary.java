@@ -52,22 +52,22 @@ public class Diary extends UserStampedEntity {
     @JoinColumn(name = "author_email")
     private User author;
 
-    @OneToMany(mappedBy = "diary", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "diary", cascade = CascadeType.ALL)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @Builder.Default
     private List<Image> images = new ArrayList<>();
 
-    @OneToMany(mappedBy = "diary", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "diary", cascade = CascadeType.ALL)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @Builder.Default
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "id.diary", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "id.diary", cascade = CascadeType.ALL)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @Builder.Default
     private List<Reaction> reactions = new ArrayList<>();
 
-    @OneToOne(mappedBy = "diary", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "diary", cascade = CascadeType.ALL)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private MusicFile musicFile;
 

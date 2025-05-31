@@ -29,7 +29,6 @@ public class DiaryBookDto {
         @NotBlank(message = "제목을 입력해 주세요")
         @Schema(description = "다이어리 북 제목", example = "우리의 추억 앨범")
         private String title;
-        // @NotNull(message = "커버이미지를 업로드해 주세요") TODO: 추후 활성화
         @Schema(description = "다이어리 북 커버 이미지 파일")
         private MultipartFile coverImage;
         @Schema(description = "다이어리 북 책등 색상", example = "#FF5733")

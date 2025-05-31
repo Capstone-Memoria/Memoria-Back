@@ -26,23 +26,23 @@ public class User extends TimeStampedEntity {
     private String nickName;
     private String password;
 
-    @OneToMany(mappedBy = "owner", orphanRemoval = true)
+    @OneToMany(mappedBy = "owner")
     @Builder.Default
     private List<DiaryBook> ownedDiaryBooks = new ArrayList<>();
 
-    @OneToMany(mappedBy = "inviteBy", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "inviteBy", cascade = CascadeType.ALL)
     @Builder.Default
     private List<Invitation> invitations = new ArrayList<>();
 
-    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL)
     @Builder.Default
     private List<Diary> ownedDiaries = new ArrayList<>();
 
-    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
     @Builder.Default
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @Builder.Default
     private List<UserDiaryBookPin> diaryBookPins = new ArrayList<>();
 

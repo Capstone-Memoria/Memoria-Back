@@ -45,6 +45,7 @@ public class AICommentService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Async
     public void generateCommentAsync(AiCommentNeededEvent event) {
         try {
             Diary found = diaryRepository.findById(event.getDiaryId())
