@@ -2,6 +2,7 @@ package ac.mju.memoria.backend.domain.ai.networking.image;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
@@ -29,7 +30,11 @@ import okhttp3.Response;
 @Component
 @RequiredArgsConstructor
 public class ImageNodePool extends AbstractSyncNodePool<ImageDto.InternalCreateRequest, String> {
-    private final OkHttpClient client = new OkHttpClient();
+    private final OkHttpClient client = new OkHttpClient.Builder()
+            .callTimeout(30, TimeUnit.SECONDS)
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .build();
 
     public Optional<DBNode> getNodeById(Long id) {
         return getNodes().stream()
