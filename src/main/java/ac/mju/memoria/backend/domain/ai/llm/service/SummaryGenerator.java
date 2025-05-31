@@ -48,7 +48,11 @@ public interface SummaryGenerator {
 
         Nature: A concise, single Korean sentence.
         Purpose: To capture the most prominent characteristic, overall impression, or a defining feature of the diary entries as a whole (e.g., its primary thematic focus, prevailing writing tone, or typical level of intimacy). If entries are from multiple people, it should reflect a collective characteristic or a notable commonality.
-        Example of Korean content for oneLineSummary: "일상의 소소한 성찰과 따뜻한 감성이 묻어나는 진솔한 기록들"
+        Example of Korean content for oneLineSummary: "친구들과 도란도란 일기장", "일상속 소중한 순간들", "사랑하는 사람과 소중한 순간"
+        oneLineSummary의 출력은 짧고 간결한 명사로 끝나는 문장이어야 한다.
+        
+        좋은 예: "일상속 소중한 순간들"
+        나쁜 예: "이 일기 모음은 일상의 소소한 성찰과 따뜻한 감성이 묻어나는 진솔한 기록들입니다."
         (d) longSummary Specifications:
 
         Nature: A more detailed paragraph (or a few short paragraphs) in Korean.
