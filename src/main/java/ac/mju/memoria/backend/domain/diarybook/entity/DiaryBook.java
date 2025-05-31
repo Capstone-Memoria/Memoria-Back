@@ -75,6 +75,10 @@ public class DiaryBook extends UserStampedEntity {
     @Builder.Default
     private List<UserDiaryBookPin> userDiaryBookPins = new ArrayList<>();
 
+    @OneToMany(mappedBy = "diaryBook", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<DiaryBookStatistics> statistics = new ArrayList<>();
+
     public boolean isAdmin(User user) {
         if (owner.getEmail().equals(user.getEmail())) {
             return true;

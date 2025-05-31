@@ -7,6 +7,8 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.YearMonth;
 import java.util.List;
@@ -36,8 +38,9 @@ public class DiaryBookStatistics {
   @ElementCollection
   private List<UserRanking> attendanceRanking; // 사용자 출석 랭킹 (UserRanking으로 변경)
 
-  @OneToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "diary_book_id")
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private DiaryBook diaryBook;
 
   @Builder
