@@ -74,12 +74,13 @@ public enum ErrorCode {
 
     // DiaryBookMember
     MEMBER_ALREADY_ADMIN(400, "이미 관리자인 멤버입니다."),
+    MEMBER_NOT_ADMIN(400, "일반 멤버입니다"),
 
     // Sticker
     STICKER_IMAGE_NOT_FOUND(404, "임시 업로드된 스티커 이미지를 찾을 수 없습니다."),
 
     // Other
-    INTERNAL_SERVER_ERROR(500, "오류가 발생했습니다.");
+    INTERNAL_SERVER_ERROR(500, "오류가 발생했습니다."), ;
 
     private final int statusCode;
     private final String message;

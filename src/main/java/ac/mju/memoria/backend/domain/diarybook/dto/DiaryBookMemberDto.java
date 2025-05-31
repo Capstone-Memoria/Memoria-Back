@@ -42,11 +42,21 @@ public class DiaryBookMemberDto {
     @AllArgsConstructor
     @Data
     @Builder
-    @Schema(description = "관리자 변경 요청 DTO")
+    @Schema(description = "관리자 추가 요청 DTO")
     public static class ChangeAdminRequest {
-        @Schema(description = "관리자 변경 대상 멤버 ID")
+        @Schema(description = "관리자 추가 대상 멤버 ID")
         @NotNull(message = "현재 관리자 멤버 Id를 입력하세요")
         private Long newAdminId;
+    }
+
+    @AllArgsConstructor
+    @Data
+    @Builder
+    @Schema(description = "관리자 제거 요청 DTO")
+    public static class RemoveAdminRequest {
+        @Schema(description = "관리자 제거 대상 멤버 ID")
+        @NotNull(message = "현재 관리자 멤버 Id를 입력하세요")
+        private Long toRemoveId;
     }
 
 }

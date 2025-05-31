@@ -83,4 +83,25 @@ public class DiaryBookMemberService {
 
         return DiaryBookMemberDto.MemberResponse.from(newAdminMember);
     }
+
+    @Transactional
+    public DiaryBookMemberDto.MemberResponse removeAdmin(Long diaryBookId, UserDetails userDetails, DiaryBookMemberDto.RemoveAdminRequest request) {
+        DiaryBook diaryBook = diaryBookQueryRepository.findByIdAndUserEmail(diaryBookId, userDetails.getKey())
+                .orElseThrow(() -> new RestException(ErrorCode.DIARYBOOK_NOT_FOUND));
+
+        if (!diaryBook.getOwner().getEmail().equals(userDetails.getKey())) {
+            throw new RestException(ErrorCode.AUTH_FORBIDDEN);
+        }
+
+        DiaryBookMember toRemoveMember = diaryBookMemberRepository.findById(request.getToRemoveId())
+                .orElseThrow(() -> new RestException(ErrorCode.MEMBER_NOT_FOUND));
+
+        if (toRemoveMember.getPermission() != MemberPermission.ADMIN) {
+            throw new RestException(ErrorCode.MEMBER_NOT_ADMIN);
+        }
+
+        toRemoveMember.setPermission(MemberPermission.MEMBER);
+
+        return DiaryBookMemberDto.MemberResponse.from(toRemoveMember);
+    }
 }

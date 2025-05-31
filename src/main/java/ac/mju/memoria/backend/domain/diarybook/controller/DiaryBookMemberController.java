@@ -55,5 +55,14 @@ public class DiaryBookMemberController {
         return ResponseEntity.ok(diaryBookMemberService.addAdmin(id, userDetails, request));
     }
 
-
+    @PostMapping("/remove-admin")
+    @Operation(summary = "다이어리 북 관리자 강등", description = "다이어리 북 소유자가 특정 관리자를 멤버로 강등시킵니다.")
+    @ApiResponse(responseCode = "200", description = "관리자 강등 성공")
+    public ResponseEntity<DiaryBookMemberDto.MemberResponse> removeAdmin(
+            @Parameter(description = "다이어리 북 Id") @PathVariable Long id,
+            @Valid @RequestBody DiaryBookMemberDto.RemoveAdminRequest request,
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        return ResponseEntity.ok(diaryBookMemberService.removeAdmin(id, userDetails, request));
+    }
 }
