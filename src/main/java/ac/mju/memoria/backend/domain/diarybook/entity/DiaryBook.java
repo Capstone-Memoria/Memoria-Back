@@ -48,7 +48,7 @@ public class DiaryBook extends UserStampedEntity {
     @JoinColumn(name = "owner_id")
     private User owner;
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "coverImageFile_id")
     private CoverImageFile coverImageFile;
 

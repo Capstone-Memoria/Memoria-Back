@@ -96,14 +96,19 @@ public class DiaryBookService {
 
     private void updateCoverImageIfNotNull(DiaryBookDto.DiaryBookUpdateRequest request, DiaryBook diaryBook) {
         if (Objects.nonNull(request.getCoverImage())) {
-            attachedFileRepository.delete(diaryBook.getCoverImageFile());
+            var toDelete = diaryBook.getCoverImageFile();
+            if(Objects.nonNull(toDelete)) {
+                diaryBook.setCoverImageFile(null);
+                attachedFileRepository.delete(toDelete);
+                fileSystemHandler.deleteFile(toDelete);
+            }
 
             CoverImageFile newCoverImage = CoverImageFile.from(request.getCoverImage());
-            diaryBook.setCoverImageFile(newCoverImage);
-            newCoverImage.setDiaryBook(diaryBook);
+            CoverImageFile savedNewCoverImage = attachedFileRepository.save(newCoverImage);
+            diaryBook.setCoverImageFile(savedNewCoverImage);
+            savedNewCoverImage.setDiaryBook(diaryBook);
 
-            fileSystemHandler.saveFile(request.getCoverImage(), newCoverImage);
-            fileSystemHandler.deleteFile(diaryBook.getCoverImageFile());
+            fileSystemHandler.saveFile(request.getCoverImage(), savedNewCoverImage);
         }
     }
 
