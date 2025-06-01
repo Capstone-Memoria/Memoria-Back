@@ -25,7 +25,7 @@ public class MusicDto {
 
         public static CreateRequest from(String genre) {
             return CreateRequest.builder()
-                    .genre_txt(genre)
+                    .genre_txt(genre + "\n")
                     .lyrics_txt("[chorus]\n\n\n\n\n\n[chorus]\n\n\n\n\n\n")
                     .build();
         }

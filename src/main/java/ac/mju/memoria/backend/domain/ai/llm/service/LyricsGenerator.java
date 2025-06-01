@@ -66,10 +66,6 @@ public interface LyricsGenerator {
                 Every dream you chase, I'm reaching for the light
                 You can't fight this feeling now
                 I won't back down
-                I'm the whisper in the wind, the shadow by your side
-                The warmth you feel within when you can't hide
-                You know you can't deny it now
-                I won't back down
                 ```
                 
                 *Example 2:*
