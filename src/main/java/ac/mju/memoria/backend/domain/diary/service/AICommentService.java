@@ -78,6 +78,7 @@ public class AICommentService {
                     found.getTitle(),
                     found.getContent(),
                     character.getName(),
+                    found.getAuthor().getNickName(),
                     character.getFeature(),
                     character.getAccent()
             );

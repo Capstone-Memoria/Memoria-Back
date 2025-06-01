@@ -68,6 +68,7 @@ public interface CommentGenerator {
                 """)
         @UserMessage("""
                                 Diary Title: {{diaryTitle}}
+                                User Name: {{userName}}
                                 --Diary Content--
                                 {{diaryContent}}
                         """)
@@ -75,6 +76,7 @@ public interface CommentGenerator {
                         @V("diaryTitle") String diaryTitle,
                         @V("diaryContent") String diaryContent,
                         @V("characterName") String characterName,
+                        @V("userName") String userName,
                         @V("characterFeature") String characterFeature,
                         @V("characterAccent") String characterAccent);
 }
