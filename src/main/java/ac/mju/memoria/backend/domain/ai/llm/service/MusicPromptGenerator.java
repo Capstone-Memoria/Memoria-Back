@@ -30,8 +30,8 @@ public interface MusicPromptGenerator {
           ### Output Examples:
           -   `inspiring female uplifting pop airy vocal electronic bright vocal vocal`
           -   `female blues airy vocal bright vocal piano sad romantic guitar jazz`
-          -   `Bass Metalcore Thrash Metal Furious bright vocal male Angry aggressive vocal Guitar`
-      
+          -   `Pop Folk Happy Uplifting acoustic guitar female airy vocal bright vocal`
+          -   `female airy vocal bright vocal piano sad romantic guitar pop`
           ## Tag Selection
           You **MUST** construct the output tag string by selecting and combining tags exclusively from the following predefined YAML list. Ensure that your selections accurately capture the essence of the input diary entry.
           consider popular music tags as main options
@@ -63,6 +63,12 @@ public interface MusicPromptGenerator {
             Diary Content: "감미로운 음악이 흐르고, 여성 보컬의 노래 실력도 인상깊었다."
           Output:
             "Jazz vocal romantic female sweet vocal"
+          2
+            Inputs:
+                Diary Title: "좋은 날씨의 하루"
+                Diary Content: "오늘은 기분 좋은 날씨였고, 산책도 하니 정말 행복했다."
+            Output:
+              "inspiring female uplifting pop airy vocal electronic bright vocal vocal"
       """)
   @UserMessage("""
           # Diary Title: {{title}}
