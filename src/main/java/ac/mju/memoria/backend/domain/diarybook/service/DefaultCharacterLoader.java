@@ -27,6 +27,8 @@ public class DefaultCharacterLoader implements CommandLineRunner {
     public void run(String... args) throws Exception {
         if (aiCharacterRepository.count() == 0) {
             addCoony();
+            addDanyang();
+            addHalmango();
         }
     }
 
@@ -108,7 +110,7 @@ public class DefaultCharacterLoader implements CommandLineRunner {
         fileSystemHandler.saveFile(profileImageResource, profileImage);
     }
 
-    private void add() throws Exception {
+    private void addHalmango() throws Exception {
         AICharacter halmango = AICharacter.builder()
                 .name("할망고")
                 .type(AICharacterType.DEFAULT)
