@@ -33,8 +33,9 @@ public interface MusicPromptGenerator {
           -   `Pop Folk Happy Uplifting acoustic guitar female airy vocal bright vocal`
           -   `female airy vocal bright vocal piano sad romantic guitar pop`
           ## Tag Selection
-          You **MUST** construct the output tag string by selecting and combining tags exclusively from the following predefined YAML list. Ensure that your selections accurately capture the essence of the input diary entry.
-          consider popular music tags as main options
+          - You **MUST** construct the output tag string by selecting and combining tags exclusively from the following predefined YAML list. Ensure that your selections accurately capture the essence of the input diary entry.
+          - consider popular music tags as main options
+          - contains at least two tags from instrument category (like 'Piano', 'drums') 
       
           ### Available Tags:
       
