@@ -34,6 +34,7 @@ public interface MusicPromptGenerator {
       
           ## Tag Selection
           You **MUST** construct the output tag string by selecting and combining tags exclusively from the following predefined YAML list. Ensure that your selections accurately capture the essence of the input diary entry.
+          consider popular music tags as main options
       
           ### Available Tags:
       
@@ -54,6 +55,14 @@ public interface MusicPromptGenerator {
             timbre: [
               "bright vocal", "full vocal", "airy vocal", "clear vocal", "mellow vocal", "dark vocal", "rich vocal", "reverb vocal", "light vocal", "crisp vocal", "broad vocal", "powerful vocal", "piercing vocal", "high-pitched vocal", "bass vocal", "deep vocal", "not applicable vocal", "baritone vocal", "not specified vocal", "vibrant vocal", "boomy vocal", "varied vocal", "bouncy vocal", "range vocal", "harsh vocal", " airy vocal", "round vocal", "uplifting vocal", "soft vocal", "husky vocal", "tenor vocal", "pontificate vocal", "aggressive vocal", "neat vocal", "high vocal", "exuberant vocal", "open vocal", "full bodied vocal", "strong vocal", "grainy vocal", "vocal fry vocal", "gravelly vocal", "low vocal", "long_release vocal", "polished vocal", "velvet vocal", "placid vocal", "plastic vocal", "sharp vocal", "robust vocal", "muffled vocal", "distortion vocal", "crunchy vocal", "resonant vocal", "pure vocal", "年轻 vocal", "preenched vocal", "gruff vocal", "raspy vocal", "passionate vocal", "nonlinear_env vocal", "high pitched vocal", "athletic vocal", "reedy vocal", "shimmering vocal", "charismatic vocal", "gliding vocal", "raw vocal", "plucky vocal", "loud vocal", "youthful vocal", "thin vocal", "soulful vocal", "smooth vocal", "flat vocal", "tempo-synced vocal", "opulent vocal", "variable vocal", "happy vocal", "prettily vocal", "percussive vocal", "singing voice vocal", "barrel vocal", "breezy vocal", "vocal vocal", "honeyed vocal", "vivacious vocal", "full-bodied vocal", "persuasive vocal", "tender vocal", "potent vocal", "preppy vocal", " raspy vocal", "narrow vocal", "fruity vocal", "whiny vocal", "hollow vocal", "singing vocal", "rapping vocal", "flexible vocal", " alto vocal", "sweet vocal", "agitated vocal", "shaky vocal", "dainty vocal", "明亮 vocal", "soprano vocal", "vocal range vocal", "rough vocal", "有力 vocal", "成熟 vocal", "sultry vocal", "barren vocal", "bulky vocal", "prevalent vocal", "bellowing vocal", "dusty vocal", "elevated vocal", "wide vocal", "rumbly vocal", "shrill vocal", "prettily produced vocal", "projected vocal", "low pitched vocal", "bold vocal", "grassy vocal", "plush vocal", "glorious vocal", "elevated pitch vocal", "whispery vocal", "long vocal", "nasal vocal", "preened vocal", "squeaky vocal", "hellosing vocal", "commanding vocal", "textural vocal", "noble vocal", "frustrated vocal", "warm vocal", "punchy vocal", "pretty vocal", "changeable vocal", "mushy vocal", "vocalist vocal", "gritty vocal", "barking vocal", "human vocal", "bass heavy vocal", "dulcet vocal", " smooth vocal", "young vocal", "rhythmic vocal", "vocals vocal", "helmet vocal", "screamy vocal", "hoarse vocal", "rebellious vocal", "soothing vocal", "童声 vocal", "bitter vocal", "为了让声乐更加生动，使用了混响效果。 vocal", "barrel-shaped vocal", "reed vocal", "强有力 vocal", "低沉 vocal", "whimsical vocal", "exaggerated vocal", "温暖 vocal", "low-pitched vocal", "emotional vocal", "graceful vocal", "breakable vocal", "screechy vocal", "muddy vocal", "breathy vocal", "柔和 vocal", "weathered vocal", "roaring vocal", "青春 vocal", "pensive vocal", "textured vocal", "清脆 vocal", "melodic vocal", "helmeted vocal", " velvety vocal", "充满活力 vocal", "圆润 vocal", "preteen vocal", "rhythm vocal", "treble vocal", "shouty vocal", " husky vocal", "medium vocal", "blue vocal", "screeching vocal", "multiphonic vocal", "quaint vocal", "rhytmic vocal", "轻盈 vocal"
             ]
+            
+          # Example Cases:
+          1.
+          Inputs:
+            Diary Title: "오늘은 재즈카페에 갔다"
+            Diary Content: "감미로운 음악이 흐르고, 여성 보컬의 노래 실력도 인상깊었다."
+          Output:
+            "Jazz vocal romantic female sweet vocal"
       """)
   @UserMessage("""
           # Diary Title: {{title}}
