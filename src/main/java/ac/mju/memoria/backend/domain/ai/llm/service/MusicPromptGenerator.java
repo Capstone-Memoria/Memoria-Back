@@ -62,7 +62,7 @@ public interface MusicPromptGenerator {
             Diary Title: "오늘은 재즈카페에 갔다"
             Diary Content: "감미로운 음악이 흐르고, 여성 보컬의 노래 실력도 인상깊었다."
           Output:
-            "Jazz vocal romantic female sweet vocal"
+            "Jazz vocal romantic female sweet vocal piano guitar"
           2
             Inputs:
                 Diary Title: "좋은 날씨의 하루"
