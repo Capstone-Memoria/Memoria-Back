@@ -1,5 +1,11 @@
 package ac.mju.memoria.backend.domain.ai.service;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import ac.mju.memoria.backend.domain.ai.dto.NodeDto;
 import ac.mju.memoria.backend.domain.ai.entity.AiNode;
 import ac.mju.memoria.backend.domain.ai.entity.NodeType;
@@ -11,12 +17,9 @@ import ac.mju.memoria.backend.system.exception.model.ErrorCode;
 import ac.mju.memoria.backend.system.exception.model.RestException;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.List;
-import java.util.Optional;
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -135,5 +138,24 @@ public class AiConfigService {
   @Transactional(readOnly = true)
   public int getMusicNodePendingJobsCount() {
     return musicNodePool.getPendingJobsCount();
+  }
+
+  /**
+   * 특정 다이어리 ID와 연관된 AI 요청들을 취소합니다.
+   *
+   * @param diaryId 취소할 요청의 다이어리 ID
+   * @return 취소된 전체 요청 수
+   */
+  public int cancelAiRequestsByDiaryId(Long diaryId) {
+    int cancelledImageRequests = imageNodePool.cancelRequestsByDiaryId(diaryId);
+    int cancelledMusicRequests = musicNodePool.cancelRequestsByDiaryId(diaryId);
+
+    int totalCancelled = cancelledImageRequests + cancelledMusicRequests;
+    if (totalCancelled > 0) {
+      log.info("Cancelled {} AI requests for diary ID: {} (Image: {}, Music: {})",
+          totalCancelled, diaryId, cancelledImageRequests, cancelledMusicRequests);
+    }
+
+    return totalCancelled;
   }
 }

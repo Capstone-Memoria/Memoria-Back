@@ -58,6 +58,11 @@ public class NodePoolQueueItem<REQ, RES> {
      * 요청을 처리하는 Node 객체입니다.
      */
     private Node requestProcessor;
+    /**
+     * 연관된 다이어리 ID입니다. (선택 사항)
+     */
+    @Nullable
+    private Long diaryId;
 
     /**
      * 주어진 요청으로부터 새로운 NodePoolQueueItem을 생성합니다.
@@ -75,6 +80,27 @@ public class NodePoolQueueItem<REQ, RES> {
                 .request(request)
                 .retryCountDown(1)
                 .response(new CompletableFuture<>())
+                .build();
+    }
+
+    /**
+     * 주어진 요청과 다이어리 ID로부터 새로운 NodePoolQueueItem을 생성합니다.
+     * UUID, 현재 타임스탬프, 기본 재시도 횟수(1), 새로운 CompletableFuture로 초기화됩니다.
+     *
+     * @param request 생성할 요청 객체
+     * @param diaryId 연관된 다이어리 ID
+     * @param <REQ>   요청 객체의 타입
+     * @param <RES>   응답 객체의 타입
+     * @return 생성된 NodePoolQueueItem 객체
+     */
+    public static <REQ, RES> NodePoolQueueItem<REQ, RES> from(REQ request, Long diaryId) {
+        return NodePoolQueueItem.<REQ, RES>builder()
+                .uuid(UUID.randomUUID())
+                .timestamp(LocalDateTime.now())
+                .request(request)
+                .retryCountDown(1)
+                .response(new CompletableFuture<>())
+                .diaryId(diaryId)
                 .build();
     }
 }

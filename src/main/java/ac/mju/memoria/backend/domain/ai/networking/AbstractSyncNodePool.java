@@ -90,6 +90,37 @@ public abstract class AbstractSyncNodePool<REQ, RES> implements NodePool<REQ, RE
     }
 
     /**
+     * 특정 다이어리 ID와 연관된 대기 중인 요청을 취소합니다.
+     *
+     * @param diaryId 취소할 요청의 다이어리 ID
+     * @return 취소된 요청의 수
+     */
+    public int cancelRequestsByDiaryId(Long diaryId) {
+        if (diaryId == null) {
+            return 0;
+        }
+
+        List<NodePoolQueueItem<REQ, RES>> itemsToCancel = new ArrayList<>();
+
+        // 큐에서 해당 diaryId를 가진 요청들을 찾아서 제거
+        requestQueue.removeIf(item -> {
+            if (diaryId.equals(item.getDiaryId())) {
+                itemsToCancel.add(item);
+                return true;
+            }
+            return false;
+        });
+
+        // 취소된 요청들의 Future를 cancel
+        itemsToCancel.forEach(item -> {
+            item.getResponse().cancel(true);
+            log.info("Cancelled image generation request for diary ID: {}", diaryId);
+        });
+
+        return itemsToCancel.size();
+    }
+
+    /**
      * 요청을 제출하고 즉시 Future를 반환합니다.
      * 요청은 큐에 추가되어 순차적으로 처리됩니다.
      *
@@ -122,6 +153,25 @@ public abstract class AbstractSyncNodePool<REQ, RES> implements NodePool<REQ, RE
         }
 
         NodePoolQueueItem<REQ, RES> toQueue = NodePoolQueueItem.from(request);
+        toQueue.setResponseHandler(responseHandler);
+        requestQueue.add(toQueue);
+    }
+
+    /**
+     * 다이어리 ID와 함께 요청을 제출하고, 응답이 도착하면 제공된 핸들러를 통해 처리합니다.
+     * 요청은 큐에 추가되어 순차적으로 처리됩니다.
+     *
+     * @param request         제출할 요청
+     * @param diaryId         연관된 다이어리 ID
+     * @param responseHandler 응답을 처리할 핸들러
+     */
+    public void submitRequestWithDiaryId(REQ request, Long diaryId, ResponseHandler<RES> responseHandler) {
+        if (nodes.isEmpty()) {
+            log.error("No available nodes to process the request");
+            return;
+        }
+
+        NodePoolQueueItem<REQ, RES> toQueue = NodePoolQueueItem.from(request, diaryId);
         toQueue.setResponseHandler(responseHandler);
         requestQueue.add(toQueue);
     }

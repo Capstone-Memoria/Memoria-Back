@@ -1,5 +1,18 @@
 package ac.mju.memoria.backend.domain.ai.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.Base64;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.Future;
+
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
+
 import ac.mju.memoria.backend.domain.ai.dto.ImageDto;
 import ac.mju.memoria.backend.domain.ai.llm.model.StableDiffusionPrompts;
 import ac.mju.memoria.backend.domain.ai.llm.service.PromptGenerator;
@@ -12,22 +25,9 @@ import ac.mju.memoria.backend.domain.file.handler.FileSystemHandler;
 import ac.mju.memoria.backend.domain.file.repository.ImageRepository;
 import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
 import dev.langchain4j.service.AiServices;
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
-import org.springframework.transaction.support.TransactionTemplate;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.Base64;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.Future;
 
 @Slf4j
 @Service
@@ -44,7 +44,8 @@ public class ImageCreateService {
     @Async
     public void requestGenerateImageFrom(Diary diary) {
         ImageDto.InternalCreateRequest req = buildChatRequest(diary);
-        imageNodePool.submitRequest(req, (response) -> handleDiaryCoverCreated(diary.getId(), response));
+        imageNodePool.submitRequestWithDiaryId(req, diary.getId(),
+                (response) -> handleDiaryCoverCreated(diary.getId(), response));
     }
 
     public void handleDiaryCoverCreated(Long diaryId, String imageData) {

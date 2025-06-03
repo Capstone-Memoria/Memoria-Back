@@ -44,7 +44,8 @@ public class MusicCreateService {
         MusicDto.CreateRequest createRequest = MusicDto.CreateRequest.of(
                 genre,
                 lyrics.getLyrics());
-        musicNodePool.submitRequest(createRequest, (data) -> handleOnMusicCreated(diary.getId(), data));
+        musicNodePool.submitRequestWithDiaryId(createRequest, diary.getId(),
+                (data) -> handleOnMusicCreated(diary.getId(), data));
     }
 
     @SneakyThrows

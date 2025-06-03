@@ -3,6 +3,7 @@ package ac.mju.memoria.backend.domain.ai.networking.music;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
@@ -29,7 +30,11 @@ import okhttp3.RequestBody;
 @Component
 @RequiredArgsConstructor
 public class MusicNodePool extends AbstractAsyncNodePool<MusicDto.CreateRequest, byte[]> {
-    private final OkHttpClient client = new OkHttpClient();
+    private final OkHttpClient client = new OkHttpClient.Builder()
+            .readTimeout(60, TimeUnit.SECONDS)
+            .connectTimeout(60, TimeUnit.SECONDS)
+            .writeTimeout(60, TimeUnit.SECONDS)
+            .build();
     private final MusicSseWatcher sseWatcher;
     private final ObjectMapper objectMapper;
 

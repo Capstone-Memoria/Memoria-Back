@@ -1,12 +1,19 @@
 package ac.mju.memoria.backend.domain.ai.networking;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
-
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.concurrent.*;
 
 /**
  * 비동기 요청을 처리하는 노드 풀의 추상 클래스입니다.
@@ -100,6 +107,57 @@ public abstract class AbstractAsyncNodePool<REQ, RES> implements NodePool<REQ, R
     }
 
     /**
+     * 특정 다이어리 ID와 연관된 대기 중인 요청과 처리 중인 작업을 취소합니다.
+     *
+     * @param diaryId 취소할 요청의 다이어리 ID
+     * @return 취소된 요청의 수
+     */
+    public int cancelRequestsByDiaryId(Long diaryId) {
+        if (diaryId == null) {
+            return 0;
+        }
+
+        List<NodePoolQueueItem<REQ, RES>> itemsToCancel = new ArrayList<>();
+        int cancelledCount = 0;
+
+        // 대기 중인 요청 큐에서 해당 diaryId를 가진 요청들을 찾아서 제거
+        requestQueue.removeIf(item -> {
+            if (diaryId.equals(item.getDiaryId())) {
+                itemsToCancel.add(item);
+                return true;
+            }
+            return false;
+        });
+
+        // 처리 중인 작업에서 해당 diaryId를 가진 작업들을 찾아서 제거
+        List<String> jobIdsToCancel = new ArrayList<>();
+        pendingJobs.entrySet().removeIf(entry -> {
+            if (diaryId.equals(entry.getValue().getDiaryId())) {
+                jobIdsToCancel.add(entry.getKey());
+                itemsToCancel.add(entry.getValue());
+                return true;
+            }
+            return false;
+        });
+
+        // 취소된 요청들의 Future를 cancel
+        itemsToCancel.forEach(item -> {
+            item.getResponse().cancel(true);
+            if (item.getRequestProcessor() != null) {
+                item.getRequestProcessor().setAvailable(true);
+            }
+        });
+
+        cancelledCount = itemsToCancel.size();
+
+        if (cancelledCount > 0) {
+            log.info("Cancelled {} music generation requests for diary ID: {}", cancelledCount, diaryId);
+        }
+
+        return cancelledCount;
+    }
+
+    /**
      * 요청을 제출하고 즉시 Future를 반환합니다.
      * 응답은 Future를 통해 비동기적으로 받을 수 있습니다.
      *
@@ -130,6 +188,24 @@ public abstract class AbstractAsyncNodePool<REQ, RES> implements NodePool<REQ, R
         }
 
         NodePoolQueueItem<REQ, RES> toQueue = NodePoolQueueItem.from(request);
+        toQueue.setResponseHandler(responseHandler);
+        requestQueue.add(toQueue);
+    }
+
+    /**
+     * 다이어리 ID와 함께 요청을 제출하고, 응답이 도착하면 제공된 핸들러를 통해 처리합니다.
+     *
+     * @param request         제출할 요청
+     * @param diaryId         연관된 다이어리 ID
+     * @param responseHandler 응답을 처리할 핸들러
+     */
+    public void submitRequestWithDiaryId(REQ request, Long diaryId, ResponseHandler<RES> responseHandler) {
+        if (nodes.isEmpty()) {
+            log.error("No available nodes to process the request");
+            return;
+        }
+
+        NodePoolQueueItem<REQ, RES> toQueue = NodePoolQueueItem.from(request, diaryId);
         toQueue.setResponseHandler(responseHandler);
         requestQueue.add(toQueue);
     }

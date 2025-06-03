@@ -17,6 +17,7 @@ import ac.mju.memoria.backend.domain.diary.dto.DiaryDto;
 import ac.mju.memoria.backend.domain.diary.entity.Diary;
 import ac.mju.memoria.backend.domain.diary.event.AiCommentNeededEvent;
 import ac.mju.memoria.backend.domain.diary.event.DiaryCreatedEvent;
+import ac.mju.memoria.backend.domain.diary.event.DiaryDeletedEvent;
 import ac.mju.memoria.backend.domain.diary.repository.DiaryRepository;
 import ac.mju.memoria.backend.domain.diarybook.entity.DiaryBook;
 import ac.mju.memoria.backend.domain.diarybook.repository.DiaryBookRepository;
@@ -192,6 +193,7 @@ public class DiaryService {
         }
 
         diaryRepository.delete(diary);
+        eventPublisher.publishEvent(new DiaryDeletedEvent(this, diaryId));
         eventPublisher.publishEvent(new DiaryCreatedEvent(this, diaryBookId));
     }
 
