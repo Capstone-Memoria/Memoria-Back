@@ -305,4 +305,97 @@ public abstract class AbstractAsyncNodePool<REQ, RES> implements NodePool<REQ, R
         processingNode.setAvailable(true);
         pendingJobs.remove(jobId);
     }
+
+    /**
+     * 현재 요청 큐에 있는 모든 아이템을 반환합니다.
+     * 
+     * @return 현재 요청 큐의 모든 아이템 목록
+     */
+    protected List<NodePoolQueueItem<REQ, RES>> getRequestQueueItems() {
+        return new ArrayList<>(requestQueue);
+    }
+
+    /**
+     * 현재 처리 중인 모든 작업을 반환합니다.
+     * 
+     * @return 현재 처리 중인 모든 작업 목록
+     */
+    protected List<NodePoolQueueItem<REQ, RES>> getPendingJobItems() {
+        return new ArrayList<>(pendingJobs.values());
+    }
+
+    /**
+     * UUID로 요청 큐에서 특정 아이템을 제거합니다.
+     * 
+     * @param uuid 제거할 아이템의 UUID
+     * @return 제거 성공 여부
+     */
+    protected boolean removeQueueItemByUuid(java.util.UUID uuid) {
+        return requestQueue.removeIf(item -> uuid.equals(item.getUuid()));
+    }
+
+    /**
+     * UUID로 처리 중인 작업에서 특정 아이템을 제거합니다.
+     * 
+     * @param uuid 제거할 아이템의 UUID
+     * @return 제거 성공 여부
+     */
+    protected boolean removePendingJobByUuid(java.util.UUID uuid) {
+        String jobIdToRemove = null;
+        for (Map.Entry<String, NodePoolQueueItem<REQ, RES>> entry : pendingJobs.entrySet()) {
+            if (uuid.equals(entry.getValue().getUuid())) {
+                jobIdToRemove = entry.getKey();
+                break;
+            }
+        }
+
+        if (jobIdToRemove != null) {
+            NodePoolQueueItem<REQ, RES> removedItem = pendingJobs.remove(jobIdToRemove);
+            if (removedItem != null) {
+                removedItem.getResponse().cancel(true);
+                if (removedItem.getRequestProcessor() != null) {
+                    removedItem.getRequestProcessor().setAvailable(true);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 요청 큐에서 특정 아이템의 순서를 변경합니다.
+     * 
+     * @param uuid        이동할 아이템의 UUID
+     * @param newPosition 새로운 위치 (0부터 시작)
+     * @return 순서 변경 성공 여부
+     */
+    protected boolean reorderQueueItem(java.util.UUID uuid, int newPosition) {
+        List<NodePoolQueueItem<REQ, RES>> queueList = new ArrayList<>(requestQueue);
+
+        // 해당 UUID를 가진 아이템 찾기
+        NodePoolQueueItem<REQ, RES> itemToMove = null;
+        int currentIndex = -1;
+
+        for (int i = 0; i < queueList.size(); i++) {
+            if (uuid.equals(queueList.get(i).getUuid())) {
+                itemToMove = queueList.get(i);
+                currentIndex = i;
+                break;
+            }
+        }
+
+        if (itemToMove == null || newPosition < 0 || newPosition >= queueList.size()) {
+            return false;
+        }
+
+        // 아이템 이동
+        queueList.remove(currentIndex);
+        queueList.add(newPosition, itemToMove);
+
+        // 큐 재구성
+        requestQueue.clear();
+        requestQueue.addAll(queueList);
+
+        return true;
+    }
 }

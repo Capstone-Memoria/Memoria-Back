@@ -2,11 +2,13 @@ package ac.mju.memoria.backend.domain.ai.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import ac.mju.memoria.backend.domain.ai.dto.NodeDto;
+import ac.mju.memoria.backend.domain.ai.dto.QueueDto;
 import ac.mju.memoria.backend.domain.ai.entity.AiNode;
 import ac.mju.memoria.backend.domain.ai.entity.NodeType;
 import ac.mju.memoria.backend.domain.ai.networking.DBNode;
@@ -157,5 +159,48 @@ public class AiConfigService {
     }
 
     return totalCancelled;
+  }
+
+  /**
+   * 뮤직 노드 풀의 큐 상태를 조회합니다.
+   * 
+   * @return 큐 상태 정보
+   */
+  @Transactional(readOnly = true)
+  public QueueDto.QueueListResponse getMusicQueueStatus() {
+    return musicNodePool.getQueueStatus();
+  }
+
+  /**
+   * 뮤직 큐 아이템의 순서를 변경합니다.
+   * 
+   * @param uuid        이동할 아이템의 UUID
+   * @param newPosition 새로운 위치
+   * @return 순서 변경 성공 여부
+   */
+  public boolean reorderMusicQueueItem(UUID uuid, int newPosition) {
+    boolean result = musicNodePool.reorderQueueItem(uuid, newPosition);
+    if (result) {
+      log.info("Successfully reordered music queue item {} to position {}", uuid, newPosition);
+    } else {
+      log.warn("Failed to reorder music queue item {} to position {}", uuid, newPosition);
+    }
+    return result;
+  }
+
+  /**
+   * 뮤직 큐에서 특정 아이템을 삭제합니다.
+   * 
+   * @param uuid 삭제할 아이템의 UUID
+   * @return 삭제 성공 여부
+   */
+  public boolean deleteMusicQueueItem(UUID uuid) {
+    boolean result = musicNodePool.deleteQueueItem(uuid);
+    if (result) {
+      log.info("Successfully deleted music queue item {}", uuid);
+    } else {
+      log.warn("Failed to delete music queue item {}", uuid);
+    }
+    return result;
   }
 }
