@@ -5,8 +5,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,6 +17,7 @@ import ac.mju.memoria.backend.domain.ai.dto.MusicSseResponse;
 import ac.mju.memoria.backend.domain.ai.networking.AbstractAsyncNodePool;
 import ac.mju.memoria.backend.domain.ai.networking.DBNode;
 import ac.mju.memoria.backend.domain.ai.networking.Node;
+import jakarta.annotation.PostConstruct;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -34,6 +35,9 @@ public class MusicNodePool extends AbstractAsyncNodePool<MusicDto.CreateRequest,
             .readTimeout(60, TimeUnit.SECONDS)
             .connectTimeout(60, TimeUnit.SECONDS)
             .writeTimeout(60, TimeUnit.SECONDS)
+            .build();
+    private final WebClient webClient = WebClient.builder()
+            .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(50 * 1024 * 1024)) // 50MB
             .build();
     private final MusicSseWatcher sseWatcher;
     private final ObjectMapper objectMapper;
@@ -99,16 +103,12 @@ public class MusicNodePool extends AbstractAsyncNodePool<MusicDto.CreateRequest,
 
     @Override
     protected byte[] fetchJobResult(String jobId, Node node) {
-        Request request = new Request.Builder()
-                .url(node.getURL() + "/music/download/" + jobId)
-                .build();
-        try (okhttp3.Response response = client.newCall(request).execute()) {
-            if (!response.isSuccessful()) {
-                log.error("Failed to fetch job result: {}", response.code());
-                throw new RuntimeException("Failed to fetch music result: " + response.message());
-            }
-
-            return Objects.requireNonNull(response.body()).bytes();
+        try {
+            return webClient.get()
+                    .uri(node.getURL() + "/music/download/" + jobId)
+                    .retrieve()
+                    .bodyToMono(byte[].class)
+                    .block();
         } catch (Exception e) {
             log.error("Error fetching job result for jobId {}: {}", jobId, e.getMessage(), e);
             throw new RuntimeException("Error fetching music result: " + e.getMessage(), e);
