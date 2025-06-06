@@ -16,8 +16,3 @@ spring:
     properties: # property 사용 설정
       hibernate: # hibernate property 설정
         format_sql: true
-
-ai:
-  image-nodes:
-    - url: http://87.197.127.62:41027
-  music-nodes:

@@ -19,9 +19,3 @@ logging:
   level:
     org.hibernate.SQL: off
     org.hibernate.type: off # 실제 들어가는 파라미터값 찍어주는 설정
-
-ai:
-  image-nodes:
-    - url: http://87.197.127.62:40152
-  music-nodes:
-    - url: http://194.14.47.19:27820
