@@ -32,6 +32,12 @@ Memoria의 핵심 기술은 **외부 AI 생성 서버(Node)를 효율적으로 �
 #### 주요 특징
 
 ```mermaid
+%%{init: {'theme':'base', 'themeVariables': {
+  'primaryColor':'#ffffff',
+  'primaryBorderColor':'#57606a',
+  'lineColor':'#0969da',
+  'fontSize':'16px'
+}}}%%
 flowchart TB
     Client[클라이언트 요청]
 
@@ -152,6 +158,12 @@ public abstract class AbstractAsyncNodePool<REQ, RES> implements NodePool<REQ, R
 ## 🏛️ 시스템 아키텍처
 
 ```mermaid
+%%{init: {'theme':'base', 'themeVariables': {
+  'primaryColor':'#ffffff',
+  'primaryBorderColor':'#57606a',
+  'lineColor':'#0969da',
+  'fontSize':'16px'
+}}}%%
 graph TB
     subgraph Client["👤 클라이언트"]
         User[사용자]
