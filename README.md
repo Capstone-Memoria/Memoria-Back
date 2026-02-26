@@ -63,12 +63,20 @@ flowchart TB
     Node2 -.->|"3. SSE 스트리밍"| Client
     Node3 -.->|"3. SSE 스트리밍"| Client
 
-    style NodePool fill:#e1f5ff,stroke:#0277bd,stroke-width:2px
-    style Queue fill:#fff9c4,stroke:#f57f17,stroke-width:2px
-    style Pending fill:#ffecb3,stroke:#ef6c00,stroke-width:2px
-    style LoadBalancer fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px
-    style SpringBoot fill:#f5f5f5,stroke:#424242,stroke-width:3px
-    style AINodes fill:#f3e5f5,stroke:#6a1b9a,stroke-width:3px
+    %% Subgraph 스타일
+    style SpringBoot fill:#eaeef2,stroke:#1f2328,stroke-width:4px,color:#1f2328
+    style NodePool fill:#b6e3ff,stroke:#0969da,stroke-width:3px,color:#0969da
+    style AINodes fill:#f6d8ff,stroke:#8250df,stroke-width:4px,color:#8250df
+
+    %% 개별 노드 스타일 (밝은 배경 + 어두운 글자)
+    style Client fill:#ffffff,stroke:#57606a,stroke-width:2px,color:#1f2328
+    style Queue fill:#fff8c5,stroke:#bf8700,stroke-width:2px,color:#1f2328
+    style Pending fill:#ffeed0,stroke:#dd7815,stroke-width:2px,color:#1f2328
+    style LoadBalancer fill:#dafbe1,stroke:#1a7f37,stroke-width:2px,color:#1f2328
+    style Node1 fill:#ffffff,stroke:#8250df,stroke-width:2px,color:#1f2328
+    style Node2 fill:#ffffff,stroke:#8250df,stroke-width:2px,color:#1f2328
+    style Node3 fill:#ffffff,stroke:#8250df,stroke-width:2px,color:#1f2328
+    style NodeN fill:#ffffff,stroke:#8250df,stroke-width:2px,color:#1f2328
 ```
 
 #### 구현 기술
@@ -186,11 +194,28 @@ graph TB
     Domains --> PostgreSQL
     AISystem -.SSE 스트리밍.-> API
 
-    style Backend fill:#e3f2fd,stroke:#1976d2,stroke-width:3px
-    style AISystem fill:#fff9c4,stroke:#f57f17,stroke-width:2px
-    style External fill:#f3e5f5,stroke:#7b1fa2,stroke-width:3px
-    style Database fill:#e8f5e9,stroke:#388e3c,stroke-width:3px
-    style Domains fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+    %% Subgraph 스타일 (진한 배경 + 진한 글자)
+    style Backend fill:#b6e3ff,stroke:#0969da,stroke-width:4px,color:#0969da
+    style AISystem fill:#ffe8a5,stroke:#bf8700,stroke-width:3px,color:#7d5a00
+    style External fill:#f6d8ff,stroke:#8250df,stroke-width:4px,color:#8250df
+    style Database fill:#aceebb,stroke:#1a7f37,stroke-width:4px,color:#1a7f37
+    style Domains fill:#ffd8eb,stroke:#bf3989,stroke-width:3px,color:#bf3989
+    style Client fill:#f6f8fa,stroke:#57606a,stroke-width:3px,color:#1f2328
+
+    %% 개별 노드 스타일 (밝은 배경 + 어두운 글자)
+    style User fill:#ffffff,stroke:#57606a,stroke-width:2px,color:#1f2328
+    style API fill:#ffffff,stroke:#0969da,stroke-width:2px,color:#1f2328
+    style Auth fill:#ffffff,stroke:#0969da,stroke-width:2px,color:#1f2328
+    style Diary fill:#ffffff,stroke:#bf3989,stroke-width:2px,color:#1f2328
+    style AIService fill:#ffffff,stroke:#bf3989,stroke-width:2px,color:#1f2328
+    style UserDomain fill:#ffffff,stroke:#bf3989,stroke-width:2px,color:#1f2328
+    style Noti fill:#ffffff,stroke:#bf3989,stroke-width:2px,color:#1f2328
+    style LangChain fill:#ffffff,stroke:#bf8700,stroke-width:2px,color:#1f2328
+    style NodePool fill:#ffffff,stroke:#bf8700,stroke-width:2px,color:#1f2328
+    style Gemini fill:#ffffff,stroke:#8250df,stroke-width:2px,color:#1f2328
+    style MusicNode fill:#ffffff,stroke:#8250df,stroke-width:2px,color:#1f2328
+    style ImageNode fill:#ffffff,stroke:#8250df,stroke-width:2px,color:#1f2328
+    style PostgreSQL fill:#ffffff,stroke:#1a7f37,stroke-width:2px,color:#1f2328
 ```
 
 ## 📦 프로젝트 구조
