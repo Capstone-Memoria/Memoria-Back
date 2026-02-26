@@ -39,50 +39,69 @@ Memoria의 핵심 기술은 **외부 AI 생성 서버(Node)를 효율적으로 �
   'fontSize':'16px'
 }}}%%
 flowchart TB
-    Client[클라이언트 요청]
+    Client[클라이언트]
 
     subgraph SpringBoot["🚀 API Server (Spring Boot)"]
-        subgraph NodePool["NodePool (비동기 요청 관리)"]
-            Queue["📋 Request Queue<br/>(대기 중)"]
-            Pending["⏳ Pending Jobs<br/>(처리 중)"]
-            LoadBalancer["⚖️ Load Balancer<br/>(가용 노드 탐색)"]
+        API["Diary/Image API"]
 
-            Queue --> LoadBalancer
-            LoadBalancer --> Pending
+        subgraph MusicPool["🎵 MusicNodePool (Async)"]
+            MQueue["📋 Request Queue"]
+            MPending["⏳ Pending Jobs"]
+            MBalancer["⚖️ Available Node 선택"]
+            MWatcher["👀 MusicSseWatcher<br/>(/events 구독)"]
         end
+
+        subgraph ImagePool["🎨 ImageNodePool (Sync)"]
+            IQueue["📋 Request Queue"]
+            IBalancer["⚖️ Available Node 선택"]
+        end
+
+        SaveMusic["💾 MusicFile 저장"]
+        SaveImage["💾 Image 저장"]
     end
 
     subgraph AINodes["🤖 외부 AI 생성 서버"]
         Node1["🎵 Music Node 1<br/>(Python/GPU)"]
         Node2["🎵 Music Node 2<br/>(Python/GPU)"]
         Node3["🎨 Image Node<br/>(Python/GPU)"]
-        NodeN["... Node N"]
     end
 
-    Client -->|"1. 요청 제출"| Queue
-    LoadBalancer -->|"2. 가용 노드 할당"| Node1
-    LoadBalancer --> Node2
-    LoadBalancer --> Node3
-    LoadBalancer --> NodeN
+    Client -->|POST /api/diary-book/:id/diary| API
+    Client -->|POST /api/ai/cover-image| API
 
-    Node1 -.->|"3. SSE 스트리밍"| Client
-    Node2 -.->|"3. SSE 스트리밍"| Client
-    Node3 -.->|"3. SSE 스트리밍"| Client
+    API -->|음악 생성 요청| MQueue
+    MQueue --> MBalancer --> MPending
+    MPending -->|POST /generate-music-async/| Node1
+    MPending -->|POST /generate-music-async/| Node2
+    Node1 -.->|SSE /events 내부구독| MWatcher
+    Node2 -.->|SSE /events 내부구독| MWatcher
+    MWatcher -->|GET /music/download/:jobId| Node1
+    MWatcher -->|완료 콜백| SaveMusic
+
+    API -->|이미지 생성 요청| IQueue
+    IQueue --> IBalancer -->|POST /generate| Node3
+    Node3 -->|Base64 이미지| SaveImage
 
     %% Subgraph 스타일
     style SpringBoot fill:#eaeef2,stroke:#1f2328,stroke-width:4px,color:#1f2328
-    style NodePool fill:#b6e3ff,stroke:#0969da,stroke-width:3px,color:#0969da
+    style MusicPool fill:#b6e3ff,stroke:#0969da,stroke-width:3px,color:#0969da
+    style ImagePool fill:#b6e3ff,stroke:#0969da,stroke-width:3px,color:#0969da
     style AINodes fill:#f6d8ff,stroke:#8250df,stroke-width:4px,color:#8250df
 
     %% 개별 노드 스타일 (밝은 배경 + 어두운 글자)
     style Client fill:#ffffff,stroke:#57606a,stroke-width:2px,color:#1f2328
-    style Queue fill:#fff8c5,stroke:#bf8700,stroke-width:2px,color:#1f2328
-    style Pending fill:#ffeed0,stroke:#dd7815,stroke-width:2px,color:#1f2328
-    style LoadBalancer fill:#dafbe1,stroke:#1a7f37,stroke-width:2px,color:#1f2328
+    style API fill:#ffffff,stroke:#57606a,stroke-width:2px,color:#1f2328
+    style MQueue fill:#fff8c5,stroke:#bf8700,stroke-width:2px,color:#1f2328
+    style MPending fill:#ffeed0,stroke:#dd7815,stroke-width:2px,color:#1f2328
+    style MBalancer fill:#dafbe1,stroke:#1a7f37,stroke-width:2px,color:#1f2328
+    style MWatcher fill:#e7f5ff,stroke:#0969da,stroke-width:2px,color:#1f2328
+    style IQueue fill:#fff8c5,stroke:#bf8700,stroke-width:2px,color:#1f2328
+    style IBalancer fill:#dafbe1,stroke:#1a7f37,stroke-width:2px,color:#1f2328
+    style SaveMusic fill:#ffffff,stroke:#57606a,stroke-width:2px,color:#1f2328
+    style SaveImage fill:#ffffff,stroke:#57606a,stroke-width:2px,color:#1f2328
     style Node1 fill:#ffffff,stroke:#8250df,stroke-width:2px,color:#1f2328
     style Node2 fill:#ffffff,stroke:#8250df,stroke-width:2px,color:#1f2328
     style Node3 fill:#ffffff,stroke:#8250df,stroke-width:2px,color:#1f2328
-    style NodeN fill:#ffffff,stroke:#8250df,stroke-width:2px,color:#1f2328
 ```
 
 #### 구현 기술
@@ -170,7 +189,7 @@ graph TB
     end
 
     subgraph Backend["🚀 백엔드 (Spring Boot)"]
-        API[REST API<br/>& SSE]
+        API[REST API]
         Auth[🔐 JWT 인증]
 
         subgraph Domains["도메인 레이어"]
@@ -178,33 +197,42 @@ graph TB
             AIService[🤖 AI 기능]
             UserDomain[👥 사용자]
             Noti[🔔 알림]
+            Invitation[📨 초대]
+            DiaryBook[📚 다이어리북]
         end
 
         subgraph AISystem["AI 처리 시스템"]
             LangChain[LangChain4j<br/>+ Gemini]
-            NodePool[NodePool<br/>스케줄러]
+            MusicNodePool[MusicNodePool<br/>Async + SSE Watcher]
+            ImageNodePool[ImageNodePool<br/>Sync Queue]
         end
+
+        EventBus[Spring Events]
+        SseApi[SSE API<br/>/api/notification/subscribe]
     end
 
     subgraph External["☁️ 외부 서비스"]
         Gemini[Google Gemini API<br/>댓글 생성]
-        MusicNode[Music Generation<br/>서버 Python]
-        ImageNode[Image Generation<br/>서버 Python]
+        MusicNode[Music Generation 서버<br/>/generate-music-async + /events]
+        ImageNode[Image Generation 서버<br/>/generate]
     end
 
     subgraph Database["💾 데이터베이스"]
         PostgreSQL[(PostgreSQL)]
     end
 
-    User -->|HTTP/SSE| API
+    User -->|HTTP| API
     API --> Auth
     API --> Domains
     Domains --> AISystem
     AISystem -->|API Call| Gemini
-    NodePool -->|HTTP| MusicNode
-    NodePool -->|HTTP| ImageNode
+    MusicNodePool <-->|HTTP + SSE events| MusicNode
+    ImageNodePool -->|HTTP| ImageNode
     Domains --> PostgreSQL
-    AISystem -.SSE 스트리밍.-> API
+    Domains -->|도메인 이벤트 발행| EventBus
+    EventBus --> Noti
+    Noti --> SseApi
+    SseApi -->|SSE| User
 
     %% Subgraph 스타일 (진한 배경 + 진한 글자)
     style Backend fill:#b6e3ff,stroke:#0969da,stroke-width:4px,color:#0969da
@@ -222,8 +250,13 @@ graph TB
     style AIService fill:#ffffff,stroke:#bf3989,stroke-width:2px,color:#1f2328
     style UserDomain fill:#ffffff,stroke:#bf3989,stroke-width:2px,color:#1f2328
     style Noti fill:#ffffff,stroke:#bf3989,stroke-width:2px,color:#1f2328
+    style Invitation fill:#ffffff,stroke:#bf3989,stroke-width:2px,color:#1f2328
+    style DiaryBook fill:#ffffff,stroke:#bf3989,stroke-width:2px,color:#1f2328
     style LangChain fill:#ffffff,stroke:#bf8700,stroke-width:2px,color:#1f2328
-    style NodePool fill:#ffffff,stroke:#bf8700,stroke-width:2px,color:#1f2328
+    style MusicNodePool fill:#ffffff,stroke:#bf8700,stroke-width:2px,color:#1f2328
+    style ImageNodePool fill:#ffffff,stroke:#bf8700,stroke-width:2px,color:#1f2328
+    style EventBus fill:#ffffff,stroke:#0969da,stroke-width:2px,color:#1f2328
+    style SseApi fill:#ffffff,stroke:#0969da,stroke-width:2px,color:#1f2328
     style Gemini fill:#ffffff,stroke:#8250df,stroke-width:2px,color:#1f2328
     style MusicNode fill:#ffffff,stroke:#8250df,stroke-width:2px,color:#1f2328
     style ImageNode fill:#ffffff,stroke:#8250df,stroke-width:2px,color:#1f2328
